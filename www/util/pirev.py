@@ -152,6 +152,34 @@ def decode_new_style_code(code):
     return rev_info
 
 
+def generic_rev_info():
+    # Build a revision-info profile for a non-Pi platform (generic x86/other SBC)
+    # using standard /proc files so System info has meaningful values.
+    try:
+        with open("/proc/cpuinfo") as f:
+            cpuinfo = f.read()
+        proc = next((l.split(":", 1)[1].strip() for l in cpuinfo.splitlines()
+                     if l.startswith("model name") or l.startswith("Model")), "Unknown")
+    except OSError:
+        proc = "Unknown"
+    try:
+        with open("/proc/meminfo") as f:
+            kb = int(next(l for l in f if l.startswith("MemTotal")).split()[1])
+        mem = "%dMB" % round(kb / 1024)
+    except (OSError, StopIteration, ValueError):
+        mem = "?GB"
+
+    return {
+        "type": "PC",
+        "rev": "1.0",
+        "mem": mem,
+        "man": "Generic",
+        "proc": proc,
+        "num": "0",
+        "dsi": "0"
+    }
+
+
 def main():
     parser = argparse.ArgumentParser(description='Print Pi revision code information. If [code] is not present then the code for this Pi is used.')
     parser.add_argument('-t', '--type', action='store_true', help='Print model type')
@@ -171,14 +199,23 @@ def main():
 
     if args.code:
         code = int(args.code if "0x" == args.code[:2] else "0x" + args.code, 16)
+        rev_info = decode_new_style_code(code)
     else:
         # NOTE: In otp_dump the Pi5 revcode is on line 32 while < Pi5 is on line 30.
         #cmd = "vcgencmd otp_dump | awk -F: '/^30:/{print substr($2,3)}'"
         # Alternate command for obtaining the revision code.
         cmd = "cat /proc/cpuinfo | awk -F': ' '/Revision/ {print $2}'"
-        code = int("0x" + subprocess.run(cmd, shell=True, text=True, capture_output=True).stdout.rstrip(), 16)
-
-    rev_info = decode_new_style_code(code)
+        revcode = subprocess.run(cmd, shell=True, text=True, capture_output=True).stdout.rstrip()
+        if revcode == "":
+            # Not a Raspberry Pi (generic x86/other platform): no Revision line in
+            # /proc/cpuinfo. Emit a synthetic profile so callers don't crash. Model
+            # number 0 keeps the platform out of Pi-specific code paths, which are
+            # additionally guarded by isPi() on the PHP side.
+            code = 0
+            rev_info = generic_rev_info()
+        else:
+            code = int("0x" + revcode, 16)
+            rev_info = decode_new_style_code(code)
 
     info_text = ''
     if args.rcode or args.all or args.code:

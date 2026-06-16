@@ -400,6 +400,10 @@ sysCmd('rm /tmp/backup.zip /tmp/moodecfg.ini /tmp/restore.zip /tmp/py.log /tmp/s
 
 // SOFTWARE UPDATE
 
+// The in-place updater pulls moOde releases from the Pi's package repo, which has
+// no x86 equivalent - hide the whole section off the Pi until an updatable source
+// for this platform exists.
+$_swupdate_hide = isPi() ? '' : 'hide';
 $_this_mooderel = getMoodeRel('verbose');
 $autoClick = " onchange=\"autoClick('#btn-set-updater-auto-check');\"";
 $_select['updater_auto_check_on']  .= "<input type=\"radio\" name=\"updater_auto_check\" id=\"toggle-updater-auto-check-1\" value=\"On\" " . (($_SESSION['updater_auto_check'] == 'On') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
@@ -430,8 +434,24 @@ if ($_SESSION['pi_modelnum'] >= 5) {
 // Performance
 $_select['worker_responsiveness'] .= "<option value=\"Default\" " . (($_SESSION['worker_responsiveness'] == 'Default') ? "selected" : "") . ">Default</option>\n";
 $_select['worker_responsiveness'] .= "<option value=\"Boosted\" " . (($_SESSION['worker_responsiveness'] == 'Boosted') ? "selected" : "") . ">Boosted</option>\n";
-$_select['cpugov'] .= "<option value=\"ondemand\" " . (($_SESSION['cpugov'] == 'ondemand') ? "selected" : "") . ">On-demand</option>\n";
-$_select['cpugov'] .= "<option value=\"performance\" " . (($_SESSION['cpugov'] == 'performance') ? "selected" : "") . ">Performance</option>\n";
+if (isPi()) {
+	$_select['cpugov'] .= "<option value=\"ondemand\" " . (($_SESSION['cpugov'] == 'ondemand') ? "selected" : "") . ">On-demand</option>\n";
+	$_select['cpugov'] .= "<option value=\"performance\" " . (($_SESSION['cpugov'] == 'performance') ? "selected" : "") . ">Performance</option>\n";
+} else {
+	// Non-Pi (x86/Armbian): the available governors depend on the cpufreq driver
+	// (intel_cpufreq exposes performance/schedutil, intel_pstate active exposes
+	// performance/powersave, generic cpufreq exposes ondemand/conservative/...).
+	// Populate the list from the kernel so we never offer a governor tee would reject.
+	$availGovs = trim(@file_get_contents('/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors'));
+	$govList = $availGovs !== '' ? preg_split('/\s+/', $availGovs) : array('performance');
+	$liveGov = trim(@file_get_contents('/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor'));
+	// If the stored governor isn't available on this CPU, fall back to the live one.
+	$selGov = in_array($_SESSION['cpugov'], $govList) ? $_SESSION['cpugov'] : $liveGov;
+	foreach ($govList as $gov) {
+		$label = $gov == 'ondemand' ? 'On-demand' : ucfirst($gov);
+		$_select['cpugov'] .= "<option value=\"" . $gov . "\" " . (($selGov == $gov) ? "selected" : "") . ">" . $label . "</option>\n";
+	}
+}
 $_select['pci_express'] .= "<option value=\"auto\" " . (($_SESSION['pci_express'] == 'auto') ? "selected" : "") . ">Auto</option>\n";
 $_select['pci_express'] .= "<option value=\"gen2\" " . (($_SESSION['pci_express'] == 'gen2') ? "selected" : "") . ">Gen 2.0</option>\n";
 $_select['pci_express'] .= "<option value=\"gen3\" " . (($_SESSION['pci_express'] == 'gen3') ? "selected" : "") . ">Gen 3.0</option>\n";
@@ -456,6 +476,22 @@ $autoClick = " onchange=\"autoClick('#btn-set-reduce-power');\"";
 $_select['reduce_power_on']  .= "<input type=\"radio\" name=\"reduce_power\" id=\"toggle-reduce-power-1\" value=\"on\" " . (($_SESSION['reduce_power'] == 'on') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
 $_select['reduce_power_off'] .= "<input type=\"radio\" name=\"reduce_power\" id=\"toggle-reduce-power-2\" value=\"off\" " . (($_SESSION['reduce_power'] == 'off') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
 $_select['fan_temp0'] = $_SESSION['fan_temp0'];
+// LED0 (Activity) is the Pi's mmc0/SDCard activity LED (GPIO) - no equivalent
+// on generic x86/other platforms, so hide the control off the Pi.
+$_actled_hide = isPi() ? '' : 'hide';
+// The whole Power management section (reduce-power/HAT rails, GPIO fan, LEDs) is
+// Pi hardware; off the Pi every control inside is already hidden, so hide the
+// section header too rather than leave an empty "Power management" rule.
+$_powermgmt_hide = isPi() ? '' : 'hide';
+// Log to RAM uses the log2ram package (mounts /var/log on tmpfs to spare the SD
+// card). Show the control whenever log2ram is actually installed (toggling it
+// otherwise would systemctl a non-existent unit): always on the Pi, and on SBCs
+// where the installer adds it for an SD/eMMC root (Armbian); hidden on x86 SSD/
+// NVMe where it isn't installed. Gate on the package, not the platform.
+$_log2ram_hide = (isPi() || is_file('/etc/log2ram.conf')) ? '' : 'hide';
+// External antenna is a Pi CM4/CM5 feature (U.FL connector on the compute module);
+// no equivalent off the Pi, so hide the toggle there.
+$_external_antenna_hide = isPi() ? '' : 'hide';
 $actled = explode(',', $_SESSION['led_state'])[0];
 $autoClick = " onchange=\"autoClick('#btn-set-actled');\"";
 $_select['actled_on']  .= "<input type=\"radio\" name=\"actled\" id=\"toggle-actled-1\" value=\"1\" " . (($actled == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
