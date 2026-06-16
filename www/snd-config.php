@@ -454,6 +454,10 @@ if (!empty($cfgAudioDev['drvoptions']) && $_SESSION['i2soverlay'] == 'None' && $
 	$_select['drvoptions'] .= "<option value=\"none\" selected>None available</option>\n";
 	$_driveropt_btn_disable = 'disabled';
 }
+// I2S DAC HAT section (Named I2S device, DT overlay, driver/chip options):
+// Pi-only, depends on GPIO/I2S and config.txt dtoverlays. Hidden on generic
+// x86/other platforms which use USB/HDMI/onboard audio via the Output device list.
+$_i2s_section_hide = isPi() ? '' : 'hide';
 
 // ALSA OPTIONS
 
