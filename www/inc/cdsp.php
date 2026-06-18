@@ -618,7 +618,10 @@ class CamillaDsp {
         } else {
             $ext = substr($config, -4) != '.yml' ? '.yml' : '';
         	$parsedConfig = yaml_parse_file($this->CAMILLA_CONFIG_DIR . '/configs/' . $config . $ext);
-        	$description = key_exists('description', $parsedConfig) ?
+        	// yaml_parse_file() returns false for a missing/empty/unparseable config (e.g.
+        	// $config is null/'' when the session has no camilladsp value); guard so we
+        	// return a default instead of a key_exists() TypeError on a non-array.
+        	$description = (is_array($parsedConfig) && key_exists('description', $parsedConfig)) ?
         		$parsedConfig['description'] :
         		'No description available';
         }
