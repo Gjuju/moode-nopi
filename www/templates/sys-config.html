@@ -11,11 +11,12 @@
 	<form id="config-form" class="form-horizontal" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="csrf_token" value="$_csrf_token">
 
-		<div class="control-group $_swupdate_hide">
+		<div class="control-group">
 			<legend>Software update</legend>
 			<p class="sub-legend">
 				This release is: $_this_mooderel
 			</p>
+			<div class="$_swupdate_hide">
 			<label class="control-label">Notification</label>
 			<div class="controls">
 				<div class="toggle">
@@ -47,6 +48,7 @@
 					View progress of the active in-place update or if the update has previously been applied view the update log.
 				</span>
 			</div>
+			</div><!-- /$_swupdate_hide -->
 		</div>
 
 		<div class="control-group">
