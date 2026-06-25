@@ -152,6 +152,19 @@ def decode_new_style_code(code):
     return rev_info
 
 
+def is_raspberry_pi():
+    # True only on real Raspberry Pi hardware, matching the PHP isPi() (device-tree
+    # model test). NOT the "/proc/cpuinfo has a Revision line" heuristic: armhf SBCs
+    # (e.g. Allwinner H3) always carry Revision/Hardware/Serial lines whose code is
+    # not a valid Pi revision, so decoding it crashes - they must take the generic
+    # path. On x86 the model file is absent -> False.
+    try:
+        with open("/proc/device-tree/model") as f:
+            return "Raspberry Pi" in f.read()
+    except OSError:
+        return False
+
+
 def generic_rev_info():
     # Build a revision-info profile for a non-Pi platform (generic x86/other SBC)
     # using standard /proc files so System info has meaningful values.
@@ -200,6 +213,15 @@ def main():
     if args.code:
         code = int(args.code if "0x" == args.code[:2] else "0x" + args.code, 16)
         rev_info = decode_new_style_code(code)
+    elif not is_raspberry_pi():
+        # Not a Raspberry Pi (generic x86 or a non-Pi ARM SBC). x86 simply has no
+        # Revision line, but armhf SBCs (e.g. Allwinner H3) DO carry one that is not
+        # a valid Pi revision code - decoding it crashes (KeyError). Gate on the
+        # device-tree model like the PHP isPi() so EVERY non-Pi board gets the
+        # synthetic profile. Model number 0 keeps the platform out of Pi-specific
+        # code paths, which are additionally guarded by isPi() on the PHP side.
+        code = 0
+        rev_info = generic_rev_info()
     else:
         # NOTE: In otp_dump the Pi5 revcode is on line 32 while < Pi5 is on line 30.
         #cmd = "vcgencmd otp_dump | awk -F: '/^30:/{print substr($2,3)}'"
@@ -207,10 +229,6 @@ def main():
         cmd = "cat /proc/cpuinfo | awk -F': ' '/Revision/ {print $2}'"
         revcode = subprocess.run(cmd, shell=True, text=True, capture_output=True).stdout.rstrip()
         if revcode == "":
-            # Not a Raspberry Pi (generic x86/other platform): no Revision line in
-            # /proc/cpuinfo. Emit a synthetic profile so callers don't crash. Model
-            # number 0 keeps the platform out of Pi-specific code paths, which are
-            # additionally guarded by isPi() on the PHP side.
             code = 0
             rev_info = generic_rev_info()
         else:
