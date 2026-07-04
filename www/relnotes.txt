@@ -21,7 +21,7 @@ New features
 Updates
 - UPD: Add "Revox B251 With Haas Effect" to CamillaDSP sample configs (New image)
 - UPD: Improve iTunes cover art lookup
-- UPD: Add Playlist import/export (PR #755 by @Gjuju)
+- UPD: Add Playlist import/export: both Playlist and Folder view (PR #755 by @Gjuju)
 - UPD: Populate CPU governor list from the kernel (PR #757 by @Gjuju)
 
 
