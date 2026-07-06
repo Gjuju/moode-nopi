@@ -2295,7 +2295,7 @@ function renderRadioView(lazyLoad = true) {
 			data = allNonHiddenStations;
         } else if (showHideOtherStations == 'Edit hidden') {
             data = hiddenOtherStations;
-        } else if (groupMethod == 'Favorites first') {
+        } else if (groupMethod.includes('Favorites')) {
             data = favoriteStations.concat(regularStations);
         } else if (groupMethod == 'Sort tag' || groupMethod == 'No grouping') {
             data =  allNonHiddenStations;
@@ -2313,7 +2313,7 @@ function renderRadioView(lazyLoad = true) {
         // Favorites header (if any) and end flag
         var output = '';
         var endOfFavs = true;
-        if (groupMethod == 'Favorites first' && favoriteStations.length > 0) {
+        if (groupMethod.includes('Favorites') && favoriteStations.length > 0) {
             output = '<li class="horiz-rule-radioview">Favorites</li>';
             endOfFavs = false;
         }
@@ -2350,19 +2350,22 @@ function renderRadioView(lazyLoad = true) {
             var genreDiv = sortTag == 'genre' ? '<div class="radioview-metadata-text">' + data[i].genre + '</div>' : '';
 
             // Output Favorites first
-            if (groupMethod == 'Favorites first' && data[i].type == 'f') {
+            if (groupMethod.includes('Favorites') && data[i].type == 'f') {
                 //NOP
             }
-            // Change to Sort tag grouping unless method is No grouping
-            else if (groupMethod != 'No grouping') {
+            // Change to Sort tag grouping unless method is No grouping or Favorites first
+            else if (groupMethod != 'No grouping' && groupMethod != 'Favorites first') {
                 groupMethod = 'Sort tag';
             }
 
             // Mark the end of Favorites
-            if (configuredGroupMethod == 'Favorites first') {
+            if (configuredGroupMethod.includes('Favorites')) {
                 if (endOfFavs === false && data[i].type != 'f' && lastSortTagValue != '') {
                     lastSortTagValue = '';
                     endOfFavs = true;
+					if (configuredGroupMethod == 'Favorites first') { // no group remaining
+						output += '<li class="horiz-rule-radioview"></li>';
+					}
                 }
             }
 
