@@ -291,8 +291,14 @@
 						<button aria-label="Reset" id="btn-rb-search-reset" class="btn hide" type="reset" value="reset"><i class="fa-regular fa-sharp fa-times-circle"></i></button>
 					</form>
 					<div class="controls" id="rb-filters">
-						<select id="rb-country" class="rb-select" data-size="10"><option value="">All countries</option></select>
-						<select id="rb-genre" class="rb-select" data-size="10"><option value="">All genres</option></select>
+						<div class="rb-combo bootstrap-select">
+							<input id="rb-country" type="text" placeholder="All countries" autocomplete="off">
+							<ul class="dropdown-menu" role="menu"></ul>
+						</div>
+						<div class="rb-combo bootstrap-select">
+							<input id="rb-genre" type="text" placeholder="All genres" autocomplete="off">
+							<ul class="dropdown-menu" role="menu"></ul>
+						</div>
 					</div>
 					<button aria-label="Explore radio-browser" class="btn btn-toggle ra-explore-btn active"><i class="fa-solid fa-sharp fa-globe"></i></button>
 				</div>
@@ -3012,6 +3018,7 @@
 			<li><a href="#notarget" data-cmd="add_item_next"><i class="fa-regular fa-sharp fa-plus-circle sx"></i> Add next</a></li>
 			<li><a href="#notarget" data-cmd="play_item_next"><i class="fa-regular fa-sharp fa-play-circle sx"></i> Play next</a></li>
 			<li class="menu-separator"><a href="#notarget" data-cmd="get_playlist_names"><i class="fa-regular fa-sharp fa-list-music sx"></i> Add to playlist</a></li>
+			<li id="rb-ctx-remove-recent" class="menu-separator hide"><a href="#notarget" data-cmd="rb_remove_recent"><i class="fa-regular fa-sharp fa-circle-xmark sx"></i> Remove from recent</a></li>
 		</ul>
 	</div>
 
