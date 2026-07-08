@@ -208,7 +208,7 @@ switch ($cmd) {
 		$bitrate = $reg['bitrate'];
 		$homepage = $reg['homepage'];
 
-		$sock = getMpdSock('command/radiobrowser.php');
+		$sock = getMpdSock('command/radio-browser.php');
 		sendMpdCmd($sock, 'addid "' . $url . '"');
 		$resp = readMpdResp($sock);
 		if (preg_match('/Id:\s*(\d+)/', $resp, $m)) {

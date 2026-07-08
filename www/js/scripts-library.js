@@ -1321,7 +1321,7 @@ $('#database-radio').on('click', '.rb-fav-toggle', function(e) {
     var isAdded = $toggle.hasClass('added');
     var cmd = isAdded ? 'remove' : 'add';
     $.ajax({
-        url: 'command/radiobrowser.php?cmd=' + cmd,
+        url: 'command/radio-browser.php?cmd=' + cmd,
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({url: url, name: name}),

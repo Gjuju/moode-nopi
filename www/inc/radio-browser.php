@@ -6,7 +6,7 @@
  * radio-browser.info integration — function library (radio-browser.info client,
  * cache, cfg_radio station read/write, logo proxy). Derived from RubaTron's Radio
  * Browser extension for moOde (GPL-3.0-or-later), re-implemented in moOde's native
- * conventions (cfg_radio, submitJob, mpd.php). Included by command/radiobrowser.php.
+ * conventions (cfg_radio, submitJob, mpd.php). Included by command/radio-browser.php.
 */
 
 require_once __DIR__ . '/common.php';
@@ -429,7 +429,7 @@ function rbDeleteStation($name) {
 }
 
 function rbMpdUpdateRadio() {
-	$sock = getMpdSock('command/radiobrowser.php');
+	$sock = getMpdSock('command/radio-browser.php');
 	sendMpdCmd($sock, 'update RADIO');
 	readMpdResp($sock);
 	closeMpdSock($sock);
@@ -441,7 +441,7 @@ function rbMpdUpdateRadio() {
 // NOT match cfg_radio.station here, so prune wrongly deleted still-queued 'rb' rows.
 function rbQueuedUrls() {
 	$urls = array();
-	$sock = getMpdSock('command/radiobrowser.php');
+	$sock = getMpdSock('command/radio-browser.php');
 	sendMpdCmd($sock, 'playlistinfo');
 	$resp = readMpdResp($sock);
 	closeMpdSock($sock);

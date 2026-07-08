@@ -16,7 +16,7 @@ var RB = {
     menuUrl: ''         // URL of the tile whose context menu is open (Remove-from-recent target)
 };
 
-var RB_API = 'command/radiobrowser.php';
+var RB_API = 'command/radio-browser.php';
 
 // Build a station object from a tile's data-* attributes
 function rbStationFromTile(li) {
