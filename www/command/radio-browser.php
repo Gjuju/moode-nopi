@@ -223,7 +223,7 @@ switch ($cmd) {
 		rbAddRecent(array(
 			'name' => $name,
 			'url' => $url,
-			'favicon' => rbCacheImage($favicon),
+			'favicon' => $favicon,
 			'country' => trim($station['country'] ?? ''),
 			'tags' => trim($station['tags'] ?? ''),
 			'bitrate' => (int)$bitrate,
