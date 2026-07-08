@@ -17,6 +17,7 @@
 
 New features
 - NEW: Radio Cover+ multi-provider cover art search (based on the MR+ project)
+- NEW: Radio Browser toggle in Radio view (@Rubatron creator, @Gjuju integrator)
 
 Updates
 - UPD: Add Playlist upload/download: both Playlist and Folder view (PR #755 by @Gjuju)
