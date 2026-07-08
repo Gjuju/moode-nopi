@@ -19,7 +19,7 @@ $response = array('success' => false, 'message' => 'Unknown command');
 
 switch ($cmd) {
 	case 'logo':
-		rbServeLogo($_REQUEST['u'] ?? '');
+		rbServeLogo($_REQUEST['url'] ?? '');
 		// rbServeLogo() streams the image (or 302s) and exit()s.
 		break;
 
@@ -103,18 +103,18 @@ switch ($cmd) {
 		// Already in cfg_radio? Promote to favorite (idempotent), never duplicate the stream
 		$existing = sqlQuery("SELECT id, type, name FROM cfg_radio WHERE station='" . SQLite3::escapeString($url) . "' LIMIT 1", $dbh);
 		if (is_array($existing)) {
-			if ($existing[0]['type'] == 'f') {
-				$response = array('success' => true, 'message' => 'Station already in favorites');
+			if ($existing[0]['type'] == 'fb') {
+				$response = array('success' => true, 'message' => 'Station already in Favorites');
 			} else {
-				sqlQuery("UPDATE cfg_radio SET type='f' WHERE id='" . $existing[0]['id'] . "'", $dbh);
-				// The native Radio grid plays RADIO/<name>.pls; a promoted 'u' has none, so
+				sqlQuery("UPDATE cfg_radio SET type='fb' WHERE id='" . $existing[0]['id'] . "'", $dbh);
+				// The native Radio grid plays RADIO/<name>.pls; a promoted 'rb' has none, so
 				// create it (+ ensure the logo). Stock 'r' stations already ship theirs — don't overwrite.
 				$exName = $existing[0]['name'];
 				if (!file_exists(MPD_MUSICROOT . 'RADIO/' . $exName . '.pls')) {
 					rbEnsureLogo($exName, trim($station['favicon'] ?? ''));
 					rbWritePls($exName, $url);
 				}
-				$response = array('success' => true, 'message' => 'Station added to favorites');
+				$response = array('success' => true, 'message' => 'Station has been added');
 			}
 			break;
 		}
@@ -133,7 +133,7 @@ switch ($cmd) {
 			'format' => trim($station['codec'] ?? ''),
 			'home_page' => trim($station['homepage'] ?? '')
 		));
-		$response = array('success' => true, 'message' => 'Station added to favorites');
+		$response = array('success' => true, 'message' => 'Station has been added');
 		break;
 
 	case 'remove':
@@ -144,26 +144,28 @@ switch ($cmd) {
 			break;
 		}
 		$dbh = sqlConnect();
-		$row = sqlQuery("SELECT id, name FROM cfg_radio WHERE station='" . SQLite3::escapeString($url) . "' AND type='f' LIMIT 1", $dbh);
+		$row = sqlQuery("SELECT id, name FROM cfg_radio WHERE station='" . SQLite3::escapeString($url) . "' AND type='fb' LIMIT 1", $dbh);
 		if (!is_array($row)) {
-			$response = array('success' => false, 'message' => 'Station is not in favorites');
+			$response = array('success' => false, 'message' => 'Station not in Favorites');
 			break;
 		}
-		// Core moOde stations (id < 499): just un-favorite (f -> r), keep them in the list.
+		// TODO: Doesn't rb only add stations with id's > 499 ??
+		//Core moOde stations (id < 499): just un-favorite (f -> r), keep them in the list.
+
 		// User/imported RB stations (id >= 499): if the stream is STILL in the play queue,
-		// demote to transient 'u' so now-playing/thumb keep resolving (the queue-prune deletes
+		// demote to transient 'rb' so now-playing/thumb keep resolving (the queue-prune deletes
 		// it once it leaves the queue); only fully delete it when it's not queued anymore.
 		if ((int)$row[0]['id'] < 499) {
 			sqlQuery("UPDATE cfg_radio SET type='r' WHERE id='" . $row[0]['id'] . "'", $dbh);
 		} else {
 			$queued = rbQueuedUrls();
 			if (isset($queued[rbNormalizeUrl($url)])) {
-				sqlQuery("UPDATE cfg_radio SET type='u' WHERE id='" . $row[0]['id'] . "'", $dbh);
+				sqlQuery("UPDATE cfg_radio SET type='rb' WHERE id='" . $row[0]['id'] . "'", $dbh);
 			} else {
 				rbDeleteStation($row[0]['name']);
 			}
 		}
-		$response = array('success' => true, 'message' => 'Station removed from favorites');
+		$response = array('success' => true, 'message' => 'Station has been removed');
 		break;
 
 	case 'remove_recent':
@@ -174,12 +176,12 @@ switch ($cmd) {
 			break;
 		}
 		rbRemoveRecent($url);
-		$response = array('success' => true, 'message' => 'Removed from recent');
+		$response = array('success' => true, 'message' => 'Station has been removed');
 		break;
 
 	case 'register':
 		// Called when a Radio Browser tile's context menu opens: make the native queue
-		// actions (Add/Play/Add next/…) resolve a not-yet-added station (logo + type='u').
+		// actions (Add/Play/Add next/…) resolve a not-yet-added station (logo + type='rb').
 		$station = rbInputStation();
 		$url = trim($station['url'] ?? '');
 		if ($url === '' || !preg_match('#^https?://#i', $url) || str_contains($url, '"')) {
@@ -187,7 +189,7 @@ switch ($cmd) {
 			break;
 		}
 		rbRegisterStation($station);
-		rbPruneOrphanStations($url); // drop transient 'u' rows that have left the queue
+		rbPruneOrphanStations($url); // drop transient 'rb' rows that have left the queue
 		$response = array('success' => true, 'message' => 'Registered');
 		break;
 
@@ -199,7 +201,7 @@ switch ($cmd) {
 			break;
 		}
 		$favicon = trim($station['favicon'] ?? '');
-		// Ensure logo + cfg_radio type='u' + session var (so now-playing resolves the stream)
+		// Ensure logo + cfg_radio type='rb' + session var (so now-playing resolves the stream)
 		$reg = rbRegisterStation($station);
 		$name = $reg['name'];
 		$format = $reg['format'];
@@ -230,7 +232,7 @@ switch ($cmd) {
 			'played_at' => time()
 		));
 
-		rbPruneOrphanStations($url); // drop transient 'u' rows that have left the queue
+		rbPruneOrphanStations($url); // drop transient 'rb' rows that have left the queue
 
 		// Click tracking (fire-and-forget) — radio-browser.info best practice
 		$uuid = trim($station['stationuuid'] ?? '');

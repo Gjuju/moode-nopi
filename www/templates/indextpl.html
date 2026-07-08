@@ -254,7 +254,7 @@
 	<!-- RADIO VIEW -->
 	<div id="radio-panel" class="tab-pane">
 		<div id="container-radio">
-			<!-- Radio native view (explore toggle off) -->
+			<!-- Radio view native (toggle off) -->
 			<div class="container-radio-native">
 					<div class="btnlist btnlist-top btnlist-top-ra">
 						<button aria-label="Radio Manager" id="btn-ra-manager" class="btn"><i class="fa-solid fa-sharp fa-gear-complex"></i></button>
@@ -266,7 +266,7 @@
 						</div>
 						<button aria-label="Reset" id="btn-ra-search-reset" class="btn hide" type="reset" value="reset"><i class="fa-regular fa-sharp fa-times-circle"></i></button>
 					</form>
-					<button aria-label="Explore radio-browser" class="btn btn-toggle ra-explore-btn"><i class="fa-solid fa-sharp fa-globe"></i></button>
+					<button aria-label="Radio Browser" class="btn btn-toggle rb-toggle-btn"><i class="fa-solid fa-sharp fa-globe"></i></button>
 				</div>
 
 				<div id="database-radio">
@@ -276,9 +276,9 @@
 					<ul><li>#</li><li>a</li><li>b</li><li>c</li><li>d</li><li>e</li><li>f</li><li>g</li><li>h</li><li>i</li><li>j</li><li>k</li><li>l</li><li>m</li><li>n</li><li>o</li><li>p</li><li>q</li><li>r</li><li>s</li><li>t</li><li>u</li><li>v</li><li>w</li><li>x</li><li>y</li><li>z</li></ul>
 				</div>
 			</div>
-			<!-- end Radio native view -->
+			<!-- End Radio view native -->
 
-			<!-- Radio Browser explorer (explore toggle on) -->
+			<!-- Radio Browser (toggle on) -->
 			<div id="container-radio-browser" class="hide">
 				<div class="btnlist btnlist-top btnlist-top-rb">
 					<button aria-label="Search" id="btn-rb-tab-search" class="btn rb-tab active">Search</button>
@@ -300,7 +300,7 @@
 							<ul class="dropdown-menu" role="menu"></ul>
 						</div>
 					</div>
-					<button aria-label="Explore radio-browser" class="btn btn-toggle ra-explore-btn active"><i class="fa-solid fa-sharp fa-globe"></i></button>
+					<button aria-label="Radio Browser" class="btn btn-toggle rb-toggle-btn active"><i class="fa-solid fa-sharp fa-globe"></i></button>
 				</div>
 				<!-- Search tab -->
 				<div id="rb-tab-search" class="rb-tab-pane">
@@ -316,7 +316,7 @@
 				</div>
 				<div class="rb-attribution">Powered by <a class="target-blank-link" href="https://www.radio-browser.info" target="_blank">radio-browser.info</a> &middot; integration derived from RubaTron's Radio Browser extension</div>
 			</div>
-			<!-- end Radio Browser explorer -->
+			<!-- End Radio Browser -->
 		</div>
 	</div>
 
@@ -2174,6 +2174,7 @@
 							<ul class="dropdown-menu custom-select inner" role="menu">
 								<li class="modal-dropdown-text"><a href="#notarget" data-cmd="edit-station-type-sel"><span class="text">Regular</span></a></li>
 								<li class="modal-dropdown-text"><a href="#notarget" data-cmd="edit-station-type-sel"><span class="text">Favorite</span></a></li>
+								<li id="edit-station-type-fb" class="modal-dropdown-text"><a href="#notarget" data-cmd="edit-station-type-sel"><span class="text">Favorite (Radio Browser)</span></a></li>
 								<li class="modal-dropdown-text"><a href="#notarget" data-cmd="edit-station-type-sel"><span class="text">Hidden</span></a></li>
 							</ul>
 						</div>

@@ -38,7 +38,7 @@ function rbStationFromTile(li) {
 function rbLogoUrl(s) {
     if (s.favicon) {
         if (/^https?:\/\//i.test(s.favicon)) {
-            return RB_API + '?cmd=logo&u=' + encodeURIComponent(s.favicon);
+            return RB_API + '?cmd=logo&url=' + encodeURIComponent(s.favicon);
         }
         return s.favicon;
     }
@@ -227,6 +227,12 @@ function rbToggleFavorite(li) {
     if (!station.url) return;
     var isAdded = $li.find('.rb-fav-toggle').hasClass('added');
     var cmd = isAdded ? 'remove' : 'add';
+
+	if (cmd == 'add') {
+		// Because the add is via submitJob() to worker.php daemon which gets processed up in its polling loop
+		notify(NOTIFY_TITLE_INFO, 'rb_message', 'Adding station to Favorites... ', NOTIFY_DURATION_INFINITE);
+	}
+
     $.ajax({
         url: RB_API + '?cmd=' + cmd,
         type: 'POST',
@@ -239,7 +245,8 @@ function rbToggleFavorite(li) {
                 RB.favoritesDirty = true; // refresh the native Radio grid when we return to it
             }
             notify(data && data.success ? NOTIFY_TITLE_INFO : NOTIFY_TITLE_ALERT,
-                'mpd_error', data ? data.message : 'Action failed', NOTIFY_DURATION_SHORT);
+                'mpd_error', data ? data.message : 'Action failed',
+				NOTIFY_DURATION_SHORT);
             // 'update RADIO' lights the busy-spinner; clear it after it settles (native pattern)
             setTimeout(function() { $('.busy-spinner').hide(); }, ONE_SEC_TIMEOUT);
         }

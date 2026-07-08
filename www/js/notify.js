@@ -60,6 +60,8 @@ function notify(title, tag, arg3, arg4 = '') {
 		upd_station: 'Station has been updated. ',
 		del_station: 'Station has been deleted. ',
 		blank_entries: 'Name or URL is blank. ',
+		// Radio Browser
+		rb_message: '',
 		// Multiroom
 		trx_querying_receivers: 'Querying receivers... ',
 		trx_no_receivers_found: 'No receivers were found. Run receiver Discovery. ',

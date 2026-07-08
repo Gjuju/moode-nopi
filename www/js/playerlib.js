@@ -2199,7 +2199,7 @@ function renderRadioView(lazyLoad = true) {
         if (showHideOtherStations == 'Hide all' || showHideOtherStations == 'Un-hide all') {
             var newStationType = showHideOtherStations == 'Hide all' ? 'h' : 'r';
             for (var i = 0; i < data.length; i++) {
-                if (parseInt(data[i].id) > 499 && data[i].type != 'f') {
+                if (parseInt(data[i].id) > 499 && data[i].type.substring(0, 1) != 'f') { // f or fb
                     data[i].type = newStationType;
                 }
             }
@@ -2226,6 +2226,7 @@ function renderRadioView(lazyLoad = true) {
                     k = k + 1;
                     break;
                 case 'f':
+				case 'fb':
                     allNonHiddenStations[j] = data[i];
                     j = j + 1;
                     favoriteStations[l] = data[i];
@@ -2350,7 +2351,7 @@ function renderRadioView(lazyLoad = true) {
             var genreDiv = sortTag == 'genre' ? '<div class="radioview-metadata-text">' + data[i].genre + '</div>' : '';
 
             // Output Favorites first
-            if (groupMethod.includes('Favorites') && data[i].type == 'f') {
+            if (groupMethod.includes('Favorites') && data[i].type.substring(0, 1) == 'f') {
                 //NOP
             }
             // Change to Sort tag grouping unless method is No grouping or Favorites first
@@ -2360,7 +2361,7 @@ function renderRadioView(lazyLoad = true) {
 
             // Mark the end of Favorites
             if (configuredGroupMethod.includes('Favorites')) {
-                if (endOfFavs === false && data[i].type != 'f' && lastSortTagValue != '') {
+                if (endOfFavs === false && data[i].type.substring(0, 1) != 'f' && lastSortTagValue != '') {
                     lastSortTagValue = '';
                     endOfFavs = true;
 					if (configuredGroupMethod == 'Favorites first') { // no group remaining
@@ -2392,10 +2393,15 @@ function renderRadioView(lazyLoad = true) {
 
             // Construct station entries
             var imgUrl = data[i].logo == 'local' ? 'imagesw/radio-logos/thumbs/' + data[i].name + '.jpg' : data[i].logo;
-            // Favorite heart (mirrors the Radio Browser explorer tile) — toggles cfg_radio type f<->r
-            var favClass = data[i].type == 'f' ? 'rb-fav-toggle added' : 'rb-fav-toggle';
-            var favIcon = data[i].type == 'f' ? 'fa-solid' : 'fa-regular';
-            var favToggle = '<div class="' + favClass + '"><i class="' + favIcon + ' fa-sharp fa-heart"></i></div>';
+            // Favorite heart (mirrors the Radio Browser explorer tile) — toggles cfg_radio type f<->r ??
+			if (data[i].type == 'fb') {
+				var favToggle = '<div class="rb-fav-toggle added"><i class="fa-solid fa-sharp fa-heart"></i></div>';
+			} else {
+				var favToggle = '';
+			}
+            //DELETE:var favClass = data[i].type == 'f' ? 'rb-fav-toggle added' : 'rb-fav-toggle';
+            //var favIcon = data[i].type == 'f' ? 'fa-solid' : 'fa-regular';
+            //var favToggle = '<div class="' + favClass + '"><i class="' + favIcon + ' fa-sharp fa-heart"></i></div>';
     		output += '<li id="ra-' + (i + 1) + '" data-path="' + 'RADIO/' + data[i].name + '.pls" data-url="' + rbEscapeHtml(data[i].station) + '" data-name="' + rbEscapeHtml(data[i].name);
     		output += '"><div class="db-icon db-song db-browse db-action">' + radioViewLazy + encodeURIComponent(imgUrl) + '">' + favToggle + '</div><div class="cover-menu" data-toggle="context" data-target="#context-menu-radio-item"></div></div><div class="db-entry db-song db-browse"></div>';
             output += radioViewHdDiv;
@@ -3124,6 +3130,7 @@ $(document).on('click', '.context-menu a', function(e) {
                 $('#preview-edit-logoimage').html('<img src="../imagesw/radio-logos/thumbs/' + data['name'] + '.jpg">');
                 $('#edit-station-tags').css('margin-top', '20px');
                 $('#edit-station-type span').text(getKeyOrValue('key', data['type']));
+				data['type'] == 'fb' ? $('#edit-station-type-fb').show() : $('#edit-station-type-fb').hide();
                 $('#edit-station-genre').val(data['genre']);
                 $('#edit-station-broadcaster').val(data['broadcaster']);
                 $('#edit-station-home-page').val(data['home_page']);
@@ -5429,7 +5436,7 @@ function getKeyOrValue (type, item) {
         // Font size factors
         ['Smaller',.35],['Small',.40],['Normal',.45],['Large',.55],['Larger',.65],['X-Large',.75],
         // Radioview station types
-        ['Regular','r'],['Favorite','f'],['Hidden','h'],
+        ['Regular','r'],['Favorite','f'],['Favorite (Radio Browser)','fb'],['Hidden','h'],
         // Thumbnail resolutions
         ['Auto','Auto'],['400px','400px,75'],['500px','500px,60'],['600px','600px,60'],
         // Dashboard commands

@@ -1309,10 +1309,9 @@ $('#database-radio').on('click', 'img', function(e) {
 	}, DEFAULT_TIMEOUT);
 });
 
-// Favorite heart on native Radio tiles — toggles cfg_radio type f<->r through the shared
-// radiobrowser.php add/remove endpoint (same favorite lifecycle as the explorer). The heart
-// flips in place; the Favorites grouping only recomposes on the next full render, so the tile
-// doesn't jump under the finger.
+// TODO: this should only be a remove?
+// This removes the station from Radio view Favorites and refreshes the list
+// Favorite heart will only be on RB favorite stations
 $('#database-radio').on('click', '.rb-fav-toggle', function(e) {
     e.stopPropagation();
     var $toggle = $(this);
@@ -1336,6 +1335,11 @@ $('#database-radio').on('click', '.rb-fav-toggle', function(e) {
                 'mpd_error', data ? data.message : 'Action failed', NOTIFY_DURATION_SHORT);
             // 'update RADIO' lights the busy-spinner; clear it after it settles (native pattern)
             setTimeout(function() { $('.busy-spinner').hide(); }, ONE_SEC_TIMEOUT);
+			// Refresh list
+			setTimeout(function() {
+                $('#btn-ra-refresh').click();
+				$('#btn-rb-refresh').click();
+            }, DEFAULT_TIMEOUT);
         }
     });
 });

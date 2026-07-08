@@ -18,6 +18,7 @@ require_once __DIR__ . '/../inc/music-library.php';
 require_once __DIR__ . '/../inc/music-source.php';
 require_once __DIR__ . '/../inc/network.php';
 require_once __DIR__ . '/../inc/peripheral.php';
+require_once __DIR__ . '/../inc/radio-browser.php';
 require_once __DIR__ . '/../inc/renderer.php';
 require_once __DIR__ . '/../inc/session.php';
 require_once __DIR__ . '/../inc/sql.php';
@@ -3818,7 +3819,7 @@ function runQueuedJob() {
 			setAudioOut($_SESSION['w_queueargs']);
 			break;
 
-		// command jobs
+		// From Prefs > Appearance
 		case 'set_bg_image':
 			$imgdata = base64_decode($_SESSION['w_queueargs'], true);
 			if ($imgdata === false) {
@@ -3829,6 +3830,8 @@ function runQueuedJob() {
 				fclose($fh);
 			}
 			break;
+
+		// Radio and Playlist view cover images
 		case 'set_ralogo_image':
 		case 'set_plcover_image':
 			$job = $_SESSION['w_queue'];
@@ -3927,6 +3930,38 @@ function runQueuedJob() {
 			}
 
 			sysCmd('chmod 0777 "' . $imgDir . $thmDir . TMP_IMAGE_PREFIX . '"*');
+			break;
+
+		// Radio Browser favorite to Radio view
+		case 'set_rblogo_image':
+			$queueArgs = explode(',', $_SESSION['w_queueargs'], 2);
+			$name = $queueArgs[0];
+			$imageData = $queueArgs[1];
+
+			$src = @imagecreatefromstring($imageData);
+			if (!$src) {
+				workerLog('worker: '. $job .' ERROR: imagecreatefromstring() failed for ' . $name);
+				break;
+			}
+
+			$w = imagesx($src);
+			$h = imagesy($src);
+			$ok1 = rbResizeAndSave($src, $w, $h, 400, RADIO_LOGOS_ROOT . $name . '.jpg');
+			$ok2 = rbResizeAndSave($src, $w, $h, 200, RADIO_LOGOS_ROOT . 'thumbs/' . $name . '.jpg');
+			$ok3 = rbResizeAndSave($src, $w, $h, 80, RADIO_LOGOS_ROOT . 'thumbs/' . $name . '_sm.jpg');
+
+			if ($ok1 && $ok2 && $ok3) {
+				if (imagedestroy($src) === false) {
+					workerLog('worker: '. $job .' ERROR: imagedestroy() failed for ' . $name);
+					break;
+				}
+			} else {
+				workerLog('worker: '. $job .' ERROR: rbResizeAndSave() failed for ' . $name);
+				break;
+			}
+
+			sysCmd('chmod 0777 "' . RADIO_LOGOS_ROOT . $name . '"*');
+			sysCmd('chmod 0777 "' . RADIO_LOGOS_ROOT . 'thumbs/' . $name . '"*');
 			break;
 
 		// Other jobs
