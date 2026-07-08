@@ -487,15 +487,9 @@ function rbServeLogo($url) {
 			$file = $path;
 		} else {
 			$data = rbHttpGet($url, 4);
-			workerLog($url);
-			workerLog('here1: ' . ($data === false ? 'false' : 'true') . '|' . ($data !== false ? strlen($data) : 'undefined'));
-			if ($data !== false && strlen($data) > 100 && strlen($data) < 51200) {
-				workerLog('here2');
+			if ($data !== false && strlen($data) > RADIOBROWSER_IMAGE_MIN_SIZE && strlen($data) < RADIOBROWSER_IMAGE_MAX_SIZE) {
 				if (@file_put_contents($path, $data)) {
-					workerLog('here3');
 					$file = $path;
-				} else {
-					workerLog('here4');
 				}
 			}
 		}
