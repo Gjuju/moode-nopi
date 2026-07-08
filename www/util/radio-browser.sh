@@ -6,9 +6,9 @@
 # Radio Browser maintenance helper.
 # Usage: radio-browser.sh [--clear-recents|--fix-permissions|--flush-cache|--test-api]
 
-RBCACHE="/var/local/www/rbcache"
+RBCACHE="/var/local/www/rb-cache"
 RECENT="$RBCACHE/recently_played.json"
-IMGCACHE="/var/local/www/imagesw/radio-logos/cache"
+IMGCACHE="/var/local/www/imagesw/rb-logos"
 API="all.api.radio-browser.info"
 UA="moode-radio-browser/1.0"
 
