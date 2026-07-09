@@ -7,6 +7,7 @@
  * function library. Derived from RubaTron's Radio Browser extension (GPL-3.0-or-later).
 */
 
+require_once __DIR__ . '/../inc/common.php';
 require_once __DIR__ . '/../inc/radio-browser.php';
 
 // Validate GET/POST scalars. Station payloads for write actions arrive as JSON on
@@ -244,6 +245,17 @@ switch ($cmd) {
 			));
 			@file_get_contents('https://' . RADIOBROWSER_API_PRIMARY . '/json/url/' . $uuid, false, stream_context_create($options));
 		}
+		break;
+
+	case 'clear_recents':
+	case 'clear_caches':
+	case 'check_servers':
+		$cmdMap = array(
+			'clear_recents' => '--clear-recents',
+			'clear_caches' => '--clear-caches',
+			'check_servers' => '--check-servers'
+		);
+		$response = sysCmd('/var/www/util/radio-browser.sh ' . $cmdMap[$cmd])[0];
 		break;
 
 	default:

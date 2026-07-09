@@ -1543,6 +1543,30 @@ $('#btn-upd-radio-manager').click(function(e) {
     );
 });
 
+// Radio Browser manager
+$('#btn-rb-manager').click(function(e) {
+	$('#rb-clear-recents-msg, #rb-clear-caches-msg, #rb-check-servers-msg').text('').hide();
+    $('#radio-browser-manager-modal').modal();
+});
+$('#btn-rb-clear-recents').click(function(e) {
+	$('#rb-clear-recents-msg').text('Submitted...').show();
+	$.getJSON('command/radio-browser.php?cmd=clear_recents', function(result) {
+		$('#rb-clear-recents-msg').text(result);
+	});
+});
+$('#btn-rb-clear-caches').click(function(e) {
+	$('#rb-clear-caches-msg').text('Submitted...').show();
+	$.getJSON('command/radio-browser.php?cmd=clear_caches', function(result) {
+		$('#rb-clear-caches-msg').text(result);
+	});
+});
+$('#btn-rb-check-servers').click(function(e) {
+	$('#rb-check-servers-msg').text('Submitted...').show();
+	$.getJSON('command/radio-browser.php?cmd=check_servers', function(result) {
+		$('#rb-check-servers-msg').text(result);
+	});
+});
+
 // Click playlist entry
 $('#database-playlist').on('click', 'img', function(e) {
     var pos = $(this).parents('li').index();
