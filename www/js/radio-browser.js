@@ -194,7 +194,7 @@ function rbFilterRecent(filter) {
 function rbRegisterInRadioJson(station) {
     if (typeof RADIO === 'object' && RADIO.json && station.url && !RADIO.json[station.url]) {
         RADIO.json[station.url] = {
-            name: station.name, type: 'u', logo: 'local',
+            name: station.name, type: 'rb', logo: 'local',
             bitrate: String(station.bitrate || ''), format: station.codec || '',
             home_page: station.homepage || '', monitor: 'No'
         };
