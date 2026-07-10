@@ -49,14 +49,15 @@ case "$1" in
 		;;
 	--check-servers)
 		start=$(date +%s%3N)
-		count=$(curl -fsS --max-time 10 -A "$UA" "https://$API/json/servers" | jq '.[].name' | sort -u | wc -l)
+		result=$(curl --stderr - -fsS --max-time 10 -A "$UA" "https://$API/json/servers")
 		rc=$?
 		end=$(date +%s%3N)
-		if [[ $rc -eq 0 && $count -gt 0 ]]; then
-			[[ $count -eq 1 ]] && s="" || s="s"
+		if [[ $rc -eq 0 ]]; then
+			count=$(echo $result | jq '.[].name' | sort -u | wc -l)
+			[[ $count -gt 0 ]] && s="" || s="s"
 			echo "$count server$s responded in $((end - start)) ms"
 		else
-			echo "Error: No servers responded"
+			echo "No response was received"
 		fi
 		;;
 	--fix-permissions)
