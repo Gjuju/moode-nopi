@@ -1545,7 +1545,7 @@ $('#btn-upd-radio-manager').click(function(e) {
 
 // Radio Browser manager
 $('#btn-rb-manager').click(function(e) {
-	$('#rb-clear-recents-msg, #rb-clear-caches-msg, #rb-check-servers-msg').text('');
+	$('#rb-clear-recents-msg, #rb-clear-caches-msg, #rb-check-servers-msg').text('').hide();
     $('#radio-browser-manager-modal').modal();
 });
 $('#btn-rb-clear-recents').click(function(e) {
