@@ -129,7 +129,7 @@ function rbEscapeHtml(text) {
 }
 
 function rbLoading(ulId) {
-    $('#' + ulId).html('<li class="rb-empty"><i class="fa-solid fa-sharp fa-spinner fa-spin"></i> Loading&hellip;</li>');
+    $('#' + ulId).html('<li class="rb-empty"><i class="fa-solid fa-sharp fa-spinner fa-spin"></i>&nbsp;Loading&hellip;</li>');
 }
 
 // --- Search ---------------------------------------------------------------
