@@ -71,11 +71,14 @@ switch ($cmd) {
 	case 'genres':
 		$data = rbCacheGet('genres', RADIOBROWSER_CACHE_TTL_STATIC);
 		if ($data === false) {
-			$result = sqlQuery("SELECT title, name FROM cfg_rbgenres", sqlConnect());
-			// TODO: sort($result, SORT_NATURAL | SORT_FLAG_CASE);
+			$result = sqlQuery("SELECT name, genre FROM cfg_rbgenres", sqlConnect());
+			usort($result, function ($a, $b) {
+    			return $a['name'] <=> $b['name'];
+			});
+			workerLog(print_r($result, true));
 			$data = array();
 			foreach ($result as $row) {
-				array_push($data, array('title' => $row['title'], 'name' => $row['name']));
+				array_push($data, array('name' => $row['name'], 'genre' => $row['genre']));
 			}
 			if ($data !== false) {
 				rbCacheSet('genres', $data);

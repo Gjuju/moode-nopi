@@ -147,8 +147,6 @@ function rbSearch(offset, append) {
     if (!append) { rbLoading('rb-covers-search'); }
     // No filters = top stations by clickcount (search paginates via offset)
     $.getJSON(RB_API + '?cmd=search', params, function(data) {
-		console.log(RB_API + '?cmd=search');
-		console.log(params);
         if (data && data.success) {
             if (append) { rbAppendTiles(data.stations, 'rb-covers-search'); }
             else { rbRenderTiles(data.stations, 'rb-covers-search'); }
@@ -320,11 +318,11 @@ function rbLoadCountriesAndGenres() {
         if (data && data.success) {
 			var lines = '<li><a href="#notarget" data-cmd="rb-genre-sel" data-value=""><span class="text">All Genres</span></a></li>';
             data.genres.forEach(function(item) {
-                if (item.title && item.name) {
+                if (item.name && item.genre) {
 					lines += '<li><a href="#notarget" data-cmd="rb-genre-sel" data-value="'
-						+ item.name
+						+ item.genre
 						+ '"><span class="text">'
-						+ item.title
+						+ item.name
 						+ '</span></a></li>';
                 }
             });
