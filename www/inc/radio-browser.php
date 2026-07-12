@@ -213,6 +213,7 @@ function rbEnsureLogo($name, $favicon) {
 	if (file_exists(RADIO_LOGOS_ROOT . 'thumbs/' . $name . '_sm.jpg')) {
 		return;
 	}
+
 	$saved = false;
 	if ($favicon !== '' && !str_contains($favicon, 'encrypted-tbn0.gstatic.com')) {
 		$data = rbFetchImageData($favicon);
@@ -220,10 +221,11 @@ function rbEnsureLogo($name, $favicon) {
 			$saved = rbSaveLogo($name, $data);
 		}
 	}
+
 	if (!$saved) {
-		@copy(DEFAULT_NOTFOUND_COVER, RADIO_LOGOS_ROOT . $name . '.jpg');
-		@copy(DEFAULT_NOTFOUND_COVER, RADIO_LOGOS_ROOT . 'thumbs/' . $name . '.jpg');
-		@copy(DEFAULT_NOTFOUND_COVER, RADIO_LOGOS_ROOT . 'thumbs/' . $name . '_sm.jpg');
+		sysCmd('cp "' . DEFAULT_NOTFOUND_COVER . '" "'  . RADIO_LOGOS_ROOT . $name . '.jpg"');
+		sysCmd('cp "' . DEFAULT_NOTFOUND_COVER . '" "'  . RADIO_LOGOS_ROOT . 'thumbs/' . $name . '.jpg"');
+		sysCmd('cp "' . DEFAULT_NOTFOUND_COVER . '" "'  . RADIO_LOGOS_ROOT . 'thumbs/' . $name . '_sm.jpg"');
 	}
 }
 
