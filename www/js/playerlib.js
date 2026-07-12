@@ -4116,8 +4116,14 @@ function setClkRadioCtls(ctlValue) {
 // Custom select controls
 $('body').on('click', '.dropdown-menu .custom-select a', function(e) {
     var selector = '#' + $(this).data('cmd').substr(0, $(this).data('cmd').indexOf('-sel'));
-    $(selector + ' span').text($(this).text());
+	// Default: update the main span element
+    $(selector + ' span:not(.data-value)').text($(this).text());
 
+	// Radio Browser
+	if ($(this).data('cmd') == 'rb-country-sel' || $(this).data('cmd') == 'rb-genre-sel') {
+		$(selector + ' span.data-value').text($(this).data('value'));
+	}
+	// Clock radio
     if ($(this).data('cmd') == 'clockradio-mode-sel') {
         setClkRadioCtls($(this).text());
     }

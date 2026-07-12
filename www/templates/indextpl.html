@@ -292,8 +292,30 @@
 						<button aria-label="Reset" id="btn-rb-search-reset" class="btn hide" type="reset" value="reset"><i class="fa-regular fa-sharp fa-times-circle"></i></button>
 					</form>
 					<div class="controls" id="rb-filters">
-						<select id="rb-country" class="rb-select" data-size="10"><option value="">All countries</option></select>
-						<select id="rb-genre" class="rb-select" data-size="10"><option value="">All genres</option></select>
+						<!-- Countries -->
+						<div class="btn-group bootstrap-select select-large">
+							<button type="button" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+								<div id="rb-country" class="filter-option pull-left">
+									<span>All Countries</span><span class="data-value hide"></span>
+								</div>&nbsp;
+								<div class="caret"></div>
+							</button>
+							<div id="rb-country-menu" class="dropdown-menu open">
+								<ul id="rb-country-list" class="dropdown-menu custom-select inner" role="menu"></ul>
+							</div>
+						</div>
+						<!-- Genres -->
+						<div class="btn-group bootstrap-select select-large">
+							<button type="button" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
+								<div id="rb-genre" class="filter-option pull-left">
+									<span>All Genres</span><span class="data-value hide"></span>
+								</div>&nbsp;
+								<div class="caret"></div>
+							</button>
+							<div id="rb-genre-menu" class="dropdown-menu open">
+								<ul id="rb-genre-list" class="dropdown-menu custom-select inner" role="menu"></ul>
+							</div>
+						</div>
 					</div>
 					<button aria-label="Radio Browser" class="btn btn-toggle rb-toggle-btn active"><i class="fa-solid fa-sharp fa-globe"></i></button>
 				</div>
@@ -309,7 +331,6 @@
 						<ul id="rb-covers-recent" class="database-radio"></ul>
 					</div>
 				</div>
-				<div class="rb-attribution">Powered by <a class="target-blank-link" href="https://www.radio-browser.info" target="_blank">radio-browser.info</a> &middot; integration derived from RubaTron's Radio Browser extension</div>
 			</div>
 			<!-- End Radio Browser -->
 		</div>
@@ -664,7 +685,7 @@
 				<div class="control-group">
 	               <label class="control-label" for="theme-name">Theme</label>
 		            <div class="controls">
-							<div class="btn-group bootstrap-select select-large">
+						<div class="btn-group bootstrap-select select-large">
 							<button type="button" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">
 								<div id="theme-name" class="filter-option pull-left">
 									<span></span>

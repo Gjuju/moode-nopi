@@ -138,8 +138,8 @@ function rbSearch(offset, append) {
     RB.offset = offset || 0;
 	var params = {
         name: $('#rb-filter').val().trim(),
-        countrycode: $('#rb-country').val(),
-        tag: $('#rb-genre').val(),
+		countrycode: $('#rb-country span.data-value').text(),
+        tag: $('#rb-genre span.data-value').text(),
         offset: RB.offset,
         limit: RB.limit
     };
@@ -147,6 +147,8 @@ function rbSearch(offset, append) {
     if (!append) { rbLoading('rb-covers-search'); }
     // No filters = top stations by clickcount (search paginates via offset)
     $.getJSON(RB_API + '?cmd=search', params, function(data) {
+		console.log(RB_API + '?cmd=search');
+		console.log(params);
         if (data && data.success) {
             if (append) { rbAppendTiles(data.stations, 'rb-covers-search'); }
             else { rbRenderTiles(data.stations, 'rb-covers-search'); }
@@ -295,33 +297,38 @@ function rbOnViewActive() {
     if (!RB.countriesLoaded) {
         rbLoadCountriesAndGenres();
     }
-    // Refresh the dropdowns now the panel is visible (selectpicker init'd while hidden)
-    $('#rb-country, #rb-genre').selectpicker('refresh');
     rbShowTab(RB.tab);
 }
 function rbLoadCountriesAndGenres() {
     RB.countriesLoaded = true;
     $.getJSON(RB_API + '?cmd=countries', function(data) {
         if (data && data.success) {
-            var opts = '<option value="">All countries</option>';
-            data.countries.forEach(function(c) {
-                if (c.iso_3166_1 && c.name) {
-                    opts += '<option value="' + rbEscapeHtml(c.iso_3166_1) + '">' + rbEscapeHtml(c.name) + '</option>';
+			var lines = '<li><a href="#notarget" data-cmd="rb-country-sel" data-value=""><span class="text">All Countries</span></a></li>';
+            data.countries.forEach(function(item) {
+                if (item.iso_3166_1 && item.name) {
+					lines += '<li><a href="#notarget" data-cmd="rb-country-sel" data-value="'
+						+ rbEscapeHtml(item.iso_3166_1)
+						+ '"><span class="text">'
+						+ rbEscapeHtml(item.name)
+						+ '</span></a></li>';
                 }
             });
-            $('#rb-country').html(opts).selectpicker('refresh');
+			$('#rb-country-list').html(lines);
         }
     });
     $.getJSON(RB_API + '?cmd=genres', function(data) {
         if (data && data.success) {
-            var opts = '<option value="">All genres</option>';
-            data.genres.forEach(function(g) {
-                if (g.name) {
-                    var label = g.name.charAt(0).toUpperCase() + g.name.slice(1);
-                    opts += '<option value="' + rbEscapeHtml(g.name) + '">' + rbEscapeHtml(label) + '</option>';
+			var lines = '<li><a href="#notarget" data-cmd="rb-genre-sel" data-value=""><span class="text">All Genres</span></a></li>';
+            data.genres.forEach(function(item) {
+                if (item.title && item.name) {
+					lines += '<li><a href="#notarget" data-cmd="rb-genre-sel" data-value="'
+						+ item.name
+						+ '"><span class="text">'
+						+ item.title
+						+ '</span></a></li>';
                 }
             });
-            $('#rb-genre').html(opts).selectpicker('refresh');
+            $('#rb-genre-list').html(lines);
         }
     });
 }
@@ -348,6 +355,7 @@ $(document).ready(function() {
             rbSearch(0);
         }
     });
+
     $('#btn-rb-search-reset').click(function() {
         $('#rb-filter').val('');
         $(this).addClass('hide');
@@ -355,11 +363,24 @@ $(document).ready(function() {
         else { rbSearch(0); }
     });
 
-	$('#rb-country, #rb-genre').change(function() { rbSearch(0); });
-    // Tag 'external' so the global links.js skips navigation but the dropdown still closes
-    $('#rb-filters').on('click', '.dropdown-menu li a', function() { $(this).addClass('external'); });
+	var target = document.querySelector('#rb-country span');
+	var observer = new MutationObserver(mutate);
+	var config = {characterData: true, attributes: false, childList: true, subtree: false};
+	observer.observe(target, config);
+	function mutate(mutations) {
+		rbSearch(0);
+	}
+	var target = document.querySelector('#rb-genre span');
+	var observer = new MutationObserver(mutate);
+	var config = {characterData: true, attributes: false, childList: true, subtree: false};
+	observer.observe(target, config);
+	function mutate(mutations) {
+		rbSearch(0);
+	}
 
-    $('#rb-covers-search').on('click', '#btn-rb-showmore', function() { rbSearch(RB.offset + RB.limit, true); });
+    $('#rb-covers-search').on('click', '#btn-rb-showmore', function() {
+		rbSearch(RB.offset + RB.limit, true);
+	});
 
     // Tile interactions (event delegation across the search/recent tabs)
     $('#container-radio-browser').on('click', '.database-radio img', function() {
