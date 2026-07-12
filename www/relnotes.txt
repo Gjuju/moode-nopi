@@ -16,8 +16,8 @@
 ################################################################################
 
 New features
-- NEW: Radio Cover+ multi-provider cover search (based on MR+ project by @Syma753dfx)
-- NEW: Radio Browser toggle in Radio view (@rubatron orig project, @Gjuju integrator)
+- NEW: Radio Cover+ adv cover search (based on MR+ by Ivo Scagliola & Marco Mosca)
+- NEW: Radio Browser view (based on RadioBrowser by @rubatron, integrated by @Gjuju)
 
 Updates
 - UPD: Add Playlist upload/download: both Playlist and Folder view (PR #755 by @Gjuju)
