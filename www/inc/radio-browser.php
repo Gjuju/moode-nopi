@@ -183,27 +183,6 @@ function rbSaveLogo($name, $imageData) {
 	phpSession('close');
 	waitWorker('rbSaveLogo');
 	return true;
-
-	// NOTE: Code copied to case 'set_rblogo_image' in worker.php
-	/*$src = @imagecreatefromstring($imageData);
-	if (!$src) {
-		return false;
-	}
-	$w = imagesx($src);
-	$h = imagesy($src);
-
-	if (!is_dir(RADIO_LOGOS_ROOT)) {
-		@mkdir(RADIO_LOGOS_ROOT, 0755, true);
-	}
-	if (!is_dir(RADIO_LOGOS_ROOT . 'thumbs/')) {
-		@mkdir(RADIO_LOGOS_ROOT . 'thumbs/', 0755, true);
-	}
-
-	$ok1 = rbResizeAndSave($src, $w, $h, 400, RADIO_LOGOS_ROOT . $name . '.jpg');
-	$ok2 = rbResizeAndSave($src, $w, $h, 200, RADIO_LOGOS_ROOT . 'thumbs/' . $name . '.jpg');
-	$ok3 = rbResizeAndSave($src, $w, $h, 80, RADIO_LOGOS_ROOT . 'thumbs/' . $name . '_sm.jpg');
-	imagedestroy($src);
-	return $ok1 && $ok2 && $ok3;*/
 }
 
 // Ensure the station has local logo files: download+convert the favicon, else copy the
