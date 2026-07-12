@@ -57,18 +57,16 @@ jQuery(document).ready(function($) { 'use strict';
     }
 
     // Only show Prefs transparency options if alphablend != 1.00
-    var target = document.querySelector('#alpha-blend span')
+    var target = document.querySelector('#alpha-blend span');
     var observer = new MutationObserver(mutate);
     var config = {characterData: true, attributes: false, childList: true, subtree: false};
     observer.observe(target, config);
     function mutate(mutations) {
-        mutations.forEach(function(mutation) {
-            if ($('#alpha-blend span').text() != '1.00') {
-                $('#cover-options').css('display', 'block');
-            } else {
-                $('#cover-options').css('display', '');
-            }
-        });
+		if ($('#alpha-blend span').text() != '1.00') {
+			$('#cover-options').css('display', 'block');
+		} else {
+			$('#cover-options').css('display', '');
+		}
     }
 
 	// Load current cfg
