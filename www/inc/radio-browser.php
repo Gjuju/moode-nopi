@@ -1,12 +1,15 @@
 <?php
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Copyright 2014 The moOde audio player project / Tim Curtis
+ * Copyright 2026 The moOde audio player project / Tim Curtis
+ * Copyright 2026 RadioBrowser extension   / @rubatron
+ *	https://github.com/rubatron/RadioBrowser/tree/main
+ * Copyright 2026 RadioBrowser integration / @Gjuju
+ *	https://github.com/moode-player/moode/commit/910bee751a1f65fa80b1cd44383bc9450cacba19
  *
- * radio-browser.info integration — function library (radio-browser.info client,
- * cache, cfg_radio station read/write, logo proxy). Derived from RubaTron's Radio
- * Browser extension for moOde (GPL-3.0-or-later), re-implemented in moOde's native
- * conventions (cfg_radio, submitJob, mpd.php). Included by command/radio-browser.php.
+ * Radio browser function library.
+ * Derived from @rubatron's RadioBrowser extension for moOde and re-implemented
+ * using moOde's native PHP back-end conventions.
 */
 
 require_once __DIR__ . '/common.php';

@@ -1,10 +1,15 @@
 <?php
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Copyright 2014 The moOde audio player project / Tim Curtis
+ * Copyright 2026 The moOde audio player project / Tim Curtis
+ * Copyright 2026 RadioBrowser extension   / @rubatron
+ *	https://github.com/rubatron/RadioBrowser/tree/main
+ * Copyright 2026 RadioBrowser integration / @Gjuju
+ *	https://github.com/moode-player/moode/commit/910bee751a1f65fa80b1cd44383bc9450cacba19
  *
- * radio-browser.info AJAX endpoint: dispatches ?cmd=… to the inc/radio-browser.php
- * function library. Derived from RubaTron's Radio Browser extension (GPL-3.0-or-later).
+ * Radio browser AJAX endpoint.
+ * Dispatches ?cmd=… to the appropriate function in inc/radio-browser.php function
+ * library. Derived from @rubatron's Radio Browser extension for moOde.
 */
 
 require_once __DIR__ . '/../inc/common.php';

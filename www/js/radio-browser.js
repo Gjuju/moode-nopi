@@ -1,10 +1,14 @@
 /*!
  * SPDX-License-Identifier: GPL-3.0-or-later
- * Copyright 2014 The moOde audio player project / Tim Curtis
+ * Copyright 2026 The moOde audio player project / Tim Curtis
+ * Copyright 2026 RadioBrowser extension   / @rubatron
+ *	https://github.com/rubatron/RadioBrowser/tree/main
+ * Copyright 2026 RadioBrowser integration / @Gjuju
+ *	https://github.com/moode-player/moode/commit/910bee751a1f65fa80b1cd44383bc9450cacba19
  *
- * Radio Browser view (radio-browser.info). Derived from RubaTron's Radio Browser
- * extension for moOde (GPL-3.0-or-later), re-implemented in moOde's native style and
- * reusing the Radio view tile markup/CSS.
+ * Radio Browser view.
+ * Derived from @rubatron's RadioBrowser extension for moOde and re-implemented
+ * using moOde's native front-end style and reusing the Radio view markup and CSS.
  */
 
 var RB = {

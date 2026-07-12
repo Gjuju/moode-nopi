@@ -1,7 +1,11 @@
 #!/bin/bash
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright 2014 The moOde audio player project / Tim Curtis
+# Copyright 2026 The moOde audio player project / Tim Curtis
+# Copyright 2026 RadioBrowser extension   / @rubatron
+#	https://github.com/rubatron/RadioBrowser/tree/main
+# Copyright 2026 RadioBrowser integration / @Gjuju
+#	https://github.com/moode-player/moode/commit/910bee751a1f65fa80b1cd44383bc9450cacba19
 #
 # Radio Browser maintenance helper.
 # Usage: radio-browser.sh [--clear-recents|--fix-permissions|--clear-caches|--check-servers]
