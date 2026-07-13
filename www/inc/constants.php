@@ -61,17 +61,17 @@ const SQLDB = 'sqlite:/var/local/www/db/moode-sqlite3.db';
 const SQLDB_PATH = '/var/local/www/db/moode-sqlite3.db';
 // Dashboard
 const DASHBOARD_CACHE_FILE = '/var/local/www/dashboard.txt';
+// Default titles and covers
+const DEFAULT_STATION_NAME = 'Radio station';
+const DEFAULT_ALBUM_COVER = 'images/default-album-cover.jpg';
+const DEFAULT_RADIO_COVER = 'images/default-radio-cover.jpg';
+const DEFAULT_PLAYLIST_COVER = '/var/www/images/default-playlist-cover.jpg';
+const DEFAULT_NOTFOUND_COVER = '/var/www/images/default-notfound-cover.jpg';
+const DEFAULT_UPNP_COVER = 'images/default-upnp-cover.jpg';
+const DEFAULT_RX_COVER = 'images/default-rx-cover.jpg'; // DEPRECATED
 // Library/Playback
 const LIBCACHE_BASE = '/var/local/www/libcache';
 const ROOT_DIRECTORIES = array('NAS', 'NVME', 'OSDISK', 'RADIO', 'SATA', 'USB');
-const DEFAULT_STATION_NAME = 'Radio station';
-const DEFAULT_RADIO_COVER = 'images/default-album-cover.png';
-const DEFAULT_ALBUM_COVER = 'images/default-album-cover.png';
-const DEFAULT_UPNP_COVER = 'images/default-upnp-cover.jpg';
-const DEFAULT_RX_COVER = 'images/default-rx-cover.jpg';
-const DEFAULT_PLAYLIST_COVER = '/var/www/images/default-playlist-cover.jpg';
-const DEFAULT_NOTFOUND_COVER = '/var/www/images/default-notfound-cover.jpg';
-const DEFAULT_WEBUI_DISPLAY_URL = 'http://localhost/';
 const AIRPLAY_COVERS_ROOT = '/var/local/www/imagesw/airplay-covers/';
 const PLAYLIST_COVERS_ROOT = '/var/local/www/imagesw/playlist-covers/';
 const RADIO_LOGOS_ROOT = '/var/local/www/imagesw/radio-logos/';
@@ -119,6 +119,8 @@ const READY_CHIME_URI = 'OSDISK/System Sounds/ReadyChime.flac';
 const READY_CHIME_TITLE = 'moOde audio - Ready Chime';
 // File sharing
 const FS_SMB_CONF = '/etc/samba/smb.conf';
+// WebUI display
+const DEFAULT_WEBUI_DISPLAY_URL = 'http://localhost/';
 // Peppy display
 const PEPPY_METER_ETC_DIR = '/etc/peppymeter';
 const PEPPY_METER_OPT_DIR = '/opt/peppymeter';

@@ -1011,18 +1011,10 @@ body.cv .timeline-thm input[type='range']::-webkit-slider-thumb {
 	left:var(--thumbmargin);
 	text-align:center;
 }
-.plview-text-cover i {
-	font-size:calc(var(--thumbimagesize)/2);
-	color:var(--textvariant);
-}
 .plview-edit-thumb {
 	position:absolute;
 	top:.5rem;
 	left:var(--thumbmargin);
-}
-.plview-edit-thumb i {
-	font-size:calc(50px/2);
-	color:var(--textvariant);
 }
 #station-path {text-align:center;}
 #track-info-text {text-align:left;}

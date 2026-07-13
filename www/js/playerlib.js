@@ -90,12 +90,12 @@ const LIB_MOUNT_TYPE_NVME = 'nvme';
 
 // Default titles and covers
 const DEFAULT_STATION_NAME = 'Radio station';
-const DEFAULT_RADIO_COVER = 'images/default-album-cover.png';
-const DEFAULT_ALBUM_COVER = 'images/default-album-cover.png';
-const DEFAULT_UPNP_COVER = 'images/default-upnp-cover.jpg';
-const DEFAULT_RX_COVER = 'images/default-rx-cover.jpg';
+const DEFAULT_ALBUM_COVER = 'images/default-album-cover.jpg';
+const DEFAULT_RADIO_COVER = 'images/default-radio-cover.jpg';
 const DEFAULT_PLAYLIST_COVER = 'images/default-playlist-cover.jpg';
 const DEFAULT_NOTFOUND_COVER = 'images/default-notfound-cover.jpg';
+const DEFAULT_UPNP_COVER = 'images/default-upnp-cover.jpg';
+const DEFAULT_RX_COVER = 'images/default-rx-cover.jpg'; // DEPRECATED
 
 var UI = {
     knob: null,
@@ -2508,9 +2508,6 @@ function renderPlaylistView () {
 			}
     		output += '<li id="pl-entry-' + (i + 1) + '" data-path="' + playlists[i].name + '">';
 			output += '<div class="db-icon db-song db-browse db-action">' + plViewLazy + encodeURIComponent(imgUrl) + '">';
-			output += playlists[i].cover == 'default' ? '<div class="plview-text-cover-div"><span class="plview-text-cover">' +
-				'<i class="fa-solid fa-sharp fa-list-music"></i>' +
-				'</span></div>' : '';
             output += '</div><div class="cover-menu" data-toggle="context" data-target="#context-menu-playlist-item"></div></div><div class="db-entry db-song db-browse"></div>';
             output += '<span class="playlist-name">' + playlists[i].name + '</span>';
             output += genreDiv;
@@ -3163,11 +3160,10 @@ $(document).on('click', '.context-menu a', function(e) {
 					var imgUrl = '../imagesw/playlist-covers/' + path + '.jpg';
 				} else if (data.cover == 'default') {
 					var imgUrl = DEFAULT_PLAYLIST_COVER;
-					var icon = '<span class="plview-edit-thumb"><i class="fa-solid fa-sharp fa-list-music"></i></span></div>';
 				} else { // Manually entered URL for #EXTIMG tag (rare)
 					var imgUrl = data.cover;
 				}
-				$('#preview-edit-plcoverimage').html('<img src="' + imgUrl + '">' + icon);
+				$('#preview-edit-plcoverimage').html('<img src="' + imgUrl + '">');
                 $('#edit-playlist-tags').css('margin-top', '20px');
                 $('#edit-playlist-genre').val(data['genre']);
 
