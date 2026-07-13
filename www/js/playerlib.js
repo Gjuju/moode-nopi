@@ -797,12 +797,16 @@ function engineCmdLite() {
 function inpSrcIndicator(cmd, msgText) {
 	// DEBUG:
 	//console.log('inpSrcIndicator(): ' + cmd + ' | ' + msgText);
+
+	// Reset
 	UI.currentFile = 'blank';
     $('#inpsrc-msg').removeClass('inpsrc-msg-metadata');
     $('#inpsrc-msg').addClass('inpsrc-msg-default');
     $('#inpsrc-msg').css({width:'100%', top:'50%', bottom:'unset'});
     $('#inpsrc-metadata').hide();
 	$('#inpsrc-cover').html('');
+    $('#inpsrc-backdrop').html('');
+    $('#inpsrc-style').css('display', 'none');
 
     // Set the button and preamp volume
     // NOTE: Preamp volume #id will only exist if audioin != Local
