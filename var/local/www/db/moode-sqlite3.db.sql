@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.4.4 on Sun Jul 12 12:38:19 2026
+-- File generated with SQLiteStudio v3.4.4 on Mon Jul 13 10:25:04 2026
 --
 -- Text encoding used: UTF-8
 --
@@ -971,7 +971,7 @@ INSERT INTO cfg_system (id, param, value) VALUES (141, 'playlist_art', 'Yes');
 INSERT INTO cfg_system (id, param, value) VALUES (142, 'library_onetouch_ralbum', 'No action');
 INSERT INTO cfg_system (id, param, value) VALUES (143, 'radioview_sort_group', 'Name,No grouping');
 INSERT INTO cfg_system (id, param, value) VALUES (144, 'radioview_show_hide', 'No action,No action');
-INSERT INTO cfg_system (id, param, value) VALUES (145, 'renderer_backdrop', 'Yes');
+INSERT INTO cfg_system (id, param, value) VALUES (145, 'RESERVED_145', '');
 INSERT INTO cfg_system (id, param, value) VALUES (146, 'library_flatlist_filter', 'full_lib');
 INSERT INTO cfg_system (id, param, value) VALUES (147, 'library_flatlist_filter_str', '');
 INSERT INTO cfg_system (id, param, value) VALUES (148, 'library_misc_options', 'No,Album@Artist (Default)');

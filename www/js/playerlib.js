@@ -804,23 +804,6 @@ function inpSrcIndicator(cmd, msgText) {
     $('#inpsrc-metadata').hide();
 	$('#inpsrc-cover').html('');
 
-    // Set custom backdrop (if any)
-    if (cmd == 'rxactive1') {
-        $('#inpsrc-backdrop').html('<img class="ss-backdrop" ' + 'src="' + DEFAULT_RX_COVER + '">');
-        $('#inpsrc-backdrop').css('filter', 'blur(1.25px)');
-        $('#inpsrc-backdrop').css('transform', 'scale(1.0)');
-    } else if (SESSION.json['renderer_backdrop'] == 'Yes') {
-        if (SESSION.json['cover_backdrop'] == 'Yes' && MPD.json['coverurl'].indexOf(DEFAULT_ALBUM_COVER) === -1) {
-            $('#inpsrc-backdrop').html('<img class="ss-backdrop" ' + 'src="' + MPD.json['coverurl'] + '">');
-            $('#inpsrc-backdrop').css('filter', 'blur(' + SESSION.json['cover_blur'] + ')');
-            $('#inpsrc-backdrop').css('transform', 'scale(' + SESSION.json['cover_scale'] + ')');
-        } else if (SESSION.json['bgimage'] != '') {
-            $('#inpsrc-backdrop').html('<img class="ss-backdrop" ' + 'src="' + SESSION.json['bgimage'] + '">');
-            $('#inpsrc-backdrop').css('filter', 'blur(0px)');
-            $('#inpsrc-backdrop').css('transform', 'scale(1.0)');
-        }
-    }
-
     // Set the button and preamp volume
     // NOTE: Preamp volume #id will only exist if audioin != Local
 	if (cmd.slice(-1) == '1') {
@@ -3468,7 +3451,6 @@ $(document).on('click', '.context-menu a', function(e) {
         		$('#cover-backdrop-enabled span').text(SESSION.json['cover_backdrop']);
         		$('#cover-blur span').text(SESSION.json['cover_blur']);
         		$('#cover-scale span').text(SESSION.json['cover_scale']);
-                $('#renderer-backdrop span').text(SESSION.json['renderer_backdrop']);
                 $('#font-size span').text(SESSION.json['font_size']);
                 $('#native-lazyload span').text(SESSION.json['native_lazyload']);
 
@@ -3747,7 +3729,6 @@ $('#btn-preferences-update').click(function(e){
 	SESSION.json['cover_backdrop'] = $('#cover-backdrop-enabled span').text();
 	SESSION.json['cover_blur'] = $('#cover-blur span').text();
 	SESSION.json['cover_scale'] = $('#cover-scale span').text();
-    SESSION.json['renderer_backdrop'] = $('#renderer-backdrop span').text();
     SESSION.json['font_size'] = $('#font-size span').text();
     SESSION.json['native_lazyload'] = $('#native-lazyload span').text();
 
@@ -3873,7 +3854,6 @@ $('#btn-preferences-update').click(function(e){
             'cover_backdrop': SESSION.json['cover_backdrop'],
             'cover_blur': SESSION.json['cover_blur'],
             'cover_scale': SESSION.json['cover_scale'],
-            'renderer_backdrop': SESSION.json['renderer_backdrop'],
             'font_size': SESSION.json['font_size'],
             'native_lazyload': SESSION.json['native_lazyload'],
 

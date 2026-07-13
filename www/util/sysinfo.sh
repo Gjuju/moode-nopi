@@ -185,7 +185,6 @@ APPEARANCE_SETTINGS() {
 	echo -e "\nCover backdrop\t\t= $cover_backdrop\c"
 	echo -e "\nCover blur\t\t= $cover_blur\c"
 	echo -e "\nCover scale\t\t= $cover_scale\c"
-	echo -e "\nRenderer backdrop\t= $renderer_backdrop\c"
 	echo -e "\nFont size\t\t= $font_size\c"
 	echo -e "\nNative lazyload\t\t= $native_lazyload\c"
 	echo -e "\nReduce notifications\t= $reduce_notifications\c"
@@ -907,7 +906,7 @@ rv_group_method=$(awk -F"," '{print $2}' <<< $radioview_sort_group)
 radioview_show_hide=${arr[143]}
 rv_show_moode=$(awk -F"," '{print $1}' <<< $radioview_show_hide)
 rv_show_other=$(awk -F"," '{print $2}' <<< $radioview_show_hide)
-renderer_backdrop=${arr[144]}
+RESERVED_145=${arr[144]}
 library_flatlist_filter=${arr[145]}
 library_flatlist_filter_str=${arr[146]}
 library_misc_options=${arr[147]}

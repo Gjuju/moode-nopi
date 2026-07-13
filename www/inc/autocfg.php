@@ -599,7 +599,6 @@ function autoConfigSettings() {
 		['requires' => ['cover_backdrop'], 'handler' => 'setSessVarSql'],
 		['requires' => ['cover_blur'], 'handler' => 'setSessVarSql'],
 		['requires' => ['cover_scale'], 'handler' => 'setSessVarSql'],
-		['requires' => ['renderer_backdrop'], 'handler' => 'setSessVarSql'],
 		['requires' => ['font_size'], 'handler' => 'setSessVarSql'],
 		['requires' => ['native_lazyload'], 'handler' => 'setSessVarSql'],
 		'Playback',
