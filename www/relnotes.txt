@@ -16,10 +16,10 @@
 ################################################################################
 
 Updates
-- UPD:
+- UPD: Provide dB values for MPD software volume (PR #770 @Gjuju)
 
 Bug fixes
-- FIX:
+- FIX: dB volume/attenuation when Peppy is in the audio chain (PR #769 @Gjuju)
 
 ################################################################################
 #
