@@ -64,6 +64,12 @@ switch ($cmd) {
 		$data = rbCacheGet('countries', RADIOBROWSER_CACHE_TTL_STATIC);
 		if ($data === false) {
 			$data = rbApi('/json/countries', array('hidebroken' => 'true'));
+			array_walk_recursive($data, function(&$item) {
+    			$item = str_replace('The ', '', $item);
+			});
+			usort($data, function($a, $b) {
+				return $a['name'] <=> $b['name'];
+			});
 			if ($data !== false) {
 				rbCacheSet('countries', $data);
 			}
@@ -77,7 +83,7 @@ switch ($cmd) {
 		$data = rbCacheGet('genres', RADIOBROWSER_CACHE_TTL_STATIC);
 		if ($data === false) {
 			$result = sqlQuery("SELECT name, genre FROM cfg_rbgenres", sqlConnect());
-			usort($result, function ($a, $b) {
+			usort($result, function($a, $b) {
     			return $a['name'] <=> $b['name'];
 			});
 			$data = array();
