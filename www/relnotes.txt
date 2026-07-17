@@ -19,7 +19,11 @@ Updates
 - UPD: Provide dB values for MPD software volume (PR #770 @Gjuju)
 
 Bug fixes
+- FIX: Radio Browser image create in radio-logos/ directory fails
+- FIX: Radio Browser thumb not showing up in Queue
+- FIX: Radio Browser updates the list position in Radio view
 - FIX: dB volume/attenuation when Peppy is in the audio chain (PR #769 @Gjuju)
+- FIX: Typo in Library Config help for the Analyze button
 
 ################################################################################
 #
