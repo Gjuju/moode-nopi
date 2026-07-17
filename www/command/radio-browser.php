@@ -80,7 +80,6 @@ switch ($cmd) {
 			usort($result, function ($a, $b) {
     			return $a['name'] <=> $b['name'];
 			});
-			workerLog(print_r($result, true));
 			$data = array();
 			foreach ($result as $row) {
 				array_push($data, array('name' => $row['name'], 'genre' => $row['genre']));
@@ -191,6 +190,22 @@ switch ($cmd) {
 		}
 		rbRemoveRecent($url);
 		$response = array('success' => true, 'message' => 'Station has been removed');
+		break;
+
+	case 'check_registered':
+		$result = sqlQuery("SELECT name, type FROM cfg_radio WHERE station='" . SQLite3::escapeString($_REQUEST['url']) . "'", sqlConnect());
+		// DEBUG:
+		//workerLog('URL=' . $_REQUEST['url']);
+		//workerLog(print_r($result, true));
+		if (!empty($result[0]['name'])) {
+			if ($result[0]['type'] == 'f' || $result[0]['type'] == 'r') {
+				$response = array('success' => true, 'message' => 'Station exists in Radio view');
+			} else {
+				$response = array('success' => true, 'message' => 'Station already registered');
+			}
+		} else {
+			$response = array('success' => false, 'message' => 'Station not registered');
+		}
 		break;
 
 	case 'register':
