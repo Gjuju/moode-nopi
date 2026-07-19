@@ -30,6 +30,8 @@ Radio Browser
 Bug fixes
 - FIX: dB volume/attenuation when Peppy is in the audio chain (PR #769 @Gjuju)
 - FIX: Typo in Library Config help for the Analyze button
+- FIX: Index search broken in Radio view when group by "Favorites first"
+
 
 ################################################################################
 #
