@@ -17,6 +17,7 @@
 
 Updates
 - UPD: Provide dB values for MPD software volume (PR #770 @Gjuju)
+- UPD: Increase hit ares of the ... button for Queue items (PR #771 @Gjuju)
 
 Radio Browser
 - FIX: Image create in radio-logos/ directory fails
