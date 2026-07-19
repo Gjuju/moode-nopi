@@ -2391,6 +2391,7 @@ function renderRadioView(lazyLoad = true) {
             output += radioViewHdDiv;
 			output += radioViewBgDiv;
             output += '<span class="station-name">' + data[i].name + '</span>';
+			output += '<span class="station-type hide">' + data[i].type + '</span>';
             output += broadcasterDiv;
             output += countryDiv;
             output += languageDiv;
@@ -4551,7 +4552,14 @@ $('#index-browse li').on('click', function(e) {
 	listLook('database li', 'folder', $(this).text());
 });
 $('#index-radio li').on('click', function(e) {
-    list = SESSION.json['radioview_sort_group'].split(',')[1] == 'No grouping' ? 'radio' : 'radio_headers';
+	var sortGroup = SESSION.json['radioview_sort_group'].split(',')[1];
+	if (sortGroup == 'No grouping') {
+		list = 'radio';
+	} else if (sortGroup == 'Favorites first') {
+		list = 'radio_exclude_favorites';
+	} else {
+		list = 'radio_headers';
+	}
 	listLook('radio-covers li', list, $(this).text());
 });
 $('#index-playlist li').on('click', function(e) {
@@ -4566,9 +4574,20 @@ function listLook(selector, list, searchText) {
 	if (searchText != '#') {
         if (list == 'radio') {
             $('#' + selector).each(function() {
-                var text = removeArticles($(this).children('span').text().toLowerCase());
+                var text = removeArticles($(this).children('.station-name').text().toLowerCase());
                 if (text.substr(0, 1) == searchText) {return false;}
         		itemNum++;
+        	});
+        }
+		else if (list == 'radio_exclude_favorites') {
+			list = 'radio';
+            $('#' + selector).each(function() {
+				var type = $(this).children('.station-type').text();
+				if (!type.includes('f')) {
+					var text = removeArticles($(this).children('.station-name').text().toLowerCase());
+	                if (text.substr(0, 1) == searchText) {return false;}
+					itemNum++;
+				}
         	});
         }
         else if (list == 'radio_headers') {
