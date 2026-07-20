@@ -19,8 +19,8 @@ Packages
 - UPD: peppy-meter=2026.7.20-1moode1
 
 Updates
-- UPD: Provide dB values for MPD software volume (PR #770 @Gjuju)
 - UPD: Increase hit ares of the ... button for Queue items (PR #771 @Gjuju)
+- UPD: Provide dB values for MPD software volume (PR #770 @Gjuju)
 
 Radio Browser
 - FIX: Image create in radio-logos/ directory fails
@@ -32,7 +32,9 @@ Radio Browser
 - FIX: Remove duplicate genre "Jazz - Bebop" entry
 
 Bug fixes
-- FIX: Volume/attenuation when Peppy is in the audio chain (PR #769 @Gjuju)
+- FIX: Fix no Bluetooth audio when a GEQ/PEQ/Crossfeed active (PR #774 @Gjuju)
+- FIX: Hardware volume not being tracked when Peppy is on (PR #773 @Gjuju)
+- FIX: Volume/attenuation when Peppy is on (PR #769 @Gjuju)
 - FIX: Typo in Library Config help for the Analyze button
 - FIX: Index search broken in Radio view when group by "Favorites first"
 
