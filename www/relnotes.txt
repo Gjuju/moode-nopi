@@ -26,12 +26,12 @@ Radio Browser
 - FIX: Highlight is missing when tile is clicked
 - FIX: Duplicate station URL's can be added
 - FIX: Countries sorted by country code instead of name
+- FIX: Remove duplicate genre "Jazz - Bebop" entry
 
 Bug fixes
-- FIX: dB volume/attenuation when Peppy is in the audio chain (PR #769 @Gjuju)
+- FIX: Volume/attenuation when Peppy is in the audio chain (PR #769 @Gjuju)
 - FIX: Typo in Library Config help for the Analyze button
 - FIX: Index search broken in Radio view when group by "Favorites first"
-
 
 ################################################################################
 #
