@@ -3,6 +3,7 @@
 /*
  * SPDX-License-Identifier: GPL-3.0-or-later
  * Copyright 2026 The moOde audio player project / Tim Curtis
+ * Copyright 2026 @Gjuju (PR #773)
  *
  * Publish the hardware volume attenuation for PeppyMeter (volume.gain.db.source).
  *

@@ -2295,11 +2295,7 @@ function chkAttachedDisplayOnOff() {
 		sendFECmd('local_display_onoff,' . $currentOnOff);
 	}
 }
-// Peppy screen blank
-// - Timeout is set
-// - Peppy is on
-// - No renderer is active
-// - MPD is not playing
+// Tracks Hardware volume and updates peppy
 function chkPeppyGainMon() {
 	// The meter gain is only as good as the daemon that publishes it: if it dies the
 	// needles keep displaying the last dB and silently stop following the volume.
@@ -2309,6 +2305,11 @@ function chkPeppyGainMon() {
 		startPeppyGainMon();
 	}
 }
+// Peppy screen blank
+// - Timeout is set
+// - Peppy is on
+// - No renderer is active
+// - MPD is not playing
 function chkPeppyScnBlank() {
 	if (false === ($sock = openMpdSock('localhost', 6600))) {
 		workerLog('worker: CRITICAL ERROR: chkPeppyScnBlank(): Connection to MPD failed');
