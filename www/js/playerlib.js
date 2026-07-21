@@ -2186,7 +2186,7 @@ function renderRadioView(lazyLoad = true) {
         if (showHideOtherStations == 'Hide all' || showHideOtherStations == 'Un-hide all') {
             var newStationType = showHideOtherStations == 'Hide all' ? 'h' : 'r';
             for (var i = 0; i < data.length; i++) {
-                if (parseInt(data[i].id) > 499 && data[i].type.substring(0, 1) != 'f') { // f or fb
+                if (parseInt(data[i].id) > 499 && data[i].type.substring(0, 1) != 'f' && data[i].type != 'rb') {
                     data[i].type = newStationType;
                 }
             }
