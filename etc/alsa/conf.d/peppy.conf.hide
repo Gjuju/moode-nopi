@@ -3,7 +3,23 @@
 #########################################
 pcm.peppy {
 type plug
-slave.pcm "softvol_and_peppyalsa"
+slave.pcm "peppy_pcmguard"
+}
+
+# Only negotiates linear PCM: native DSD is refused here so the player
+# converts upstream instead of reaching the meter, whose s16 scope
+# aborts on DSD. Unity gain, bit-transparent. Remove when alsa-lib
+# pcm_meter handles DSD (alsa-project/alsa-lib#516/#517).
+pcm.peppy_pcmguard {
+type route
+slave {
+pcm "softvol_and_peppyalsa"
+channels 2
+}
+ttable {
+0.0 = 1
+1.1 = 1
+}
 }
 
 pcm.softvol_and_peppyalsa {
