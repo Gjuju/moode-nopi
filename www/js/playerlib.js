@@ -814,19 +814,20 @@ function btPairRequest(id, method, code, nameB64) {
 
 	var text, showCode = true, showConfirm = true;
 	if (method === 'confirm') {
-		text = 'Confirm this code matches the one shown on <b>' + name + '</b>';
+		text = 'Confirm this code matches the one shown on';
 	} else if (method === 'display') {
-		text = 'Enter this code on <b>' + name + '</b>';
+		text = 'Enter this code on';
 		showConfirm = false; // informational; the device does the entering
 	} else if (method === 'authorize') {
-		text = 'Allow <b>' + name + '</b> to pair with this player?';
+		text = 'Allow pairing with';
 		showCode = false;
 	} else {
-		text = 'Pairing request from <b>' + name + '</b>';
+		text = 'Pairing request from';
 		showCode = false;
 	}
 
-	$('#btpair-modal-text').html(text);
+	$('#btpair-modal-text').text(text);
+	$('#btpair-modal-name').text(name);
 	$('#btpair-modal-code').text(showCode ? code : '').toggle(showCode);
 	$('#btpair-confirm-btn').toggle(showConfirm);
 	$('#btpair-cancel-btn').text(showConfirm ? 'Reject' : 'Close');

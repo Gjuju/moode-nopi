@@ -96,7 +96,8 @@
 		<h3 id="btpair-modal-label">Bluetooth pairing</h3>
 	</div>
 	<div class="modal-body">
-		<p id="btpair-modal-text"></p>
+		<p id="btpair-modal-text" class="btpair-text"></p>
+		<p id="btpair-modal-name" class="btpair-name"></p>
 		<div id="btpair-modal-code" class="btpair-code"></div>
 	</div>
 	<div class="modal-footer">
