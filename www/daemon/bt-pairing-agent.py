@@ -106,6 +106,9 @@ class PairingAgent(dbus.service.Object):
                 req['reply']()
         else:
             req['error'](Rejected('Rejected by user'))
+        # Close the dialog on any other UI that also popped it (browser + local
+        # display): the client that answered has already closed its own.
+        push_fe('paircancel,%s' % req_id)
 
     def _expire(self, req_id):
         req = self.pending.pop(req_id, None)
