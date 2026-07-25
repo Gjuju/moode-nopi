@@ -22,3 +22,4 @@ __MACOSX
 /other/camilladsp/camilladsp.dev/*
 # Claude Code agent working dir (memory, settings) - never publish
 /.claude/
+__pycache__/
