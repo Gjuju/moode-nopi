@@ -41,7 +41,10 @@ CAPABILITY = (len(sys.argv) > 1 and sys.argv[1]) \
 SEND_FECMD = '/var/www/util/send-fecmd.php'
 RESPONSE_SOCK = '/tmp/moode-btagent.sock'
 RESPONSE_USER = 'www-data'          # front-end (php-fpm) writes the reply here
-CONFIRM_TIMEOUT = 25                 # seconds; must stay under bluez' ~30s SSP window
+# Safety net only. Normal closure is driven by bluez calling Cancel() when the device
+# gives up, which keeps the modal in sync with what the phone shows. This long timeout
+# just prevents a stuck modal if Cancel() never arrives.
+CONFIRM_TIMEOUT = 60
 
 
 def log(msg):
