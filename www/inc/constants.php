@@ -111,6 +111,7 @@ const BOOT_CMDLINE_TXT = BOOT_DIR . '/cmdline.txt';
 const BOOT_MOODEBACKUP_ZIP = '/boot/moodebackup.zip';
 const BOOT_MOODECFG_INI = '/boot/moodecfg.ini';
 const BT_PINCODE_CONF = '/etc/bluetooth/pin.conf';
+const BT_AGENT_SOCK = '/tmp/moode-btagent.sock'; // bt-pairing-agent.py response socket
 const ETC_MACHINE_INFO = '/etc/machine-info';
 const CHROMIUM_DOWNGRADE_VER = '126.0.6478.164-rpt1';
 const NO_USERID_DEFINED = 'userid does not exist';
