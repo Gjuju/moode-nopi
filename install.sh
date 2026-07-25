@@ -337,7 +337,7 @@ OPT_PKGS=()
 # expect drives the bluetoothctl sessions in blu-control.sh (SCAN/PAIR/CONNECT);
 # without it those UI actions fail silently. It is also installed by Phase 5d, so
 # Bluetooth must not depend on the local display being installed.
-[ "$INSTALL_BLUETOOTH"   = 1 ] && OPT_PKGS+=(bluez bluez-alsa-utils bluez-tools expect)  # bluez-tools: bt-agent
+[ "$INSTALL_BLUETOOTH"   = 1 ] && OPT_PKGS+=(bluez bluez-alsa-utils bluez-tools expect python3-dbus python3-gi)  # python3-dbus/gi: bt-pairing-agent.py
 [ "$INSTALL_AIRPLAY"     = 1 ] && OPT_PKGS+=(shairport-sync)
 [ "$INSTALL_UPNP"        = 1 ] && OPT_PKGS+=(upmpdcli upmpdcli-tidal upmpdcli-qobuz)
 [ "$INSTALL_DLNA"        = 1 ] && OPT_PKGS+=(minidlna)
@@ -1258,11 +1258,11 @@ if [ "$INSTALL_BLUETOOTH" = 1 ]; then
 		sed -i "s/--sbc-quality=[^ ]*/--sbc-quality=$_sbc_quality/" /etc/systemd/system/bluealsa.service
 	fi
 	install -m 644 "$REPO_DIR/etc/systemd/system/bluealsa-aplay@.service"     /etc/systemd/system/bluealsa-aplay@.service
-	if grep -q 'bt-agent.* -p ' /etc/systemd/system/bt-agent.service 2>/dev/null; then
-		log "Kept existing bt-agent.service (PIN code configured)"
-	else
-		install -m 644 "$REPO_DIR/etc/systemd/system/bt-agent.service" /etc/systemd/system/bt-agent.service
-	fi
+	install -m 644 "$REPO_DIR/etc/systemd/system/bt-agent.service" /etc/systemd/system/bt-agent.service
+	# The pairing agent is a moOde D-Bus service (Numeric Comparison confirmation),
+	# launched by bt-agent.service. rsync from build/dist may not carry the .py, so
+	# install it explicitly and make sure it is executable.
+	install -m 755 "$REPO_DIR/www/daemon/bt-pairing-agent.py" /var/www/daemon/bt-pairing-agent.py
 	# A2DP playback routing: startBluetooth() starts bluealsa/bt-agent but NOT the
 	# player - bluealsa-aplay@<MAC> is started per device by a udev rule ->
 	# a2dp-autoconnect when a phone connects (and stopped on disconnect; the rule
