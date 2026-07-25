@@ -1309,6 +1309,11 @@ if [ "$INSTALL_BLUETOOTH" = 1 ]; then
 	chown www-data:www-data /etc/bluetooth/pin.conf
 	grep -q '^PRETTY_HOSTNAME=' /etc/machine-info 2>/dev/null \
 		|| echo "PRETTY_HOSTNAME=Moode Bluetooth" >> /etc/machine-info
+	# The unit's ExecStart changed (stock bt-agent -> the moOde pairing agent), so on
+	# a re-run a bt-agent already running the old binary must be restarted to pick it
+	# up - a plain daemon-reload does not restart a running service.
+	systemctl daemon-reload
+	systemctl is-active --quiet bt-agent && systemctl restart bt-agent
 	log "Deployed Bluetooth service units + A2DP autoconnect + controller name/class"
 fi
 if [ "$INSTALL_SQUEEZELITE" = 1 ]; then
