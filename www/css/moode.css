@@ -203,3 +203,6 @@ ol.playhistory {margin-left:3em;}
 #playhistory-search {width:84%;margin:auto;}
 #ph-filter-results {line-height:28px;font-size:14px;font-style:italic;margin-right:10px;}
 #search-reset-ph {padding:3px 10px;}
+
+/* Bluetooth pairing confirmation code */
+.btpair-code {font-size:40px;font-weight:bold;letter-spacing:6px;text-align:center;margin:20px 0 10px;}
