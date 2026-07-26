@@ -18,10 +18,12 @@
 Packages
 - NEW: alsa-lib: libasound2t64, libasound2-data 1.2.14-1+rpt1moode1
 - UPD: peppy-alsa: 2024.02.10-1moode3
+- UPD: mpd: 0.24.13
 
 Updates
 - UPD: Support native DSD levels in Peppy (pkgbuild PR #24/25 by @Gjuju)
 - UPD: Support DoP levels in Peppy (pkgbuild PR #23 by @Gjuju)
+- UPD: Get Bluetooth decoded-to using bluealsa-cli instead of hard coding it
 
 Bug fixes
 - FIX: Replace broken fixed PIN with confirmation code (PR #784 by @Gjuju)
