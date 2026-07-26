@@ -16,13 +16,16 @@
 ################################################################################
 
 Packages
-- UPD:
+- NEW: alsa-lib: libasound2t64, libasound2-data 1.2.14-1+rpt1moode1
+- UPD: peppy-alsa: 2024.02.10-1moode2
 
 Updates
-- UPD:
+- UPD: Support native DSD levels in Peppy (pkgbuild PR #24/25 by @Gjuju)
+- UPD: Support DoP levels in Peppy (pkgbuild PR #23 by @Gjuju)
 
 Bug fixes
-- FIX:
+- FIX: Replace broken fixed PIN with confirmation code (PR #784 by @Gjuju)
+- FIX: MPD socket error when native DSD and Peppy (pkgbuild PR #24 by @Gjuju)
 
 ################################################################################
 #
