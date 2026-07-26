@@ -1106,7 +1106,7 @@ if ($_SESSION['feat_bitmask'] & FEAT_BLUETOOTH) {
 } else {
 	$status = 'n/a';
 }
-$status .= ', Confirm: ' . ($_SESSION['bt_pairing_confirm'] == '1' ? 'On' : 'Off');
+$status .= ', Pair confirm: ' . ($_SESSION['bt_pairing_confirm'] == '1' ? 'On' : 'Off');
 $status .= ', ALSA/CDSP max: ' . $_SESSION['alsavolume_max_bt'] . '%/' . $_SESSION['cdspvolume_max_bt'] . 'dB';
 $status .= ', Transport: ' . $_SESSION['bluez_controller_mode'];
 workerLog('worker: Bluetooth:       ' . $status);

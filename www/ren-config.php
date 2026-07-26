@@ -37,9 +37,9 @@ if (isset($_POST['btrestart']) && $_POST['btrestart'] == 1 && $_SESSION['btsvc']
 }
 if (isset($_POST['update_bt_pairing_confirm']) && isset($_POST['bt_pairing_confirm'])
 		&& $_POST['bt_pairing_confirm'] != $_SESSION['bt_pairing_confirm']) {
-	phpSession('write', 'bt_pairing_confirm', $_POST['bt_pairing_confirm']);
-	$_msg = 'Pairing confirmation ' . ($_POST['bt_pairing_confirm'] == '1' ? 'enabled' : 'disabled');
-	submitJob('bt_pairing_confirm', '', NOTIFY_TITLE_INFO, $_msg);
+	$_SESSION['bt_pairing_confirm'] = $_POST['bt_pairing_confirm'];
+	$msg = 'Pairing confirmation ' . ($_POST['bt_pairing_confirm'] == '1' ? 'enabled' : 'disabled');
+	submitJob('bt_pairing_confirm', '', NOTIFY_TITLE_INFO, $msg);
 }
 if (isset($_POST['update_alsavolume_max_bt'])) {
 	$_SESSION['alsavolume_max_bt'] = $_POST['alsavolume_max_bt'];
