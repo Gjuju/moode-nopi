@@ -26,7 +26,7 @@ Updates
 - UPD: Get Bluetooth decoded-to using bluealsa-cli instead of hard coding it
 
 Bug fixes
-- FIX: Bluetooth PIN pairing: use confirmation code pairing (PR #784 by @Gjuju)
+- FIX: Bluetooth PIN pairing: use Confirm Code pairing (PR #784 by @Gjuju)
 - FIX: MPD socket error when native DSD and Peppy (pkgbuild PR #24 by @Gjuju)
 
 ################################################################################
