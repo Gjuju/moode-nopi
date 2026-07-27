@@ -16,7 +16,7 @@
 ################################################################################
 
 Packages
-- NEW: alsa-lib: libasound2t64, libasound2-data libasound2-dev 1.2.14-1+rpt1moode1
+- NEW: alsa-lib: 1.2.14-1+rpt1moode1
 - UPD: peppy-alsa: 2026.07.26-1moode1
 - UPD: mpd: 0.24.13
 
