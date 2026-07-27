@@ -94,7 +94,7 @@ elif [ $1 = "-m" ]; then
 elif [ $1 = "-w" ]; then
 	watch_for_mount $2
 elif [ $1 = "-r" ]; then
-	remove_dot_files
+	remove_dotfiles
 else
 	echo "Unknown option"
 fi
