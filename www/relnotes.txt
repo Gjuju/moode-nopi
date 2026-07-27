@@ -16,8 +16,8 @@
 ################################################################################
 
 Packages
-- NEW: alsa-lib: libasound2t64, libasound2-data 1.2.14-1+rpt1moode1
-- UPD: peppy-alsa: 2024.02.10-1moode3
+- NEW: alsa-lib: libasound2t64, libasound2-data libasound2-dev 1.2.14-1+rpt1moode1
+- UPD: peppy-alsa: 2026.07.26-1moode1
 - UPD: mpd: 0.24.13
 
 Updates
@@ -26,7 +26,7 @@ Updates
 - UPD: Get Bluetooth decoded-to using bluealsa-cli instead of hard coding it
 
 Bug fixes
-- FIX: Replace broken fixed PIN with confirmation code (PR #784 by @Gjuju)
+- FIX: Bluetooth PIN pairing: use confirmation code pairing (PR #784 by @Gjuju)
 - FIX: MPD socket error when native DSD and Peppy (pkgbuild PR #24 by @Gjuju)
 
 ################################################################################
