@@ -18,7 +18,7 @@
 Packages
 - NEW: alsa-lib: 1.2.14-1+rpt1moode1
 - UPD: peppy-alsa: 2026.07.26-1moode1
-- UPD: shairport-sync-metadata-reader 2.0.0~git20260724.a4a29f3-1moode1
+- UPD: shairport-sync-metadata-reader: 2.0.0~git20260724.a4a29f3-1moode1
 - UPD: mpd: 0.24.13-1moode1
 
 Updates
