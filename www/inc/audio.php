@@ -327,19 +327,20 @@ function updPeppyConfs($cardNum, $outputMode) {
 // Read output device cache
 function readOutputDeviceCache($deviceName) {
 	$dbh = sqlConnect();
+	$deviceName = SQLite3::escapeString($deviceName);
 
-    $result = sqlRead('cfg_outputdev', $dbh, $deviceName);
-    if ($result === true) {
-    	// Not in table
+	$result = sqlRead('cfg_outputdev', $dbh, $deviceName);
+	if ($result === true) {
+		// Not in table
 		$values = 'device not found';
-    } else {
+	} else {
 		// In table
 		$values = array(
 			'device_name' => $result[0]['device_name'],
 			'mpd_volume_type' => $result[0]['mpd_volume_type'],
 			'alsa_output_mode' => $result[0]['alsa_output_mode'],
 			'alsa_max_volume' => $result[0]['alsa_max_volume']);
-    }
+	}
 
 	return $values;
 }
@@ -347,23 +348,24 @@ function readOutputDeviceCache($deviceName) {
 // Update output device cache
 function updOutputDeviceCache($deviceName) {
 	$dbh = sqlConnect();
+	$deviceName = SQLite3::escapeString($deviceName);
 
-    $result = sqlRead('cfg_outputdev', $dbh, $deviceName);
-    if ($result === true) {
-    	// Not in table so add new
-    	$values =
+	$result = sqlRead('cfg_outputdev', $dbh, $deviceName);
+	if ($result === true) {
+		// Not in table so add new
+		$values =
 			"'" . $deviceName . "'," .
 			"'" . $_SESSION['mpdmixer'] . "'," .
 			"'" . $_SESSION['alsa_output_mode'] . "'," .
 			"'" . $_SESSION['alsavolume_max'] . "'";
-    	$result = sqlInsert('cfg_outputdev', $dbh, $values);
-    } else {
+		$result = sqlInsert('cfg_outputdev', $dbh, $values);
+	} else {
 		$value = array(
 			'mpd_volume_type' => $_SESSION['mpdmixer'],
 			'alsa_output_mode' => $_SESSION['alsa_output_mode'],
 			'alsa_max_volume' => $_SESSION['alsavolume_max']);
 		$result = sqlUpdate('cfg_outputdev', $dbh, $deviceName, $value);
-    }
+	}
 }
 
 function checkOutputDeviceCache($deviceName, $cardNum) {
