@@ -920,8 +920,11 @@ function updateInpsrcMeta(cmd, data) {
 		//console.log('metadata', metadata);
 	}
 	catch (e) {
-		console.log('updateInpsrcMeta(): JSON parse error:', e.message);
-		console.log('updateInpsrcMeta(): data=(' + (data ? data : 'empty') + ')');
+		if (data) {
+			console.log('updateInpsrcMeta(): JSON parse error:', e.message);
+			console.log('updateInpsrcMeta(): data=(' + data + ')');
+		}
+		// Empty data: metadata file gets truncated when service disconnects or is started/restarted.
 		return;
 	}
 

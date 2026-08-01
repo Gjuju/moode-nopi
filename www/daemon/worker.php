@@ -1113,12 +1113,16 @@ workerLog('worker: Bluetooth:       ' . $status);
 
 // Start airplay renderer
 if ($_SESSION['feat_bitmask'] & FEAT_AIRPLAY) {
+	if (!isset($_SESSION['airplaysvc_type'])) {
+		$_SESSION['airplaysvc_type'] = '2';
+	}
 	if (isset($_SESSION['airplaysvc']) && $_SESSION['airplaysvc'] == 1) {
 		$status = 'started';
 		startAirPlay();
 	} else {
 		$status = 'available';
 	}
+	$status = $status . ', protocol: ' . $_SESSION['airplaysvc_type'];
 } else {
 	$status = 'n/a';
 }

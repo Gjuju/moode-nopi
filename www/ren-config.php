@@ -74,6 +74,17 @@ if (isset($_POST['update_airplay_settings'])) {
 		submitJob('airplaysvc');
 	}
 }
+if (isset($_POST['update_airplaysvc_type'])) {
+	$_SESSION['airplaysvc_type'] = $_POST['airplaysvc_type'];
+	if ($_SESSION['airplaysvc'] == '1') {
+		$title = NOTIFY_TITLE_INFO;
+		$msg = NAME_AIRPLAY . NOTIFY_MSG_SVC_RESTARTED;
+	} else {
+		$title = '';
+		$msg = '';
+	}
+	submitJob('airplaysvc', '', $title, $msg);
+}
 if (isset($_POST['update_rsmafterapl'])) {
 	phpSession('write', 'rsmafterapl', $_POST['rsmafterapl']);
 }
@@ -271,6 +282,8 @@ $autoClick = " onchange=\"autoClick('#btn-set-airplaysvc');\" " . $_airplay_svcb
 $_select['airplaysvc_on']  .= "<input type=\"radio\" name=\"airplaysvc\" id=\"toggle-airplaysvc-1\" value=\"1\" " . (($_SESSION['airplaysvc'] == '1') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
 $_select['airplaysvc_off'] .= "<input type=\"radio\" name=\"airplaysvc\" id=\"toggle-airplaysvc-2\" value=\"0\" " . (($_SESSION['airplaysvc'] == '0') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
 $_select['airplayname'] = $_SESSION['airplayname'];
+$_select['airplaysvc_type'] .= "<option value=\"2\" " . (($_SESSION['airplaysvc_type'] == '2') ? "selected" : "") . ">AirPlay 2 (Default)</option>\n";
+$_select['airplaysvc_type'] .= "<option value=\"1\" " . (($_SESSION['airplaysvc_type'] == '1') ? "selected" : "") . ">AirPlay 1</option>\n";
 $autoClick = " onchange=\"autoClick('#btn-set-rsmafterapl');\" " . $_airplay_btn_disable;
 $_select['rsmafterapl_on'] .= "<input type=\"radio\" name=\"rsmafterapl\" id=\"toggle-rsmafterapl-1\" value=\"Yes\" " . (($_SESSION['rsmafterapl'] == 'Yes') ? "checked=\"checked\"" : "") . $autoClick . ">\n";
 $_select['rsmafterapl_off']  .= "<input type=\"radio\" name=\"rsmafterapl\" id=\"toggle-rsmafterapl-2\" value=\"No\" " . (($_SESSION['rsmafterapl'] == 'No') ? "checked=\"checked\"" : "") . $autoClick . ">\n";

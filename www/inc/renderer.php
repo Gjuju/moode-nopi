@@ -60,7 +60,9 @@ function stopBluetooth() {
 
 // AirPlay
 function startAirPlay() {
-	sysCmd('systemctl start nqptp');
+	if ($_SESSION['airplaysvc_type'] == '2') {
+		sysCmd('systemctl start nqptp');
+	}
 
 	// Verbose logging
 	if ($_SESSION['debuglog'] == '1') {
@@ -102,6 +104,9 @@ function startAirPlay() {
 	$cmd = '/var/www/daemon/aplmeta-reader.sh > /dev/null 2>&1 &';
 	debugLog('startAirPlay(): (' . $cmd . ')');
 	sysCmd($cmd);
+
+	// Truncate metadata file
+	sysCmd('truncate ' . APLMETA_CACHE_FILE . ' --size 0');
 }
 function stopAirPlay() {
 	$maxRetries = 3;
@@ -132,8 +137,11 @@ function stopAirPlay() {
 	}
 	// Stop shairport-sync
 	for ($i = 0; $i < $maxRetries; $i++) {
-		sysCmd('pkill -f -9 shairport-sync');
-		$result = sysCmd('pgrep -c -f "LC_ALL=C /usr/bin/shairport-sync"')[0];
+		$result = sysCmd('pkill -c -f -9 "[s]hairport-sync"');
+		//workerLog(print_r($result, true));
+
+		$result = sysCmd('pgrep -c -f "[L]C_ALL=C /usr/bin/shairport-sync"')[0];
+		//workerLog(print_r($result, true));
 		if ($result == 0) {
 			break;
 		}

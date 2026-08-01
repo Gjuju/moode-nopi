@@ -140,6 +140,19 @@
 				<input class="config-input-large" type="text" id="airplayname" name="airplayname" value="$_select[airplayname]" required>
 				<button class="btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_airplay_settings" value="novalue" $_airplay_svcbtn_disable><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
 			</div>
+
+			<label class="control-label" for="airplaysvc-type">Protocol</label>
+			<div class="controls">
+                <select id="airplaysvc-type" name="airplaysvc_type" class="config-select-large" onchange="autoClick('#btn-set-airplaysvc-type');">
+					$_select[airplaysvc_type]
+                </select>
+				<button id="btn-set-airplaysvc-type" class="hide btn btn-primary btn-small config-btn-set btn-submit" type="submit" name="update_airplaysvc_type" value="novalue"><i class="fa fa-solid fa-sharp fa-arrow-turn-down-left"></i></button>
+				<a aria-label="Help" class="config-info-toggle" data-cmd="info-airplaysvc-type" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
+				<span id="info-airplaysvc-type" class="config-help-info">
+					Select the AirPlay protocol. AirPlay 2 provides native multi-receiver streaming from iOS devices. AirPlay 1 can be used to send lossless ALAC 16/44.1K to a single receiver from iOS devices.
+				</span>
+			</div>
+
 			<label class="control-label">Resume MPD</label>
 			<div class="controls">
 				<div class="toggle">
