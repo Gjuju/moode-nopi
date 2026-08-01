@@ -230,6 +230,9 @@ function startSpotify() {
 
 	debugLog('startSpotify(): (' . $cmd . ')');
 	sysCmd($cmd);
+
+	// Truncate metadata file
+	sysCmd('truncate ' . SPOTMETA_CACHE_FILE . ' --size 0');	
 }
 function stopSpotify() {
 	sysCmd('killall -s9 librespot');
