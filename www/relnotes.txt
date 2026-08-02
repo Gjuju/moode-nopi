@@ -28,6 +28,7 @@ Updates
 - UPD: Support DoP levels in Peppy (pkgbuild PR #23 by @Gjuju)
 - UPD: Get Bluetooth decoded-to using bluealsa-cli instead of hard coding it
 - UPD: Add AirPlay protocol (1|2) option to Renderer Config
+- UPD: New logo for Soma FM - DEF CON Radio
 
 Bug fixes
 - FIX: Bluetooth PIN pairing: use Confirm Code pairing (PR #784 by @Gjuju)
