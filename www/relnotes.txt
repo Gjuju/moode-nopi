@@ -21,6 +21,7 @@ Packages
 - UPD: shairport-sync: 5.2.1-1moode1
 - UPD: shairport-sync-metadata-reader: 2.0.0~git20260724.a4a29f3-1moode1
 - UPD: mpd: 0.24.13-1moode1
+- UPD: linux-image: 1:6.18.39-1+rpt1
 
 Updates
 - UPD: Support native DSD levels in Peppy (pkgbuild PR #24/25 by @Gjuju)
