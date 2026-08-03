@@ -11,7 +11,7 @@
 
 ################################################################################
 #
-# 2026-MM-DD moOde 10.3.2 (Trixie)
+# 2026-08-03 moOde 10.3.2 (Trixie)
 #
 ################################################################################
 
@@ -34,7 +34,7 @@ Bug fixes
 - FIX: Bluetooth PIN pairing: use Confirm Code pairing (PR #784 by @Gjuju)
 - FIX: MPD socket error when native DSD and Peppy (pkgbuild PR #24 by @Gjuju)
 - FIX: Previous AirPlay or Spotify covers shows after disconnect, start/restart
-- FIX: RB station names with -- | > cause issues in Radio view
+- FIX: RB station names with -- and > cause issues in Radio view
 - FIX: Shairport-sync stop/restart pkill command string
 
 ################################################################################
