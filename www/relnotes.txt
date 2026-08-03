@@ -35,6 +35,7 @@ Bug fixes
 - FIX: MPD socket error when native DSD and Peppy (pkgbuild PR #24 by @Gjuju)
 - FIX: Previous AirPlay or Spotify covers shows after disconnect, start/restart
 - FIX: RB station names with -- | > cause issues in Radio view
+- FIX: Shairport-sync stop/restart pkill command string
 
 ################################################################################
 #
