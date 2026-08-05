@@ -16,7 +16,8 @@
 ################################################################################
 
 Bug fixes
-- FIX: 
+- FIX: Duplicate entries in Radio Cover+ cache table
+- FIX: Bluetooth pairing modal not displayed when on Config screens
 
 ################################################################################
 #
