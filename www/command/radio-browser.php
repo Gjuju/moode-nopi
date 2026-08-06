@@ -133,7 +133,7 @@ switch ($cmd) {
 					rbEnsureLogo($exName, trim($station['favicon'] ?? ''));
 					rbWritePls($exName, $url);
 				}
-				$response = array('success' => true, 'message' => 'Station has been added');
+				$response = array('success' => true, 'message' => 'Station added to Favorites');
 			}
 			break;
 		}
@@ -152,7 +152,7 @@ switch ($cmd) {
 			'format' => trim($station['codec'] ?? ''),
 			'home_page' => trim($station['homepage'] ?? '')
 		));
-		$response = array('success' => true, 'message' => 'Station has been added');
+		$response = array('success' => true, 'message' => 'Station added to Favorites');
 		break;
 
 	case 'remove':

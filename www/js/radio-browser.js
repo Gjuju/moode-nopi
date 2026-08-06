@@ -216,7 +216,7 @@ function rbPlay(li) {
         dataType: 'json',
         success: function(data) {
             notify(data && data.success ? NOTIFY_TITLE_INFO : NOTIFY_TITLE_ALERT,
-                'rb_message', data ? data.message : 'Play failed', NOTIFY_DURATION_SHORT);
+                'rb_message', data ? data.message + '. ' : 'Play failed. ', NOTIFY_DURATION_SHORT);
             rbMarkRecentStale(); // the play was recorded server-side; refresh the Recent tab
         }
     });
@@ -229,11 +229,6 @@ function rbToggleFavorite(li) {
     var isAdded = $li.find('.rb-fav-toggle').hasClass('added');
     var cmd = isAdded ? 'remove' : 'add';
 
-	if (cmd == 'add') {
-		// Notify user because the add is via submitJob() to worker.php which gets processed in its polling loop
-		notify(NOTIFY_TITLE_INFO, 'rb_message', 'Adding station to Favorites... ', NOTIFY_DURATION_INFINITE);
-	}
-
     $.ajax({
         url: RB_API + '?cmd=' + cmd,
         type: 'POST',
@@ -244,11 +239,13 @@ function rbToggleFavorite(li) {
             if (data && data.success) {
                 rbSetFavoriteState(station.url, !isAdded);
                 RB.favoritesDirty = true; // refresh the native Radio grid when we return to it
-            }
-            notify(data && data.success ? NOTIFY_TITLE_INFO : NOTIFY_TITLE_ALERT,
-                'rb_message', data ? data.message : 'Action failed',
-				NOTIFY_DURATION_SHORT);
-            // 'update RADIO' lights the busy-spinner; clear it after it settles (native pattern)
+				if (cmd == 'add') {
+					notify(NOTIFY_TITLE_INFO, 'rb_message', data.message + '. ', NOTIFY_DURATION_SHORT);
+				}
+            } else {
+				notify(NOTIFY_TITLE_ALERT, 'rb_message', 'Action failed. ', NOTIFY_DURATION_SHORT);
+			}
+            // Clear the busy spinner
             setTimeout(function() { $('.busy-spinner').hide(); }, ONE_SEC_TIMEOUT);
         }
     });
@@ -395,13 +392,13 @@ $(document).ready(function() {
         e.stopPropagation();
 		var station = rbStationFromTile($(this).closest('li'));
 		if (!station.url) {
-			notify(NOTIFY_TITLE_ALERT,'rb_message', 'Action failed: URL missing', NOTIFY_DURATION_SHORT);
+			notify(NOTIFY_TITLE_ALERT,'rb_message', 'Action failed: URL missing. ', NOTIFY_DURATION_SHORT);
 			return false;
 		} else {
 			var li = $(this).closest('li')
 			$.getJSON(RB_API + '?cmd=check_registered', {'url': station.url}, function(data) {
 				if (data.success && data.message == 'Station exists in Radio view') {
-					notify(NOTIFY_TITLE_INFO,'rb_message', 'Station already exists in Radio view', NOTIFY_DURATION_SHORT);
+					notify(NOTIFY_TITLE_INFO,'rb_message', data.message + '. ', NOTIFY_DURATION_SHORT);
 				} else {
 					rbToggleFavorite(li);
 				}
@@ -415,7 +412,7 @@ $(document).ready(function() {
 		$('#rb-ctx-remove-recent').toggleClass('hide', RB.tab !== 'recent');
 		var station = rbStationFromTile($(this).closest('li'));
 		if (!station.url) {
-			notify(NOTIFY_TITLE_ALERT,'rb_message', 'Action failed: URL missing', NOTIFY_DURATION_SHORT);
+			notify(NOTIFY_TITLE_ALERT,'rb_message', 'Action failed: URL missing. ', NOTIFY_DURATION_SHORT);
 			return false;
 		} else {
 			RB.menuUrl = station.url; // target for the Remove-from-recent action
@@ -423,13 +420,13 @@ $(document).ready(function() {
 				//console.log(data.message);
 				if (data.success) {
 					if (data.message == 'Station exists in Radio view') {
-						notify(NOTIFY_TITLE_INFO,'rb_message', 'Station already exists in Radio view', NOTIFY_DURATION_SHORT);
+						notify(NOTIFY_TITLE_INFO,'rb_message', data.message + '. ', NOTIFY_DURATION_SHORT);
 					}
 					$('#context-menu-radio-browser-item').show();
 				} else {
 					 // not in cfg_radio, pruned due to being removed from the Queue
 					rbRegisterInRadioJson(station);
-					notify(NOTIFY_TITLE_INFO,'rb_message', 'Registering station for playback...', NOTIFY_DURATION_INFINITE);
+					notify(NOTIFY_TITLE_INFO,'rb_message', 'Registering station for playback... ', NOTIFY_DURATION_INFINITE);
 					$.ajax({
 			            url: RB_API + '?cmd=register',
 			            type: 'POST',
@@ -442,7 +439,7 @@ $(document).ready(function() {
 								$('#context-menu-radio-browser-item').show();
 								rbMarkRecentStale(); // the register was recorded server-side; refresh the Recent tab
 							} else {
-								notify(NOTIFY_TITLE_ALERT, 'rb_message', 'Action failed', NOTIFY_DURATION_SHORT);
+								notify(NOTIFY_TITLE_ALERT, 'rb_message', 'Action failed. ', NOTIFY_DURATION_SHORT);
 							}
 						}
 					});
@@ -453,7 +450,7 @@ $(document).ready(function() {
 
     $('#context-menu-radio-browser-item a[data-cmd="rb_remove_recent"]').click(function() {
         if (!RB.menuUrl) {
-			notify(NOTIFY_TITLE_ALERT,'rb_message', 'Action failed: URL missing', NOTIFY_DURATION_SHORT);
+			notify(NOTIFY_TITLE_ALERT,'rb_message', 'Action failed: URL missing. ', NOTIFY_DURATION_SHORT);
 			return false;
 		} else {
 			$.ajax({
@@ -465,7 +462,7 @@ $(document).ready(function() {
 	            success: function(data) {
 	                if (data && data.success) { rbLoadRecent(); }
 	                notify(data && data.success ? NOTIFY_TITLE_INFO : NOTIFY_TITLE_ALERT,
-	                    'rb_message', data ? data.message : 'Action failed', NOTIFY_DURATION_SHORT);
+	                    'rb_message', data ? data.message + '. ' : 'Action failed. ', NOTIFY_DURATION_SHORT);
 	            }
 	        });
 		}
