@@ -1321,7 +1321,7 @@ $('#database-radio').on('click', '.rb-fav-toggle', function(e) {
     var isAdded = $toggle.hasClass('added');
     var cmd = isAdded ? 'remove' : 'add';
     $.ajax({
-        url: 'command/radio-browser.php?cmd=' + cmd,
+        url: RB_API + '?cmd=' + cmd,
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({url: url, name: name}),
@@ -1549,18 +1549,18 @@ $('#btn-rb-manager').click(function(e) {
     $('#radio-browser-manager-modal').modal();
 });
 $('#btn-rb-clear-recents').click(function(e) {
-	$.getJSON('command/radio-browser.php?cmd=clear_recents', function(result) {
+	$.getJSON(RB_API + '?cmd=clear_recents', function(result) {
 		$('#rb-clear-recents-msg').text(result).show();
 	});
 });
 $('#btn-rb-clear-caches').click(function(e) {
-	$.getJSON('command/radio-browser.php?cmd=clear_caches', function(result) {
+	$.getJSON(RB_API + '?cmd=clear_caches', function(result) {
 		$('#rb-clear-caches-msg').text(result).show();
 	});
 });
 $('#btn-rb-check-servers').click(function(e) {
 	$('#rb-check-servers-msg').text('Checking...').show();
-	$.getJSON('command/radio-browser.php?cmd=check_servers', function(result) {
+	$.getJSON(RB_API + '?cmd=check_servers', function(result) {
 		$('#rb-check-servers-msg').text(result);
 	});
 });

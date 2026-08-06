@@ -97,6 +97,9 @@ const DEFAULT_NOTFOUND_COVER = 'images/default-notfound-cover.jpg';
 const DEFAULT_UPNP_COVER = 'images/default-upnp-cover.jpg';
 const DEFAULT_RX_COVER = 'images/default-rx-cover.jpg'; // DEPRECATED
 
+// Radio Browser
+const RB_API = 'command/radio-browser.php';
+
 var UI = {
     knob: null,
     path: '',

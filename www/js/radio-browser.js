@@ -20,8 +20,6 @@ var RB = {
     menuUrl: ''         // URL of the tile whose context menu is open (Remove-from-recent target)
 };
 
-var RB_API = 'command/radio-browser.php';
-
 // Build a station object from a tile's data-* attributes
 function rbStationFromTile(li) {
     var $li = $(li);
@@ -170,6 +168,9 @@ function rbLoadRecent() {
     });
 }
 
+
+// NOTE: Instant play disabled
+// Lacks registration checks and time delay needed to ensure Queue thumb shows up
 // A play just updated the recent list server-side (cmd=play → rbAddRecent). Reload it now if
 // the Recent tab is showing, else force a reload the next time it's opened.
 function rbMarkRecentStale() {
@@ -198,6 +199,8 @@ function rbRegisterInRadioJson(station) {
     }
 }
 
+// NOTE: Instant play disabled
+// Lacks registration checks and time delay needed to ensure Queue thumb shows up
 function rbPlay(li) {
     var station = rbStationFromTile(li);
     if (!station.url) return;
@@ -437,6 +440,7 @@ $(document).ready(function() {
 							if (data.success) {
 								$('.ui-pnotify-closer').click();
 								$('#context-menu-radio-browser-item').show();
+								rbMarkRecentStale(); // the register was recorded server-side; refresh the Recent tab
 							} else {
 								notify(NOTIFY_TITLE_ALERT, 'rb_message', 'Action failed', NOTIFY_DURATION_SHORT);
 							}
