@@ -657,6 +657,9 @@ function engineCmd() {
                     $('.busy-spinner').hide();
                     loadLibrary();
                     break;
+				case 'libanalyze_done':
+                    $('.busy-spinner').hide();
+                    break;
                 case 'set_cover_image1':
                     $('.busy-spinner').show();
                     break;
@@ -3146,10 +3149,10 @@ $(document).on('click', '.context-menu a', function(e) {
             }
             break;
         case 'player_info':
-			$.getJSON('command/music-library.php?cmd=get_db_stats', function(results) {
-				var stats = results == 'none' ?
-					['Artists:Analyze has not been run', 'Albums: ', 'Tracks: '] :
-					results.split(' ');
+			$.getJSON('command/music-library.php?cmd=get_dbanalyze_count', function(results) {
+				var counts = results.includes('Artists') ?
+					results.split(' ') :
+					['Artists:Analyze has not been run', 'Albums: ', 'Tracks: '];
 		        var networkIface = SESSION.json['wlanssid'] == '' ?
 					'Ethernet' :
 					'Wireless (' + SESSION.json['wlanssid'] + ')';
@@ -3163,9 +3166,9 @@ $(document).on('click', '.context-menu a', function(e) {
 		            'Kernel:&nbsp;&nbsp;' + SESSION.json['kernelver'] + '<br>' +
 		            'MPD:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' + SESSION.json['mpdver'] + '<br>' +
 					'Audio:&nbsp;&nbsp;&nbsp;' + SESSION.json['adevname'] + '<br>' +
-					'Artists:&nbsp' + stats[0].split(':')[1]  + '<br>' +
-					'Albums:&nbsp&nbsp' + stats[1].split(':')[1]  + '<br>' +
-					'Tracks:&nbsp&nbsp' + stats[2].split(':')[1],
+					'Artists:&nbsp' + counts[0].split(':')[1]  + '<br>' +
+					'Albums:&nbsp&nbsp' + counts[1].split(':')[1]  + '<br>' +
+					'Tracks:&nbsp&nbsp' + counts[2].split(':')[1],
 		            NOTIFY_DURATION_INFINITE);
 		            // Styling (gets automatically reset by pnotify for other notifications)
 		            $('.ui-pnotify-text').attr('style', 'text-align:left;font-family:monospace;font-size:.85em');

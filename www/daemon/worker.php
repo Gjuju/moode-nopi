@@ -145,6 +145,7 @@ if (file_exists(BOOT_DIR . '/.fseventsd')) {
 }
 // - Delete session vars that have been removed or renamed
 $sessionVars = array(
+	'mpd_db_stats',
 	'mpd_dbupdate_status',
 	'trackcover_url_cache',
 	'radio_track_covers'
@@ -928,9 +929,9 @@ if (!file_exists('/etc/mpd.conf')) {
 if (!isset($_SESSION['mpd_dbupdate_count'])) {
 	$_SESSION['mpd_dbupdate_count'] = 0;
 }
-// Database stats (artists/albums/tracks)
-if (!isset($_SESSION['mpd_db_stats'])) {
-	$_SESSION['mpd_db_stats'] = 'none';
+// Database analyze file count
+if (!isset($_SESSION['mpd_dbanalyze_count'])) {
+	$_SESSION['mpd_dbanalyze_count'] = 0;
 }
 
 // Start MPD
@@ -996,7 +997,8 @@ workerLog('worker: MPD CDSP volsync:   ' . lcfirst($_SESSION['camilladsp_volume_
 $serviceCmd = CamillaDSP::isMPD2CamillaDSPVolSyncEnabled() ? 'start' : 'stop';
 sysCmd('systemctl ' . $serviceCmd .' mpd2cdspvolume');
 workerLog('worker: Database stats:     ' .
-	($_SESSION['mpd_db_stats'] == 'none' ? 'Analyze has not been run' : $_SESSION['mpd_db_stats'])
+	(str_contains($_SESSION['mpd_dbanalyze_count'], 'Artists') ?
+	$_SESSION['mpd_dbanalyze_count'] : 'Analyze has not been run')
 );
 
 //----------------------------------------------------------------------------//
@@ -2883,6 +2885,9 @@ function runQueuedJob() {
 				$GLOBALS['check_library_regen'] = '1';
 			}
 			break;
+		case 'analyze_library':
+			sysCmd('/var/www/util/libstats.php > /dev/null 2>&1 &');
+			break;
 		case 'regen_thmcache':
 			sysCmd('rm -rf ' . THMCACHE_DIR);
 			sysCmd('mkdir ' . THMCACHE_DIR);
@@ -4041,7 +4046,7 @@ function runQueuedJob() {
 function truncateMpdLog() {
 	sysCmd('truncate ' . MPD_LOG . ' --size 0');
 	$_SESSION['mpd_dbupdate_count'] = 0;
-	$_SESSION['mpd_db_stats'] = 'none';
+	$_SESSION['mpd_dbanalyze_count'] = 0;
 }
 // Count number of lines in MPD log for database update or regen
 function countMpdLogLines() {

@@ -285,7 +285,7 @@ jQuery(document).ready(function($){ 'use strict';
 	// View MPD db regen status
 	$('#view-dbupdate-status').click(function(e) {
 		$.getJSON('command/music-library.php?cmd=get_dbupdate_count', function(count) {
-			$('#dbupdate-status').html('Files indexed: ' + count);
+			$('#dbupdate-status').html('Files processed: ' + count);
 		});
 	});
 
