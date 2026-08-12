@@ -440,7 +440,7 @@ if (!isset($_GET['cmd'])) {
 	}
 
 	// DB update status
-	$_dbupdate_status = 'Files processed: ' . $_SESSION['mpd_dbupdate_count'];
+	$_dbregen_status = 'Files processed: ' . $_SESSION['mpd_dbregen_count'];
 
 	// DB analyze status
 	$_dbanalyze_status = str_contains($_SESSION['mpd_dbanalyze_count'], 'Artists') ?

@@ -929,6 +929,10 @@ if (!file_exists('/etc/mpd.conf')) {
 if (!isset($_SESSION['mpd_dbupdate_count'])) {
 	$_SESSION['mpd_dbupdate_count'] = 0;
 }
+// Database regen file count
+if (!isset($_SESSION['mpd_dbregen_count'])) {
+	$_SESSION['mpd_dbregen_count'] = 0;
+}
 // Database analyze file count
 if (!isset($_SESSION['mpd_dbanalyze_count'])) {
 	$_SESSION['mpd_dbanalyze_count'] = 0;
@@ -998,7 +1002,7 @@ $serviceCmd = CamillaDSP::isMPD2CamillaDSPVolSyncEnabled() ? 'start' : 'stop';
 sysCmd('systemctl ' . $serviceCmd .' mpd2cdspvolume');
 workerLog('worker: Database stats:     ' .
 	(str_contains($_SESSION['mpd_dbanalyze_count'], 'Artists') ?
-	$_SESSION['mpd_dbanalyze_count'] : 'Analyze has not been run')
+	$_SESSION['mpd_dbanalyze_count'] : 'Use ANALYZE for counts')
 );
 
 //----------------------------------------------------------------------------//
@@ -2415,15 +2419,15 @@ function chkLibraryRegen() {
 		$status = getMpdStatus($sock);
 		closeMpdSock($sock);
 
-		$_SESSION['mpd_dbupdate_count'] = countMpdLogLines();
-		if ($_SESSION['mpd_dbupdate_count'] != 0) {
-			debugLog('mpdindex: File count ' . $_SESSION['mpd_dbupdate_count']);
+		$_SESSION['mpd_dbregen_count'] = countMpdLogLines();
+		if ($_SESSION['mpd_dbregen_count'] != 0) {
+			debugLog('mpdindex: File count ' . $_SESSION['mpd_dbregen_count']);
 		}
 
 		if (!isset($status['updating_db'])) {
 			sendFECmd('libregen_done');
 			$GLOBALS['check_library_regen'] = '0';
-			workerLog('mpdindex: Done: indexed ' . $_SESSION['mpd_dbupdate_count'] . ' files');
+			workerLog('mpdindex: Done: processed ' . $_SESSION['mpd_dbregen_count'] . ' files');
 			workerLog('worker: Job regen_library done');
 		}
 	}
@@ -2818,15 +2822,10 @@ function runQueuedJob() {
 	// No need to log screen saver resets
 	if ($_SESSION['w_queue'] != 'reset_screen_saver') {
 		workerLog('worker: Job ' . $_SESSION['w_queue']);
-		if ($_SESSION['w_queue'] == 'update_library') {
-			workerLog('worker: Clear Library tag cache');
-			clearLibCacheAll();
-			workerLog('mpdindex: Start');
-		}
 	}
 
 	switch ($_SESSION['w_queue']) {
-		// Screen saver reset job
+		// Screen saver reset
 		case 'reset_screen_saver':
 			$GLOBALS['scnsaver_timeout'] = $_SESSION['scnsaver_timeout'];
 			$GLOBALS['scnactive'] = '0';
@@ -2834,10 +2833,16 @@ function runQueuedJob() {
 
 		// Menu Update library, Context menu, Update this folder
 		case 'update_library':
+			// Reset counts
+			$_SESSION['mpd_dbupdate_count'] = 0;
+			$_SESSION['mpd_dbanalyze_count'] = 0;
 			// Truncate MPD log
 			workerLog('worker: Truncate MPD log');
 			truncateMpdLog();
-			// Update library
+			// Clear libcache then update MPD database or an individual folder
+			workerLog('worker: Clear Library tag cache');
+			clearLibCacheAll();
+			workerLog('mpdindex: Start');
 			$cmd = empty($_SESSION['w_queueargs']) ? 'update' : 'update "' . escapeDblQuotes(html_entity_decode($_SESSION['w_queueargs'])) . '"';
 			workerLog('mpdindex: Cmd (' . $cmd . ')');
 			workerLog('mpdindex: Scanning');
@@ -2859,6 +2864,10 @@ function runQueuedJob() {
 
 		// lib-config jobs
 		case 'regen_library':
+			// Reset counts
+			$_SESSION['mpd_dbupdate_count'] = 0;
+			$_SESSION['mpd_dbregen_count'] = 0;
+			$_SESSION['mpd_dbanalyze_count'] = 0;
 			// Truncate MPD log
 			workerLog('worker: Truncate MPD log');
 			truncateMpdLog();
@@ -4045,8 +4054,6 @@ function runQueuedJob() {
 // Clear MPD log
 function truncateMpdLog() {
 	sysCmd('truncate ' . MPD_LOG . ' --size 0');
-	$_SESSION['mpd_dbupdate_count'] = 0;
-	$_SESSION['mpd_dbanalyze_count'] = 0;
 }
 // Count number of lines in MPD log for database update or regen
 function countMpdLogLines() {
