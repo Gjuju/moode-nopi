@@ -3150,7 +3150,7 @@ $(document).on('click', '.context-menu a', function(e) {
             break;
         case 'player_info':
 			$.getJSON('command/music-library.php?cmd=get_dbanalyze_count', function(results) {
-				var counts = results.includes('Artists') ?
+				var counts = String(results).includes('Artists') ?
 					results.split(' ') :
 					['Artists:Analyze has not been run', 'Albums: ', 'Tracks: '];
 		        var networkIface = SESSION.json['wlanssid'] == '' ?
