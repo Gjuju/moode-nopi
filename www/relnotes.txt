@@ -18,6 +18,7 @@
 Updates:
 - UPD: Improve Radio Browser notification messages, reduce messages
 - UPD: Improve "Analyze music database" (run in background with progress info)
+- UPD: Add "ignore_volume_control" setting to AirPlay Config
 
 Bug fixes
 - FIX: Duplicate entries in Radio Cover+ cache table
