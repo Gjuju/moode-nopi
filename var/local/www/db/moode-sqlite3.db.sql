@@ -1,5 +1,5 @@
 --
--- File generated with SQLiteStudio v3.4.4 on Sun Aug 2 17:28:41 2026
+-- File generated with SQLiteStudio v3.4.4 on Thu Aug 13 09:06:17 2026
 --
 -- Text encoding used: UTF-8
 --
@@ -27,6 +27,7 @@ INSERT INTO cfg_airplay (id, param, value) VALUES (16, 'output_channels', 'auto'
 INSERT INTO cfg_airplay (id, param, value) VALUES (17, 'disable_synchronization', 'no');
 INSERT INTO cfg_airplay (id, param, value) VALUES (18, 'disable_standby_mode', 'never');
 INSERT INTO cfg_airplay (id, param, value) VALUES (19, 'cover_art_cache_directory', '/var/local/www/imagesw/airplay-covers');
+INSERT INTO cfg_airplay (id, param, value) VALUES (20, 'ignore_volume_control', 'no');
 
 -- Table: cfg_audiodev
 CREATE TABLE cfg_audiodev (id INTEGER PRIMARY KEY, name CHAR (64), alt_name CHAR (64), dacchip CHAR (64), chipoptions CHAR (64), iface CHAR (32), list CHAR (10), driver CHAR (64), drvoptions CHAR (64));

@@ -266,5 +266,6 @@ if [[ $1 = "upd-shairport-sync-conf" ]]; then
 		-e 's/\/\/.*\(wait_for_completion\)[ ]=[ ].*;\(.*\)/\1 = "yes"\2/' \
 		-e 's/\/\/.*\(allow_session_interruption =\)/\1/' \
 		-e 's/\/\/.*\(session_timeout =\)/\1/' \
+		-e 's/\/\/.*\(ignore_volume_control =\)/\1/' \
 		/etc/shairport-sync.conf
 fi
