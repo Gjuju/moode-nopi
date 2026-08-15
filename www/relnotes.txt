@@ -25,6 +25,7 @@ Bug fixes
 - FIX: Bluetooth Confirm Code modal not displayed when on Config screens
 - FIX: Brightness adjustment not working for Pi Touch 2 DSI screen
 - FIX: Radio Browser recents not showing
+- FIX: Aria-hidden error in Browser console
 
 ################################################################################
 #
