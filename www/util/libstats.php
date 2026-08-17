@@ -74,10 +74,14 @@ if (false === ($sock = openMpdSock('localhost', 6600))) {
 		}
 	}
 	// Final counts
+	$finalCounts = 'Artists:' . count($artists) . ' Albums:' . count($albumKeys) . ' Tracks:' . $trackCount;
 	phpSession('open');
-	$_SESSION['mpd_dbanalyze_count'] = 'Artists:' . count($artists) . ' Albums:' . count($albumKeys) . ' Tracks:' . $trackCount;
+	$_SESSION['mpd_dbanalyze_count'] = $finalCounts;
 	phpSession('close');
 
 	// Hide busy spinner
 	sendFECmd('libanalyze_done');
+
+	// Console output
+	echo $finalCounts . "\n";
 }
