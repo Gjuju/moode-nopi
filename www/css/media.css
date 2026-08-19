@@ -763,7 +763,9 @@ body {
 	.viewswitch .btn {line-height:2.75rem;font-size:1.15em;}
 
 	/* Renderer active overlays: Text and button */
-	#inpsrc-indicator {font-size:2.85em;}
+	body.rmwide #inpsrc-indicator {font-size:2.85em;}
+	body.rmwide #inpsrc-metadata {font-size:1.5em;}
+	body.rmwide .inpsrc-metadata-cover {height:calc(75vh + .5em);margin:1em 1.25em 0 1.25em}
 
 	/* For the configs */
 	.container {margin-left:25vw;margin-right:25vw;}
@@ -804,6 +806,11 @@ body {
 
 	/* Play and toggle buttons under the time knob */
 	#togglebtns {padding-top:0;}
+
+	/* Renderer active overlays: Text and button */
+	body.rmwide #inpsrc-indicator {font-size:2.85em;}
+	body.rmwide #inpsrc-metadata {font-size:1.5em;}
+	body.rmwide .inpsrc-metadata-cover {height:calc(75vh + .5em);margin:1em 1.25em 0 1.25em}
 }
 
 /* Specifically for 400 x 1280 */
@@ -881,7 +888,9 @@ body {
 	#ra-search {font-size:1.25em;}
 
 	/* Renderer active overlays: Text and button */
-	#inpsrc-indicator {font-size:2.85em;}
+	body.rmwide #inpsrc-indicator {font-size:2.85em;}
+	body.rmwide #inpsrc-metadata {font-size:1.5em;}
+	body.rmwide .inpsrc-metadata-cover {height:calc(75vh + .5em);margin:1em 1.25em 0 1.25em}
 
 	/* Dropdown and context menus */
 	.dropdown-menu>li>a {line-height:2.25rem;font-size:1.15em;padding:0.35em 0.5em;}

@@ -949,11 +949,35 @@ function updateInpsrcMeta(cmd, data) {
 	var coverURL = metadata['cover_url'];
     var sformat = metadata['sformat'];
     if (title == '' || duration == '') {
-        // Radio station
-        var metadataHTML = '<b>' + artist  + '</b>' + '<br><span id="renderer-format-badge">' + sformat + '</span><br><span>Live</span>';
-    } else {
-        // Song file (NOTE: duration not being displayed at this time)
-        var metadataHTML = '<b>' + artist + ' - ' + title + '</b>' + '<br><span id="renderer-format-badge">' + sformat + '</span><br><span>' + album + '</span>';
+		// Radio station
+		if (SESSION.json['scnsaver_layout'] == 'Default') {
+			$('body').removeClass('rmwide');
+			var metadataHTML = '<b>' + artist  + '</b>' +
+				'<br><span id="renderer-format-badge">' + sformat + '</span><br><span>Live</span>';
+		} else {
+			// Wide layout
+			$('body').addClass('rmwide');
+			var metadataHTML = '<div id="inpsrc-metadata-artist">' + artist + '</div>' +
+				'<div id="inpsrc-metadata-album">' + 'Live' + '</div>' +
+				'<div id="renderer-format-badge">' + sformat + '</div>';
+		}
+	} else {
+		// Song file (NOTE: duration not being displayed at this time)
+		if (SESSION.json['scnsaver_layout'] == 'Default') {
+			$('body').removeClass('rmwide');
+			var metadataHTML = '<b>' + artist + ' - ' + title + '</b>' +
+				'<br>' +
+				'<span id="renderer-format-badge">' + sformat + '</span>' +
+				'<br>' +
+				'<span>' + album + '</span>';
+		} else {
+			// Wide layout
+			$('body').addClass('rmwide');
+			var metadataHTML = '<div id="inpsrc-metadata-title">' + title + '</div>' +
+				'<div id="inpsrc-metadata-artist">' + artist + '</div>' +
+				'<div id="inpsrc-metadata-album">' + album + '</div>' +
+				'<div id="renderer-format-badge">' + sformat + '</div>';
+		}
     }
 
     $('#inpsrc-cover').html('<img class="inpsrc-metadata-cover" ' + 'src="' + coverURL + '">');
