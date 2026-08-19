@@ -1148,11 +1148,9 @@ body.cv .timeline-thm input[type='range']::-webkit-slider-thumb {
 	font-weight:600;
 	margin-right:.5em;
 	padding:0 .5em;
-	bottom:.16rem;
+	bottom:.23em;
 }
-#ss-hires-badge {
-	bottom:.16rem;
-}
+
 /* Radio manager */
 .modal-button-style {display:inline-block;margin:0 10px 10px 0;color:inherit!important;}
 /* Radio view, Playlist view */
