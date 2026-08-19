@@ -15,6 +15,9 @@
 #
 ################################################################################
 
+New features:
+- NEW: Wide layout for AirPlay and Spotify Connect metadata display
+
 Updates:
 - UPD: Improve Radio Browser notification messages, reduce messages
 - UPD: Improve "Analyze music database" (run in background with progress info)
