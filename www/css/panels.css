@@ -170,27 +170,32 @@ body.rmwide #inpsrc-metadata-parent {
 }
 body.rmwide #inpsrc-metadata {
 	position: relative;
-	font-size: 1.6em;
+	/*font-size: 1.6em;*/
 	font-weight: 500;
 	text-align: left;
 	margin-right: 1em;
 }
-body.rmwide #inpsrc-metadata-title {font-size:1em;font-weight:600;margin-bottom:.3em;}
-body.rmwide #inpsrc-metadata-artist {font-size:.8em;font-weight:400;margin-bottom:.3em;}
-body.rmwide #inpsrc-metadata-album {font-size:.8em;font-weight:400;margin-bottom:0;}
-body.rmwide #renderer-format-badge {
-	display:inline-block;
+body.rmwide #inpsrc-metadata-title {font-size:1.4em;font-weight:600;margin-bottom:1em;}
+body.rmwide #inpsrc-metadata-artist {font-size:1.2em;font-weight:400;margin-bottom:1em;}
+body.rmwide #inpsrc-metadata-album {font-size:1.2em;font-weight:400;margin-bottom:0;}
+body.rmwide #renderer-sformat,
+body.rmwide #renderer-oformat {
+	display:block;
 	position:relative;
-	filter:brightness(85%);
-	color:gold;
-	font-size:.5em!important;
+	color:var(--textvariant);
+	font-size:.85em!important;
     font-weight:500!important;
-	background:black;
-	box-shadow: gold 0px 0px 1px 0px inset, gold 0px 0px 1px 0px;
-	border:1px solid gold;
-	border-radius:2%;
-	padding: .1em .5em .1em .5em;
 }
+body.rmwide #renderer-oformat.ss-npicon:before {
+	content: var(--npicon);
+	display: inline-block;
+	width: 1.25em;
+	margin-right: .25em;
+	color: transparent !important;
+	background: var(--npicon) no-repeat 100%;
+	background-size: 1.25em;
+}
+
 /* Refresh button */
 #inpsrc-metadata-refresh {position:absolute;bottom:0;z-index:9999;right:0;float:right;padding-bottom:.5em;}
 #inpsrc-metadata-refresh a {color:inherit;}

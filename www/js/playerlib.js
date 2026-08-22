@@ -923,10 +923,9 @@ function updateInpsrcMeta(cmd, data) {
     $('#inpsrc-backdrop').css('transform', 'scale(1.0)');
 
 	// Formats
-	// - AirPlay: title, artist, album, duration (in ms),  cover_url, sformat, oformat
+	// - AirPlay: title, artist, album, duration (in ms),  cover_url, sformat, oformat, playstate
 	// - Deezer:  title, artist, album, duration (in sec), cover_url, sformat, decoder
-	// - Spotify: title, artist, album, duration (in ms),  cover_url, sformat
-
+	// - Spotify: title, artist, album, duration (in ms),  cover_url, sformat, oformat, playstate
 	try {
 		var metadata = JSON.parse(data);
 		// DEBUG:
@@ -941,13 +940,29 @@ function updateInpsrcMeta(cmd, data) {
 		return;
 	}
 
+	// Standard metadata
 	var title = metadata['title'];
 	var artist = metadata['artist'];
-    var album = metadata['album'];
-	var timeDivisor = (cmd.includes('_aplmeta') || cmd.includes('_spotmeta')) ? 1000 : 1;
-    var duration = formatSongTime(Math.round(parseInt(metadata['duration']) / timeDivisor));
+	var album = metadata['album'];
 	var coverURL = metadata['cover_url'];
-    var sformat = metadata['sformat'];
+	// Source and output format
+	var sformat = metadata['sformat'];
+	var oformat = metadata['oformat'];
+	// Playstate/now-playing icon
+	var playstate = typeof(metadata['playstate']) == 'undefined' ? '' : metadata['playstate'];
+	if (playstate == 'Pause') {
+		oformat = 'Not playing';
+		var npicon = '';
+	} else if (playstate == 'Resume') {
+		var npicon = 'ss-npicon';
+	} else {
+		var npicon = '';
+	}
+	// Duration (not used at this time)
+	var timeDivisor = (cmd.includes('_aplmeta') || cmd.includes('_spotmeta')) ? 1000 : 1;
+	var duration = formatSongTime(Math.round(parseInt(metadata['duration']) / timeDivisor));
+
+	// Display metadata and cover
     if (title == '' || duration == '') {
 		// Radio station
 		if (SESSION.json['scnsaver_layout'] == 'Default') {
@@ -955,14 +970,14 @@ function updateInpsrcMeta(cmd, data) {
 			var metadataHTML = '<b>' + artist  + '</b>' +
 				'<br><span id="renderer-format-badge">' + sformat + '</span><br><span>Live</span>';
 		} else {
-			// Wide layout
 			$('body').addClass('rmwide');
 			var metadataHTML = '<div id="inpsrc-metadata-artist">' + artist + '</div>' +
 				'<div id="inpsrc-metadata-album">' + 'Live' + '</div>' +
-				'<div id="renderer-format-badge">' + sformat + '</div>';
+				'<div id="renderer-sformat">' + sformat + '</div>' +
+				'<div id="renderer-oformat" class="' + npicon + '">' + oformat + '</div>';
 		}
 	} else {
-		// Song file (NOTE: duration not being displayed at this time)
+		// Song file
 		if (SESSION.json['scnsaver_layout'] == 'Default') {
 			$('body').removeClass('rmwide');
 			var metadataHTML = '<b>' + artist + ' - ' + title + '</b>' +
@@ -971,12 +986,12 @@ function updateInpsrcMeta(cmd, data) {
 				'<br>' +
 				'<span>' + album + '</span>';
 		} else {
-			// Wide layout
 			$('body').addClass('rmwide');
 			var metadataHTML = '<div id="inpsrc-metadata-title">' + title + '</div>' +
 				'<div id="inpsrc-metadata-artist">' + artist + '</div>' +
 				'<div id="inpsrc-metadata-album">' + album + '</div>' +
-				'<div id="renderer-format-badge">' + sformat + '</div>';
+				'<div id="renderer-sformat">' + sformat + '</div>' +
+				'<div id="renderer-oformat" class="' + npicon + '">' + oformat + '</div>';
 		}
     }
 
