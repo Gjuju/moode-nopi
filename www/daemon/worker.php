@@ -3377,7 +3377,9 @@ function runQueuedJob() {
 			}
 			break;
 		case 'install_qobuz':
-			$fullLog = $_SESSION['home_dir'] . '/install_qobuz.log';
+			// See install_airplay above: worker is www-data on x86 and cannot write
+			// the 0700 home, so keep the log in a www-data-writable dir off the Pi.
+			$fullLog = (isPi() ? $_SESSION['home_dir'] : '/var/local/www') . '/install_qobuz.log';
 			sysCmd('rm "' . $fullLog . '"');
 			$result = sqlQuery("SELECT plugin FROM cfg_plugin WHERE component='renderer' AND type='qobuz-connect'", $GLOBALS['dbh']);
 			sysCmd('/var/www/util/plugin-updater.sh "renderer" "' . $result[0]['plugin'] . '" > "' . $fullLog . '" 2>&1 &');
