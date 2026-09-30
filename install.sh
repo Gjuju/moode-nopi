@@ -297,8 +297,8 @@ CORE_PKGS=(
 	# Misc tools/libs moOde and its scripts use: jq (JSON), dos2unix (playlist
 	# import), sysstat (system stats), tree, python3-musicpd (MPD client lib),
 	# python3-setuptools, lsb-release, xfsprogs (mount/fsck XFS music drives),
-	# avahi-utils (avahi CLI).
-	jq dos2unix sysstat tree python3-musicpd python3-setuptools lsb-release xfsprogs avahi-utils
+	# avahi-utils (avahi CLI), python3-paho-mqtt (MQTT bridge).
+	jq dos2unix sysstat tree python3-musicpd python3-setuptools lsb-release xfsprogs avahi-utils python3-paho-mqtt
 	# zip/unzip: the on-demand renderer plugins ship as zips and moOde's own
 	# plugin-updater.sh unzips them on EVERY arch. Installing them from the x86-only
 	# mirror phase left arm64 without unzip, and the AirPlay install then failed with
@@ -1562,6 +1562,8 @@ sed -e "s|^User=pi$|User=$PLAYER_USER|" \
     -e "s|/home/pi/|$PLAYER_HOME/|g" \
     "$REPO_DIR/etc/systemd/system/plexamp.service" > /etc/systemd/system/plexamp.service
 chmod 644 /etc/systemd/system/plexamp.service
+# MQTT bridge unit: left disabled, the worker starts it from System Config
+install -m 644 "$REPO_DIR/etc/systemd/system/mqtt-bridge.service" /etc/systemd/system/mqtt-bridge.service
 
 # USB Wi-Fi dongle modprobe options (Realtek 8192cu / 8812au): parity with the Pi,
 # harmless when no such adapter is present, useful if one is plugged in.
@@ -1823,6 +1825,7 @@ systemd/journald.sed.conf
 systemd/system/bluealsa-aplay@.service
 systemd/system/bluealsa.overwrite.service
 systemd/system/bt-agent.service
+systemd/system/mqtt-bridge.service
 systemd/system/plexamp.service
 triggerhappy/triggers.d/media.conf
 udevil/udevil.overwrite.conf
