@@ -569,14 +569,16 @@ fi
 #    emits CamillaDSP v4 sample-format names (S16LE -> S16_LE, etc.). The patch
 #    is a handful of literal string swaps, applied here with sed (no patch file).
 #    Since 1.2.0-4moode1 it also carries pkgbuild's frame_safe_cancel.patch (keeps
-#    the CamillaDSP FIFO frame-aligned on cancel, no residual noise). Like caps,
-#    the patches are fetched from pkgbuild so they track what moOde builds;
+#    the CamillaDSP FIFO frame-aligned on cancel, no residual noise). Branch and
+#    patches are pinned to the 1.2.0-4moode1 recipe: the branch has since taken
+#    its own frame_safe_cancel fix and pkgbuild dropped the patch (1.3.0).
 #    fix_make_clean.patch has to precede it, it reshapes the Makefile context.
 #    The stamp holds a hash of them: a changed patch rebuilds, and when pkgbuild
 #    is unreachable an installed plugin is kept rather than rebuilt unpatched.
 CDSP_PLUGIN_DIR="$(pkg-config --variable=libdir alsa 2>/dev/null)/alsa-lib"
 ACDSP_SO="$CDSP_PLUGIN_DIR/libasound_module_pcm_cdsp.so"
-ACDSP_PATCH_URL="https://raw.githubusercontent.com/moode-player/pkgbuild/main/packages/alsa-cdsp"
+ACDSP_COMMIT="aee74427198b7f7e45fae6b5b0007579f2ed1090"
+ACDSP_PATCH_URL="https://raw.githubusercontent.com/moode-player/pkgbuild/ef388a4c4c7ce5bf49752b734663496e143eabd5/packages/alsa-cdsp"
 ACDSP_PATCH_DIR="$(mktemp -d)"
 ACDSP_PATCHES_OK=1
 for _p in fix_make_clean.patch frame_safe_cancel.patch; do
@@ -592,6 +594,7 @@ elif [ ! -f "$ACDSP_SO" ] || [ "$(cat "$NOPI_BUILT_DIR/alsa-cdsp" 2>/dev/null)" 
 	if git clone -q -b fixes/bookworm_cargs_empty \
 			https://github.com/bitkeeper/alsa_cdsp.git "$CDSP_BLD/alsa_cdsp" \
 		&& ( cd "$CDSP_BLD/alsa_cdsp" \
+			&& git checkout -q "$ACDSP_COMMIT" \
 			&& sed -i -e 's/"S16LE"/"S16_LE"/'   -e 's/"S24LE3"/"S24_3_LE"/' \
 				   -e 's/"S24LE"/"S24_4_RJ_LE"/' -e 's/"S32LE"/"S32_LE"/' \
 				   -e 's/"FLOAT32LE"/"F32_LE"/'  -e 's/"FLOAT64LE"/"F64_LE"/' \
