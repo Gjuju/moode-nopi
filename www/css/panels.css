@@ -127,6 +127,14 @@ html {background-color:inherit;}
 #renderer-volume::-moz-range-track {width:8px;border-radius:4px;background:var(--trackfill);}
 #renderer-volume::-moz-range-progress {width:8px;border-radius:4px;background:var(--accentxts);}
 #renderer-volume::-moz-range-thumb {width:0;height:0;border:none;box-shadow:none;background:transparent;}
+/* Narrow screens: horizontal, first child of #inpsrc-metadata (moved by placeRendererVolume) */
+#inpsrc-metadata #renderer-volume-ctl {position:static;flex-direction:row;justify-content:center;height:auto;width:80%;margin:0 auto .5em;}
+#inpsrc-metadata #renderer-volume-icon {order:0;margin:0 .5em 0 0;}
+#inpsrc-metadata #renderer-volume {order:1;writing-mode:horizontal-tb;direction:ltr;height:2rem;width:auto;}
+#inpsrc-metadata #renderer-volume-level {order:2;margin:0 0 0 .5em;min-width:2em;text-align:left;}
+#inpsrc-metadata #renderer-volume::-webkit-slider-runnable-track {width:auto;height:8px;background:linear-gradient(to right, var(--accentxts) var(--fill, 0%), var(--trackfill) var(--fill, 0%));}
+#inpsrc-metadata #renderer-volume::-moz-range-track,
+#inpsrc-metadata #renderer-volume::-moz-range-progress {width:auto;height:8px;}
 /* Custom overlay: cover w/metadata (AirPlay, Spotify Connect, Qobuz Connect) */
 /* Default layout: */
 body:not(.rmwide) .inpsrc-metadata-cover {
