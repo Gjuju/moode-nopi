@@ -119,8 +119,8 @@ html {background-color:inherit;}
 /* Volume controls */
 #inpsrc-preamp-volume, #multiroom-receiver-volume {font-size:.7em !important;}
 #renderer-volume-ctl {position:fixed;right:1.5rem;top:5vh;height:70vh;width:3rem;flex-direction:column;align-items:center;z-index:9999;font-size:1rem;}
-#renderer-volume-level {margin-bottom:.5em;}
-#renderer-volume-icon {margin-top:.5em;}
+#renderer-volume-level {margin-bottom:.5em;font-size:1.5rem;}
+#renderer-volume-icon {margin-top:.5em;font-size:1.5rem;}
 #renderer-volume {writing-mode:vertical-lr;direction:rtl;flex:1;width:2rem;margin:0;cursor:pointer;}
 #renderer-volume::-webkit-slider-runnable-track {width:8px;border-radius:4px;background:linear-gradient(to top, var(--accentxts) var(--fill, 0%), var(--trackfill) var(--fill, 0%));}
 #renderer-volume::-webkit-slider-thumb {width:8px;height:8px;margin:0;background:transparent;}
