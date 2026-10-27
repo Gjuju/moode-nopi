@@ -1869,8 +1869,12 @@ jQuery(document).ready(function($) { 'use strict';
         setRendererVolumeSlider($(this).val(), false);
     });
     $(document).on('change', '#renderer-volume', function(e) {
-        GLOBAL.rendererVolume = $(this).val();
         GLOBAL.rendererVolumeDrag = false;
+        // A touch release can fire change twice
+        if ($(this).val() == GLOBAL.rendererVolume) {
+            return;
+        }
+        GLOBAL.rendererVolume = $(this).val();
         $.get('command/index.php?cmd=' + encodeURIComponent('set_volume ' + GLOBAL.rendererVolume));
     });
 
