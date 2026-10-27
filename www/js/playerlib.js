@@ -872,7 +872,10 @@ function rendererVolumePoll(cmd) {
 }
 
 function setRendererVolumeSlider(level, muted) {
-	$('#renderer-volume').val(level).css('--fill', level + '%');
+	// NOTE: jQuery 1.8 .css() can't set custom properties
+	$('#renderer-volume').val(level).each(function() {
+		this.style.setProperty('--fill', level + '%');
+	});
 	$('#renderer-volume-level').text(muted ? 'mute' : level);
 	$('#renderer-volume-icon').toggleClass('fa-volume-off', !muted).toggleClass('fa-volume-xmark', muted);
 }
