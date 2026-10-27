@@ -622,8 +622,7 @@ function engineCmd() {
                         rendererRefreshBtn() +
 						(rendererName == 'Bluetooth' ?
 							'<a class="btn renderer-btn" href="blu-config.php"><i class="fa-regular fa-sharp fa-gear"></i></a>' :
-							'') +
-                        (rendererName == 'Qobuz' ? rendererVolumeSlider() : '')
+							'')
                     );
                     $('#inpsrc-metadata-refresh').html('');
                     break;
@@ -853,23 +852,27 @@ function inpSrcIndicator(cmd, msgText) {
 
 // Volume slider for renderers whose volume syncs back to the client app
 // NOTE: The renderer is the master volume, poll it to follow changes made in the app
-function rendererVolumeSlider() {
-	return '<div id="renderer-volume-ctl">' +
-		'<input aria-label="Volume" id="renderer-volume" class="hslide2" type="range" min="0" max="100" step="1" value="' + GLOBAL.rendererVolume + '">' +
-		'<span id="renderer-volume-level">' + GLOBAL.rendererVolume + '</span>' +
-		'</div>';
-}
-
+// NOTE: Attached to #inpsrc-indicator so overlay redraws don't replace it during a drag
 function rendererVolumePoll(cmd) {
 	if (cmd == 'qbzactive1') {
 		if (GLOBAL.rendererVolumeTimer == '') {
+			$('#inpsrc-indicator').append('<div id="renderer-volume-ctl" style="display:none">' +
+				'<span id="renderer-volume-level"></span>' +
+				'<input aria-label="Volume" id="renderer-volume" type="range" min="0" max="100" step="1" value="0">' +
+				'</div>');
 			getRendererVolume();
 			GLOBAL.rendererVolumeTimer = setInterval(getRendererVolume, 2000);
 		}
 	} else if (GLOBAL.rendererVolumeTimer != '') {
 		clearInterval(GLOBAL.rendererVolumeTimer);
 		GLOBAL.rendererVolumeTimer = '';
+		$('#renderer-volume-ctl').remove();
 	}
+}
+
+function setRendererVolumeSlider(level, muted) {
+	$('#renderer-volume').val(level).css('--fill', level + '%');
+	$('#renderer-volume-level').text(muted ? 'mute' : level);
 }
 
 function getRendererVolume() {
@@ -878,11 +881,10 @@ function getRendererVolume() {
 			$('#renderer-volume-ctl').hide();
 			return;
 		}
-		$('#renderer-volume-ctl').show();
+		$('#renderer-volume-ctl').css('display', 'flex');
 		if (!GLOBAL.rendererVolumeDrag) {
 			GLOBAL.rendererVolume = data['volume'];
-			$('#renderer-volume').val(GLOBAL.rendererVolume);
-			$('#renderer-volume-level').text(data['muted'] == 'yes' ? 'mute' : GLOBAL.rendererVolume);
+			setRendererVolumeSlider(GLOBAL.rendererVolume, data['muted'] == 'yes');
 		}
 	});
 }
@@ -1627,8 +1629,7 @@ function renderUI() {
                 '<button class="btn renderer-btn disconnect-qobuz" data-job="qobuzsvc"><i class="fa-regular fa-sharp fa-xmark"></i></button>' +
                 receiversBtn('qbzactive1') +
                 audioInfoBtn('qbzactive1') +
-                rendererRefreshBtn() +
-                rendererVolumeSlider()
+                rendererRefreshBtn()
             );
 
             refreshInpsrcMeta();
