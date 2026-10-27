@@ -859,6 +859,7 @@ function rendererVolumePoll(cmd) {
 			$('#inpsrc-indicator').append('<div id="renderer-volume-ctl" style="display:none">' +
 				'<span id="renderer-volume-level"></span>' +
 				'<input aria-label="Volume" id="renderer-volume" type="range" min="0" max="100" step="1" value="0">' +
+				'<i id="renderer-volume-icon" class="fa-regular fa-sharp fa-volume-off"></i>' +
 				'</div>');
 			getRendererVolume();
 			GLOBAL.rendererVolumeTimer = setInterval(getRendererVolume, 2000);
@@ -873,6 +874,7 @@ function rendererVolumePoll(cmd) {
 function setRendererVolumeSlider(level, muted) {
 	$('#renderer-volume').val(level).css('--fill', level + '%');
 	$('#renderer-volume-level').text(muted ? 'mute' : level);
+	$('#renderer-volume-icon').toggleClass('fa-volume-off', !muted).toggleClass('fa-volume-xmark', muted);
 }
 
 function getRendererVolume() {

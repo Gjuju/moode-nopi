@@ -120,11 +120,13 @@ html {background-color:inherit;}
 #inpsrc-preamp-volume, #multiroom-receiver-volume {font-size:.7em !important;}
 #renderer-volume-ctl {position:fixed;right:1.5rem;top:5vh;height:70vh;width:3rem;flex-direction:column;align-items:center;z-index:9999;font-size:1rem;}
 #renderer-volume-level {margin-bottom:.5em;}
+#renderer-volume-icon {margin-top:.5em;}
 #renderer-volume {writing-mode:vertical-lr;direction:rtl;flex:1;width:2rem;margin:0;cursor:pointer;}
-#renderer-volume::-webkit-slider-runnable-track {width:4px;border-radius:2px;background:linear-gradient(to top, var(--accentxta) var(--fill, 0%), var(--trackfill) var(--fill, 0%));}
-#renderer-volume::-webkit-slider-thumb {width:1rem;height:1rem;border-radius:50%;background:#fff;margin:0 0 0 -6px;}
+#renderer-volume::-webkit-slider-runnable-track {width:4px;border-radius:2px;background:linear-gradient(to top, var(--accentxts) var(--fill, 0%), var(--trackfill) var(--fill, 0%));}
+#renderer-volume::-webkit-slider-thumb {width:4px;height:4px;margin:0;background:transparent;}
 #renderer-volume::-moz-range-track {width:4px;border-radius:2px;background:var(--trackfill);}
-#renderer-volume::-moz-range-progress {width:4px;border-radius:2px;background:var(--accentxta);}
+#renderer-volume::-moz-range-progress {width:4px;border-radius:2px;background:var(--accentxts);}
+#renderer-volume::-moz-range-thumb {width:0;height:0;border:none;box-shadow:none;background:transparent;}
 /* Custom overlay: cover w/metadata (AirPlay, Spotify Connect, Qobuz Connect) */
 /* Default layout: */
 body:not(.rmwide) .inpsrc-metadata-cover {
