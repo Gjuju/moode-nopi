@@ -173,6 +173,9 @@ var GLOBAL = {
     libRendered: false,
     libLoading: false,
     cvQueueTimer: '',
+    rendererVolume: 0,
+    rendererVolumeTimer: '',
+    rendererVolumeDrag: false,
     pqActionClicked: false,
     mpdMaxVolume: 0,
     lastTimeCount: 0,
@@ -619,7 +622,8 @@ function engineCmd() {
                         rendererRefreshBtn() +
 						(rendererName == 'Bluetooth' ?
 							'<a class="btn renderer-btn" href="blu-config.php"><i class="fa-regular fa-sharp fa-gear"></i></a>' :
-							'')
+							'') +
+                        (rendererName == 'Qobuz' ? rendererVolumeSlider() : '')
                     );
                     $('#inpsrc-metadata-refresh').html('');
                     break;
@@ -843,6 +847,44 @@ function inpSrcIndicator(cmd, msgText) {
 		$('#inpsrc-msg').html('');
 		$('#inpsrc-indicator').css('display', '');
 	}
+
+	rendererVolumePoll(cmd);
+}
+
+// Volume slider for renderers whose volume syncs back to the client app
+// NOTE: The renderer is the master volume, poll it to follow changes made in the app
+function rendererVolumeSlider() {
+	return '<div id="renderer-volume-ctl">' +
+		'<input aria-label="Volume" id="renderer-volume" class="hslide2" type="range" min="0" max="100" step="1" value="' + GLOBAL.rendererVolume + '">' +
+		'<span id="renderer-volume-level">' + GLOBAL.rendererVolume + '</span>' +
+		'</div>';
+}
+
+function rendererVolumePoll(cmd) {
+	if (cmd == 'qbzactive1') {
+		if (GLOBAL.rendererVolumeTimer == '') {
+			getRendererVolume();
+			GLOBAL.rendererVolumeTimer = setInterval(getRendererVolume, 2000);
+		}
+	} else if (GLOBAL.rendererVolumeTimer != '') {
+		clearInterval(GLOBAL.rendererVolumeTimer);
+		GLOBAL.rendererVolumeTimer = '';
+	}
+}
+
+function getRendererVolume() {
+	$.getJSON('command/index.php?cmd=get_volume', function(data) {
+		if (data['scope'] != 'source' || data['can_volume'] !== true) {
+			$('#renderer-volume-ctl').hide();
+			return;
+		}
+		$('#renderer-volume-ctl').show();
+		if (!GLOBAL.rendererVolumeDrag) {
+			GLOBAL.rendererVolume = data['volume'];
+			$('#renderer-volume').val(GLOBAL.rendererVolume);
+			$('#renderer-volume-level').text(data['muted'] == 'yes' ? 'mute' : GLOBAL.rendererVolume);
+		}
+	});
 }
 
 function refreshInpsrcMeta() {
@@ -1585,7 +1627,8 @@ function renderUI() {
                 '<button class="btn renderer-btn disconnect-qobuz" data-job="qobuzsvc"><i class="fa-regular fa-sharp fa-xmark"></i></button>' +
                 receiversBtn('qbzactive1') +
                 audioInfoBtn('qbzactive1') +
-                rendererRefreshBtn()
+                rendererRefreshBtn() +
+                rendererVolumeSlider()
             );
 
             refreshInpsrcMeta();

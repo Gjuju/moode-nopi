@@ -1863,6 +1863,17 @@ jQuery(document).ready(function($) { 'use strict';
         }
 	});
 
+	// Renderer volume slider
+    $(document).on('input', '#renderer-volume', function(e) {
+        GLOBAL.rendererVolumeDrag = true;
+        $('#renderer-volume-level').text($(this).val());
+    });
+    $(document).on('change', '#renderer-volume', function(e) {
+        GLOBAL.rendererVolume = $(this).val();
+        GLOBAL.rendererVolumeDrag = false;
+        $.get('command/index.php?cmd=' + encodeURIComponent('set_volume ' + GLOBAL.rendererVolume));
+    });
+
 	// Disconnect renderer
     $(document).on('click', '.disconnect-renderer', function(e) {
 		notify(NOTIFY_TITLE_INFO, 'renderer_disconnect');
