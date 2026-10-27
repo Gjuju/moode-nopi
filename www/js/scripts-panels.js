@@ -1866,7 +1866,7 @@ jQuery(document).ready(function($) { 'use strict';
 	// Renderer volume slider
     $(document).on('input', '#renderer-volume', function(e) {
         GLOBAL.rendererVolumeDrag = true;
-        $('#renderer-volume-level').text($(this).val());
+        setRendererVolumeSlider($(this).val(), false);
     });
     $(document).on('change', '#renderer-volume', function(e) {
         GLOBAL.rendererVolume = $(this).val();
