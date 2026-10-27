@@ -176,6 +176,7 @@ var GLOBAL = {
     rendererVolume: 0,
     rendererVolumeTimer: '',
     rendererVolumeDrag: false,
+    rendererVolumeNarrow: '',
     pqActionClicked: false,
     mpdMaxVolume: 0,
     lastTimeCount: 0,
@@ -861,6 +862,11 @@ function rendererVolumePoll(cmd) {
 				'<input aria-label="Volume" id="renderer-volume" type="range" min="0" max="100" step="1" value="0">' +
 				'<i id="renderer-volume-icon" class="fa-regular fa-sharp fa-volume-off"></i>' +
 				'</div>');
+			if (GLOBAL.rendererVolumeNarrow == '') {
+				GLOBAL.rendererVolumeNarrow = window.matchMedia('(max-width:925px)');
+				GLOBAL.rendererVolumeNarrow.addListener(placeRendererVolume);
+			}
+			placeRendererVolume();
 			getRendererVolume();
 			GLOBAL.rendererVolumeTimer = setInterval(getRendererVolume, 2000);
 		}
@@ -868,6 +874,15 @@ function rendererVolumePoll(cmd) {
 		clearInterval(GLOBAL.rendererVolumeTimer);
 		GLOBAL.rendererVolumeTimer = '';
 		$('#renderer-volume-ctl').remove();
+	}
+}
+
+// Vertical on the overlay edge, horizontal at the top of the metadata on narrow screens
+function placeRendererVolume() {
+	if (GLOBAL.rendererVolumeNarrow.matches) {
+		$('#renderer-volume-ctl').prependTo('#inpsrc-metadata');
+	} else {
+		$('#renderer-volume-ctl').appendTo('#inpsrc-indicator');
 	}
 }
 
@@ -1007,7 +1022,12 @@ function updateInpsrcMeta(cmd, data) {
     $('#inpsrc-backdrop').css('transform', 'scale(' + SESSION.json['cover_scale'] + ')');
     $('#inpsrc-style').css('display', 'block');
 
+    // Keep the volume slider out of the html() rewrite
+    $('#renderer-volume-ctl').appendTo('#inpsrc-indicator');
     $('#inpsrc-metadata').html(metadataHTML);
+    if (GLOBAL.rendererVolumeNarrow != '') {
+        placeRendererVolume();
+    }
 
     inpSrcMetaRefreshBtn();
 
