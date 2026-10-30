@@ -9,9 +9,7 @@
 # upstream order. Each step runs once per DB and is recorded in nopi_postinstall;
 # a fresh DB records them all unrun (the schema is already current).
 #
-# Upstream reviewed up to: pkgbuild 252663b (2026-10-25)
-# Not ported yet: the 10.3.7 block (cfg_plugin reload, 10.3.7 stations zip), its
-# release is not out.
+# Upstream reviewed up to: pkgbuild 401c723 (2026-10-26)
 # Ported from r1035 on; earlier blocks are covered by install.sh's schema
 # migration (Phase 4).
 #
@@ -31,6 +29,7 @@ NOPI_PI_STEPS=(
 	r1036-radio-covers
 	r1036-radiocover-config
 	r1036-bt-agent-rename
+	r1037-stations
 )
 
 # Upstream import_stations(), update mode
@@ -122,6 +121,12 @@ pi_r1036_radiocover_config() {
 # bt-agent.service is always redeployed and restarted by install.sh.
 pi_r1036_bt_agent_rename() {
 	rm -f /var/www/daemon/bt-pairing-agent.py
+}
+
+# r1037: the cfg_plugin reload is the Phase 4 realign; the mpd.conf option removal
+# is r1035-thesycon-conf above
+pi_r1037_stations() {
+	nopi_pi_import_stations "https://dl.cloudsmith.io/public/moodeaudio/m8y/raw/files/moode-stations-update_10.3.7.zip"
 }
 
 #------------------------------------------------------------------------------#
