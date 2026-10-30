@@ -1875,6 +1875,7 @@ jQuery(document).ready(function($) { 'use strict';
             return;
         }
         GLOBAL.rendererVolume = $(this).val();
+        GLOBAL.rendererVolumeSetTime = Date.now();
         $.get('command/index.php?cmd=' + encodeURIComponent('set_volume ' + GLOBAL.rendererVolume));
     });
 
