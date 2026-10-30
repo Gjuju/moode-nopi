@@ -177,6 +177,7 @@ var GLOBAL = {
     rendererVolumeTimer: '',
     rendererVolumeDrag: false,
     rendererVolumeNarrow: '',
+    rendererVolumeSetTime: 0,
     pqActionClicked: false,
     mpdMaxVolume: 0,
     lastTimeCount: 0,
@@ -855,7 +856,7 @@ function inpSrcIndicator(cmd, msgText) {
 // NOTE: The renderer is the master volume, poll it to follow changes made in the app
 // NOTE: Attached to #inpsrc-indicator so overlay redraws don't replace it during a drag
 function rendererVolumePoll(cmd) {
-	if (cmd == 'qbzactive1') {
+	if (['btactive1', 'aplactive1', 'qbzactive1', 'slactive1'].indexOf(cmd) != -1) {
 		if (GLOBAL.rendererVolumeTimer == '') {
 			$('#inpsrc-indicator').append('<div id="renderer-volume-ctl" style="display:none">' +
 				'<span id="renderer-volume-level"></span>' +
@@ -866,10 +867,10 @@ function rendererVolumePoll(cmd) {
 				GLOBAL.rendererVolumeNarrow = window.matchMedia('(max-width:925px)');
 				GLOBAL.rendererVolumeNarrow.addListener(placeRendererVolume);
 			}
-			placeRendererVolume();
 			getRendererVolume();
 			GLOBAL.rendererVolumeTimer = setInterval(getRendererVolume, 2000);
 		}
+		placeRendererVolume();
 	} else if (GLOBAL.rendererVolumeTimer != '') {
 		clearInterval(GLOBAL.rendererVolumeTimer);
 		GLOBAL.rendererVolumeTimer = '';
@@ -878,8 +879,9 @@ function rendererVolumePoll(cmd) {
 }
 
 // Vertical on the overlay edge, horizontal at the top of the metadata on narrow screens
+// NOTE: Renderers without metadata (Squeezelite) keep the vertical slider
 function placeRendererVolume() {
-	if (GLOBAL.rendererVolumeNarrow.matches) {
+	if (GLOBAL.rendererVolumeNarrow.matches && $('#inpsrc-metadata').css('display') != 'none') {
 		$('#renderer-volume-ctl').prependTo('#inpsrc-metadata');
 	} else {
 		$('#renderer-volume-ctl').appendTo('#inpsrc-indicator');
@@ -902,7 +904,8 @@ function getRendererVolume() {
 			return;
 		}
 		$('#renderer-volume-ctl').css('display', 'flex');
-		if (!GLOBAL.rendererVolumeDrag) {
+		// NOTE: AirPlay senders confirm a new level about 1 s later, don't show the old one meanwhile
+		if (!GLOBAL.rendererVolumeDrag && Date.now() - GLOBAL.rendererVolumeSetTime > 2500) {
 			GLOBAL.rendererVolume = data['volume'];
 			setRendererVolumeSlider(GLOBAL.rendererVolume, data['muted'] == 'yes');
 		}
@@ -1025,13 +1028,13 @@ function updateInpsrcMeta(cmd, data) {
     // Keep the volume slider out of the html() rewrite
     $('#renderer-volume-ctl').appendTo('#inpsrc-indicator');
     $('#inpsrc-metadata').html(metadataHTML);
-    if (GLOBAL.rendererVolumeNarrow != '') {
-        placeRendererVolume();
-    }
 
     inpSrcMetaRefreshBtn();
 
     $('#inpsrc-metadata').show();
+    if (GLOBAL.rendererVolumeNarrow != '') {
+        placeRendererVolume();
+    }
     $('#inpsrc-msg').css({
         'width':'unset',
         'top':'unset',
