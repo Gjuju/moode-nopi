@@ -167,7 +167,7 @@ background thread (never presents on x86/X11/SDL2); fixed by overlaying moOde's
 own `spectrum.py` (PeppySpectrum issue #1 fix — draws on the main loop) on the
 upstream clone, exactly like moOde's `pkgbuild` `build.sh`. The local-display
 suite is fully working: touchmon WebUI↔Peppy auto-switch, on-screen keyboard
-(needs the CrOS user-agent spoof), and the USB volume knob (`usb_volknob` —
+(detected via the `kiosk=1` URL marker), and the USB volume knob (`usb_volknob` —
 triggerhappy run as www-data, off by default). The per-config audit (General
 settings / HDMI displays / Volume controllers) is **done**. **Open:** squash/rebase
 onto `develop`.
