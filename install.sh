@@ -2312,16 +2312,10 @@ fi
 
 if [ "$WEBUI_SHOW" = "1" ]; then
 	$(/var/www/util/sysutil.sh clearbrcache)
-	# --user-agent: moOde's web app gates the local-display kiosk features
-	# (on-screen keyboard, CoverView/screensaver coordination) on the UA
-	# containing 'CrOS' (playerlib.js sets GLOBAL.chromium from it - Raspberry Pi
-	# OS chromium reports 'X11; CrOS aarch64'). Stock Debian chromium reports
-	# 'X11; Linux x86_64' -> GLOBAL.chromium=false -> no OSK ever pops. Spoof the
-	# Pi's exact chromium-126 CrOS UA so the kiosk behaves byte-identically to the
-	# Pi (only the local kiosk is affected; remote browsers send their own UA).
+	# The worker appends kiosk=1 to the --app URL (moOde r1037), which is how the
+	# web app detects the local-display kiosk, as on the Pi.
 	exec chromium \
 	--app="http://localhost/" \
-	--user-agent="Mozilla/5.0 (X11; CrOS aarch64 14541.0.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.6478.164 Safari/537.36" \
 	--window-size="${SCREEN_RES/x/,}" \
 	--window-position="0,0" \
 	--enable-features="OverlayScrollbar" \
