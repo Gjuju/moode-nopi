@@ -2786,6 +2786,17 @@ if [ -n "$NOPI_BUILD_SWAP" ] && grep -q "^$NOPI_BUILD_SWAP " /proc/swaps; then
 		&& log "Removed temporary build swapfile ($NOPI_BUILD_SWAP)"
 fi
 
+# The kiosk keeps the page it loaded before this run, and the worker only `start`s
+# localdisplay (a no-op when it already runs). Reload it once the worker is ready.
+if systemctl is-active --quiet localdisplay; then
+	for _i in $(seq 1 60); do
+		[ "$(moodeutl -q "SELECT value FROM cfg_system WHERE param='wrkready'")" = 1 ] && break
+		sleep 1
+	done
+	systemctl restart localdisplay
+	log "Local display restarted to load the updated WebUI"
+fi
+
 IP="$(hostname -I | awk '{print $1}')"
 log "Done."
 echo
