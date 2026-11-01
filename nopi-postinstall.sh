@@ -9,7 +9,7 @@
 # upstream order. Each step runs once per DB and is recorded in nopi_postinstall;
 # a fresh DB records them all unrun (the schema is already current).
 #
-# Upstream reviewed up to: pkgbuild 227cf31 (2026-10-30)
+# Upstream reviewed up to: pkgbuild ae25d67 (2026-11-01)
 # Ported from r1035 on; earlier blocks are covered by install.sh's schema
 # migration (Phase 4).
 #
