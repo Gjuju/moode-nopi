@@ -2870,6 +2870,24 @@ if [ "$UPDATE" != 1 ]; then
 	log "output device. Pi-only options (I2S, GPIO, LCD) are hidden on this platform."
 	echo
 fi
+# Reboot detection, as Debian's needrestart does it: the running kernel is no
+# longer the installed build of its package, or a process still maps a replaced
+# shared library (services the install restarted are already clean). Flagged in
+# /run/reboot-required, which the WebUI updater reads and a reboot clears.
+reboot_reasons() {
+	local kver pver procs
+	kver="$(uname -v | sed -n 's/.* Debian \([^ ]*\) .*/\1/p')"
+	pver="$(dpkg-query -W -f='${Version}' "linux-image-$(uname -r)" 2>/dev/null || true)"
+	[ -n "$kver" ] && [ -n "$pver" ] && [ "$kver" != "$pver" ] && echo "kernel $kver -> $pver"
+	procs="$(grep -l '\.so[^ ]* (deleted)' /proc/[0-9]*/maps 2>/dev/null | cut -d/ -f3 \
+		| while read -r p; do cat "/proc/$p/comm" 2>/dev/null; done | sort -u | tr '\n' ' ' || true)"
+	[ -n "$procs" ] && echo "replaced libraries still in use by: $procs"
+	[ -f /run/reboot-required ] && echo "flagged by a package (/run/reboot-required)"
+	return 0
+}
+REBOOT_REASONS="$(reboot_reasons)"
+[ -n "$REBOOT_REASONS" ] && touch /run/reboot-required
+
 # net.ifnames=0 (Phase 3b) renames enpXsY/end0 -> eth0/wlan0 only on the NEXT boot,
 # and until then NM's eth0/wlan0 keyfiles don't match the live interface. So a
 # reboot is needed only while that rename is pending - i.e. the default-route
@@ -2878,8 +2896,9 @@ fi
 CUR_IFACE="$(ip -o -4 route show default 2>/dev/null | awk '{print $5; exit}')"
 case "$CUR_IFACE" in
 	eth*|wlan*)
-		if [ "$UPGRADE" = 1 ]; then
-			warn "REBOOT REQUIRED to load the upgraded system packages: sudo reboot"
+		if [ -n "$REBOOT_REASONS" ]; then
+			warn "REBOOT REQUIRED: sudo reboot"
+			while read -r r; do warn "  $r"; done <<< "$REBOOT_REASONS"
 		elif [ "$UPDATE" = 1 ]; then
 			log "Update complete. No reboot needed."
 		else
