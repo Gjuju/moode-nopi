@@ -59,5 +59,10 @@ if systemctl is-active --quiet localdisplay; then
 	message_log "Local display restarted"
 fi
 
-message_log "Update installed, restart required"
+# install.sh flags a needed reboot (new kernel, replaced libraries in use)
+if [ -f /run/reboot-required ]; then
+	message_log "Update installed, restart required"
+else
+	message_log "Update installed"
+fi
 exit 0
