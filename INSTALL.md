@@ -189,6 +189,19 @@ sudo ./install.sh --update
 configs, and restarts services — **keeping your existing settings** (it does not
 touch the database; never pass `--reset-db` for an update).
 
+Add `--upgrade` to also bring the rest of the system up to date (Debian security
+fixes, e.g. PHP):
+
+```bash
+sudo ./install.sh --update --upgrade
+```
+
+moOde's own builds (mpd, caps, squeezelite, alsa-lib, renderers, upmpdcli…) are
+held with moOde's `moode-apt-mark`, so the upgrade leaves them alone. It runs
+`apt-get upgrade`, never `full-upgrade`: nothing is removed. On Armbian the kernel
+is kept back during the run (upgrade it yourself when you choose to). The WebUI
+update always runs with `--upgrade`.
+
 ---
 
 ## Notes
