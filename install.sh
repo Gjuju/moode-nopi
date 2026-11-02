@@ -2442,8 +2442,8 @@ EOF
 	# which also migrates boxes off the temporary fork branch: the moOde meter skins
 	# are installed into /opt/peppymeter at runtime and untracked, so a re-clone would
 	# delete them. PeppySpectrum: stock.
-	PM_URL="https://github.com/project-owner/PeppyMeter.git"
-	PM_BRANCH="master"
+	PM_URL="https://github.com/Gjuju/PeppyMeter.git"
+	PM_BRANCH="feat/volume-curve"
 	if [ ! -e /opt/peppymeter/.git ]; then
 		rm -rf /opt/peppymeter
 		git clone --depth 1 --branch "$PM_BRANCH" "$PM_URL" /opt/peppymeter >/dev/null 2>&1
