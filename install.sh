@@ -2379,7 +2379,7 @@ EOF
 			[ "$(git -C /opt/peppymeter branch --show-current 2>/dev/null)" != "$PM_BRANCH" ]; then
 		git -C /opt/peppymeter remote set-url origin "$PM_URL"
 		if git -C /opt/peppymeter fetch --depth 1 origin "$PM_BRANCH" >/dev/null 2>&1 &&
-				git -C /opt/peppymeter checkout -B "$PM_BRANCH" FETCH_HEAD >/dev/null 2>&1; then
+				git -C /opt/peppymeter checkout -f -B "$PM_BRANCH" FETCH_HEAD >/dev/null 2>&1; then
 			log "PeppyMeter: switched existing clone to $PM_BRANCH (live meter gain)"
 		else
 			warn "PeppyMeter: could not switch to $PM_BRANCH; the meter will not follow a hardware volume knob"
