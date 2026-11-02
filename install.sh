@@ -2487,7 +2487,7 @@ EOF
 		log "Peppy Meter: added the live meter-gain keys to the existing config.txt"
 	fi
 	if ! grep -q '^volume.curve' /etc/peppymeter/config.txt; then
-		sed -i '/^volume.gain.db.source/a volume.curve = 0' /etc/peppymeter/config.txt
+		sed -i '/^volume.gain.db.source/a volume.curve = 0.0' /etc/peppymeter/config.txt
 		log "Peppy Meter: added the volume.curve key to the existing config.txt"
 	fi
 	[ -d /opt/peppymeter ]   && ln -sf /etc/peppymeter/config.txt   /opt/peppymeter/config.txt
