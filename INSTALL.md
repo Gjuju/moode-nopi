@@ -199,7 +199,9 @@ sudo ./install.sh --update --upgrade
 moOde's own builds (mpd, caps, squeezelite, alsa-lib, renderers, upmpdcli…) are
 held with moOde's `moode-apt-mark`, so the upgrade leaves them alone. It runs
 `apt-get upgrade`, never `full-upgrade`: nothing is removed. On Armbian the kernel
-is kept back during the run (upgrade it yourself when you choose to). The WebUI
+is kept back during the run (upgrade it yourself when you choose to).
+At the end it says whether a reboot is needed (new kernel, or replaced libraries
+still in use), like Debian's `needrestart`. The WebUI
 update always runs with `--upgrade`.
 
 ---
