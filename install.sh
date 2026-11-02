@@ -58,6 +58,10 @@ NO_WORKER=0
 # `git pull` (or check out a newer *-nopi.* tag) then `./install.sh --update`.
 UPDATE=0
 
+# Upgrade the rest of the system (`apt-get upgrade`) once the moOde builds are
+# held (Phase 1l). Opt-in, typically with --update. Pass --upgrade.
+UPGRADE=0
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="$REPO_DIR/build/dist"
 SQLDB="/var/local/www/db/moode-sqlite3.db"
@@ -78,6 +82,7 @@ for arg in "$@"; do
 		--reset-db) RESET_DB=1 ;;
 		--no-worker) NO_WORKER=1 ;;
 		--update) UPDATE=1 ;;
+		--upgrade) UPGRADE=1 ;;
 		*) die "Unknown argument: $arg" ;;
 	esac
 done
@@ -1170,7 +1175,7 @@ if ! dpkg_ver_is shairport-sync-metadata-reader "$SSMR_TARGET_VER"; then
 				'Build for non-Pi platforms (moOde recipe, no patch)' \
 			&& dpkg-buildpackage -b -us -uc )    > "$REPO_DIR/build-ssmr.log" 2>&1 \
 		&& [ -f "$SSMR_DEB" ] \
-		&& apt-get install -y "$SSMR_DEB" >> "$REPO_DIR/build-ssmr.log" 2>&1 \
+		&& apt-get install -y --allow-change-held-packages "$SSMR_DEB" >> "$REPO_DIR/build-ssmr.log" 2>&1 \
 		&& dpkg_ver_is shairport-sync-metadata-reader "$SSMR_TARGET_VER"; then
 		mkdir -p "$NOPI_BUILT_DIR"
 		{
@@ -1185,6 +1190,57 @@ if ! dpkg_ver_is shairport-sync-metadata-reader "$SSMR_TARGET_VER"; then
 			"and drop (see $REPO_DIR/build-ssmr.log)"
 	fi
 	rm -rf "$SSMR_BLD"
+fi
+
+#----------------------------------------------------------------------------#
+# Phase 1l - Package holds (moode-apt-mark) + optional system upgrade
+#----------------------------------------------------------------------------#
+# moOde freezes its own builds with moode-apt-mark (moode-player package), and
+# the worker re-applies it on every start (`moode-apt-mark hold`). Ship the same
+# script + list from a pinned pkgbuild commit, minus the entries nopi takes from
+# stock Debian: on the Pi they are moOde builds, here a hold would only block
+# their security updates.
+log "Phase 1l: package holds (moode-apt-mark)"
+APTMARK_PKGBUILD_URL="https://raw.githubusercontent.com/moode-player/pkgbuild/2e094dcf34094040e92374aac2a3600ee7835afb/packages/moode-player"
+NOPI_STOCK_PKGS=(bluez-alsa-utils libasound2-plugin-bluez mediainfo minidlna)
+APTMARK_TMP="$(mktemp -d)"
+if wget -q -O "$APTMARK_TMP/moode-apt-mark" "$APTMARK_PKGBUILD_URL/moode-apt-mark" \
+	&& wget -q -O "$APTMARK_TMP/moode-apt-mark.conf" "$APTMARK_PKGBUILD_URL/moode-apt-mark.conf"; then
+	for p in "${NOPI_STOCK_PKGS[@]}"; do
+		sed -i "s/^$p\$/# $p (nopi: stock Debian package)/" "$APTMARK_TMP/moode-apt-mark.conf"
+	done
+	install -m 755 "$APTMARK_TMP/moode-apt-mark" /usr/local/bin/moode-apt-mark
+	install -m 644 "$APTMARK_TMP/moode-apt-mark.conf" /etc/moode-apt-mark.conf
+	moode-apt-mark hold >/dev/null || warn "moode-apt-mark hold failed - package holds not applied"
+	log "Held packages: $(apt-mark showhold | tr '\n' ' ')"
+else
+	warn "Could not fetch moode-apt-mark from pkgbuild; package holds not refreshed"
+fi
+rm -rf "$APTMARK_TMP"
+
+# --upgrade: `upgrade`, not `full-upgrade`, so nothing is removed nor pulled in.
+# Armbian ships each kernel flavour under ONE package name: `upgrade` would replace
+# the running kernel, and with it any module built out of tree for it. Keep the
+# kernel back there, for this run only.
+if [ "$UPGRADE" = 1 ]; then
+	log "Phase 1l: system upgrade (--upgrade)"
+	_kheld=()
+	if [ -f /boot/armbianEnv.txt ]; then
+		_held="$(apt-mark showhold)"
+		for p in $(dpkg-query -W -f='${Status} ${Package}\n' 'linux-image-*' 'linux-dtb-*' 'linux-headers-*' 2>/dev/null \
+				| awk '/ installed /{print $NF}'); do
+			grep -qx "$p" <<< "$_held" || _kheld+=("$p")
+		done
+		if [ ${#_kheld[@]} -gt 0 ]; then
+			apt-mark hold "${_kheld[@]}" >/dev/null
+			log "Armbian: kernel kept back for this run (${_kheld[*]})"
+		fi
+	fi
+	_rc=0
+	DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
+		-o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold || _rc=$?
+	[ ${#_kheld[@]} -gt 0 ] && apt-mark unhold "${_kheld[@]}" >/dev/null
+	[ "$_rc" = 0 ] || warn "apt-get upgrade failed (rc=$_rc) - see the log above"
 fi
 
 #----------------------------------------------------------------------------#
@@ -2699,8 +2755,7 @@ fi
 # This installer reproduces that set; the check below WARNS (never aborts) when
 # one is missing, so drift - a broken deploy step, a new upstream conffile after a
 # rebase - is caught here rather than as a runtime crash. Deliberately EXCLUDED:
-# the Pi-hardware ones (I2S overlays, 99-vc4.conf) and /etc/moode-apt-mark.conf
-# (package-update infra handled differently here).
+# the Pi-hardware ones (I2S overlays, 99-vc4.conf).
 EXPECTED_CONF=(
 	/etc/alsa/conf.d/_audioout.conf /etc/alsa/conf.d/_peppyout.conf
 	/etc/alsa/conf.d/_sndaloop.conf /etc/alsa/conf.d/alsaequal.conf
@@ -2715,7 +2770,7 @@ EXPECTED_CONF=(
 	/etc/systemd/system/plexamp.service
 	/etc/sudoers.d/010_moode /etc/sudoers.d/010_www-data-nopasswd
 	/etc/modprobe.d/8192cu.conf /etc/modprobe.d/8812au.conf
-	/etc/mpd.conf
+	/etc/mpd.conf /etc/moode-apt-mark.conf
 )
 if [ "$INSTALL_BLUETOOTH" = 1 ]; then
 	EXPECTED_CONF+=(
@@ -2823,7 +2878,9 @@ fi
 CUR_IFACE="$(ip -o -4 route show default 2>/dev/null | awk '{print $5; exit}')"
 case "$CUR_IFACE" in
 	eth*|wlan*)
-		if [ "$UPDATE" = 1 ]; then
+		if [ "$UPGRADE" = 1 ]; then
+			warn "REBOOT REQUIRED to load the upgraded system packages: sudo reboot"
+		elif [ "$UPDATE" = 1 ]; then
 			log "Update complete. No reboot needed."
 		else
 			warn "REBOOT RECOMMENDED to validate cold-boot startup: sudo reboot"
