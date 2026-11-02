@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # moode-nopi: in-place update to the latest release (origin/main), the WebUI
-# counterpart of `git reset --hard origin/main && sudo ./install.sh --update`.
+# counterpart of `git reset --hard origin/main && sudo ./install.sh --update --upgrade`.
 # Launched detached by nopi-update.php through systemd-run, so the restarts of
 # nginx, php-fpm and moode-worker done by install.sh do not kill it.
 #
@@ -44,7 +44,7 @@ fi
 
 # Install update
 message_log "Installing $(git_owner describe --tags --always), this takes several minutes"
-if ! "$REPO_DIR/install.sh" --update; then
+if ! "$REPO_DIR/install.sh" --update --upgrade; then
 	message_log "Install failed, see $REPO_DIR/install-nopi.log"
 	exit 1
 fi
@@ -59,5 +59,5 @@ if systemctl is-active --quiet localdisplay; then
 	message_log "Local display restarted"
 fi
 
-message_log "Update installed"
+message_log "Update installed, restart required"
 exit 0
