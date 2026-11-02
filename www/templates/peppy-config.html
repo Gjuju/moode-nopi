@@ -77,12 +77,12 @@
 
 			<label class="control-label" for="meter-curve">Volume curve</label>
 			<div class="controls">
-				<input class="config-input-large" type="number" min="0" step="any" id="meter-curve" name="settings[meter_curve]" value="$_select[meter_curve]">
+				<input class="config-input-large" type="number" step="0.1" pattern="^\d*\.\d$" id="meter-curve" name="settings[meter_curve]" value="$_select[meter_curve]">
 				<a aria-label="Help" class="config-info-toggle" data-cmd="info-meter-curve" href="#notarget"><i class="fa-regular fa-sharp fa-info-circle"></i></a>
 				<span id="info-meter-curve" class="config-help-info">
 					Set the logarithmic curve applied to the meter level.
-					A higher value lifts low levels while silence and full scale stay put.<br>
-					The default is 0 (linear).
+					A higher value lifts low levels while silence and full scale stay put, values between 10 and 30 are a good starting point.<br>
+					The default is 0.0 (linear).
 				</span>
 			</div>
 
