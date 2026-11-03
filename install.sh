@@ -2227,7 +2227,7 @@ chmod -R 0777 /var/lib/mpd/playlists
 
 PKG_ARCH="$(dpkg --print-architecture)"
 if [ "$PKG_ARCH" != arm64 ]; then
-	log "Phase 5c: on-demand renderer plugins (AirPlay/Spotify/Qobuz) x86 mirror"
+	log "Phase 5c: on-demand renderer plugins (AirPlay/Spotify/Qobuz/Soloist) x86 mirror"
 	PLUG_BASE="https://raw.githubusercontent.com/moode-player/plugins/main"
 	PLUG_DST="/var/www/plugins-x86"
 	PLUG_TMP="$(mktemp -d)"
@@ -2236,7 +2236,7 @@ if [ "$PKG_ARCH" != arm64 ]; then
 	# display is installed: it is platform-independent (PNG/config only, so the seds
 	# below no-op), but mirroring it locally stops Configure > Peripherals "Install
 	# moOde meters" hanging - the updater wgets the mirror with no timeout.
-	PLUG_ENTRIES="renderer/v5-shairport-sync renderer/v8-librespot renderer/v2-pibuz"
+	PLUG_ENTRIES="renderer/v5-shairport-sync renderer/v8-librespot renderer/v2-pibuz renderer/v1-soloist"
 	[ "$INSTALL_LOCALDISPLAY" = 1 ] && PLUG_ENTRIES="$PLUG_ENTRIES peppydisplay/v5-moode-meters"
 	for entry in $PLUG_ENTRIES; do
 		plugin="${entry##*/}"                       # e.g. v5-shairport-sync
