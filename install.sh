@@ -1484,7 +1484,8 @@ install -d -m 755 /etc/radiocover-plus
 # Spotify Soloist: templates of its private PipeWire/WirePlumber configs, copied
 # to /run/soloist on each start by cfgSoloist(). Shipped as-is, never edited.
 install -d -m 755 /etc/soloist
-install -m 644 "$REPO_DIR/etc/soloist/pipewire.conf" "$REPO_DIR/etc/soloist/wireplumber.conf" /etc/soloist/
+install -m 644 "$REPO_DIR/etc/soloist/pipewire.overwrite.conf" /etc/soloist/pipewire.conf
+install -m 644 "$REPO_DIR/etc/soloist/wireplumber.overwrite.conf" /etc/soloist/wireplumber.conf
 
 # Renderer / Bluetooth unit OVERRIDES: moOde's units REPLACE the stock package
 # ones, and the matching ALSA configs above are useless if the service consuming
@@ -1812,8 +1813,8 @@ rc.local.overwrite
 rpi/swap.conf.d/fixedswapsize.overwrite.conf
 samba/smb.overwrite.conf
 shairport-sync.sed.conf
-soloist/pipewire.conf
-soloist/wireplumber.conf
+soloist/pipewire.overwrite.conf
+soloist/wireplumber.overwrite.conf
 squeezelite.conf
 sudoers.d/010_moode
 sudoers.d/010_www-data-nopasswd
