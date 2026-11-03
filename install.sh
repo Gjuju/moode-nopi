@@ -1512,7 +1512,7 @@ if [ "$INSTALL_BLUETOOTH" = 1 ]; then
 		sed -i "/BUFFERTIME/c\\BUFFERTIME=$_bt_buffertime" /etc/bluealsaaplay.conf
 	fi
 	install -m 755 "$REPO_DIR/usr/local/bin/a2dp-autoconnect"             /usr/local/bin/a2dp-autoconnect
-	install -m 644 "$REPO_DIR/etc/udev/rules.d/10-a2dp-autoconnect.rules" /etc/udev/rules.d/10-a2dp-autoconnect.rules
+	install -m 644 "$REPO_DIR/etc/udev/rules.d/10-a2dp-autoconnect.overwrite.rules" /etc/udev/rules.d/10-a2dp-autoconnect.rules
 	udevadm control --reload-rules 2>/dev/null || true
 	# BT controller name + class. `sysutil.sh chg-name bluetooth` seds `Name =` in
 	# /etc/bluetooth/main.conf AND `PRETTY_HOSTNAME=` in /etc/machine-info (bluez's
@@ -1607,6 +1607,13 @@ if [ -f "$REPO_DIR/etc/udevil/udevil.overwrite.conf" ]; then
 	install -d -m 755 /etc/udevil
 	install -m 644 "$REPO_DIR/etc/udevil/udevil.overwrite.conf" /etc/udevil/udevil.conf
 fi
+
+# USB audio hot plug: udev hands each USB sound card add/remove to
+# usb-audio-hotplug.php, which queues the worker's usb_audio_hotplug job. udev runs
+# it through systemd-run, so the script must be executable (git stores it 644).
+install -m 644 "$REPO_DIR/etc/udev/rules.d/90-moode-usb-audio.overwrite.rules" /etc/udev/rules.d/90-moode-usb-audio.rules
+chmod 755 /var/www/util/usb-audio-hotplug.php
+udevadm control --reload-rules 2>/dev/null || true
 
 # automount.sh / music-source.php append `/srv/nfs/<kind>/<label>` lines to
 # /etc/exports with `sed '$ a'`, which needs an existing anchor line, and the
@@ -1810,7 +1817,8 @@ systemd/system/bt-agent.service
 systemd/system/plexamp.service
 triggerhappy/triggers.d/media.conf
 udevil/udevil.overwrite.conf
-udev/rules.d/10-a2dp-autoconnect.rules
+udev/rules.d/10-a2dp-autoconnect.overwrite.rules
+udev/rules.d/90-moode-usb-audio.overwrite.rules
 udisks-glue.overwrite.conf
 update-motd.d/00-moodeos-header.overwrite
 upmpdcli.sed.conf
@@ -2771,6 +2779,7 @@ EXPECTED_CONF=(
 	/etc/sudoers.d/010_moode /etc/sudoers.d/010_www-data-nopasswd
 	/etc/modprobe.d/8192cu.conf /etc/modprobe.d/8812au.conf
 	/etc/mpd.conf /etc/moode-apt-mark.conf
+	/etc/udev/rules.d/90-moode-usb-audio.rules
 )
 if [ "$INSTALL_BLUETOOTH" = 1 ]; then
 	EXPECTED_CONF+=(
