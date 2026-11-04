@@ -153,6 +153,13 @@ switch ($cmd[0]) {
 	case 'toggle_play_pause':
 	case 'play':
 	case 'pause':
+		if ($cmd[0] != 'toggle_play_pause' && count($cmd) > 1) {
+			// play SONGPOS, pause 0|1: MPD syntax, relayed as is
+			$sock = getMpdSock('command/index.php');
+			sendMpdCmd($sock, $_GET['cmd']);
+			echo json_encode(parseMpdRespAsJSON(readMpdResp($sock)), JSON_FORCE_OBJECT);
+			break;
+		}
 		if (isControllableRenderer(getActiveSource())) {
 			echo json_encode(rendererTransport($dbh, $cmd[0] == 'toggle_play_pause' ? 'toggle' : $cmd[0]));
 			break;
