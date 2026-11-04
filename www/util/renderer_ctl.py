@@ -195,7 +195,8 @@ class AirPlay(Renderer):
 	MPRIS_PLAYER = 'org.mpris.MediaPlayer2.Player'
 	SPS_NAME = 'org.gnome.ShairportSync'
 	SPS_PATH = '/org/gnome/ShairportSync'
-	VERBS = {'toggle': 'PlayPause', 'play': 'Play', 'pause': 'Pause', 'stop': 'Stop', 'next': 'Next', 'previous': 'Previous'}
+	# MPRIS Stop ends the AirPlay session, pause instead
+	VERBS = {'toggle': 'PlayPause', 'play': 'Play', 'pause': 'Pause', 'stop': 'Pause', 'next': 'Next', 'previous': 'Previous'}
 	can_mute = False
 
 	def active(self):
