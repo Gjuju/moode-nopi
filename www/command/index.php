@@ -180,6 +180,8 @@ switch ($cmd[0]) {
 		// Already in the requested state: nothing to send
 		if ($play != ($status['state'] == 'play')) {
 			sendMpdCmd($sock, $mpdCmd);
+		} else {
+			$mpdCmd = $status['state'];
 		}
 		echo json_encode(array('state' => $mpdCmd));
 		break;
