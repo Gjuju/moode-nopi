@@ -59,7 +59,8 @@ NO_WORKER=0
 UPDATE=0
 
 # Upgrade the rest of the system (`apt-get upgrade`) once the moOde builds are
-# held (Phase 1l). Opt-in, typically with --update. Pass --upgrade.
+# held (Phase 1l), and move the PeppyMeter clone to its latest upstream commit.
+# Opt-in, typically with --update. Pass --upgrade.
 UPGRADE=0
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -2438,16 +2439,18 @@ EOF
 	$APT_INSTALL python3-pygame python3-pil git   # PeppySpectrum needs PIL (Pillow)
 	# PeppyMeter tracks project-owner again now that the live dB-gain source
 	# (volume.gain.db.source, what lets the meter follow a hardware knob; moOde feeds
-	# it via /tmp/peppy_gain_db) is upstream. An existing clone is updated IN PLACE on
-	# every run (new upstream properties such as volume.curve, and migration off the
-	# temporary fork branch): the moOde meter skins are installed into /opt/peppymeter
-	# at runtime and untracked, so a re-clone would delete them. PeppySpectrum: stock.
+	# it via /tmp/peppy_gain_db) is upstream. An existing clone is switched IN PLACE
+	# when its remote or branch differs, and moved to the latest $PM_BRANCH on
+	# --upgrade: the moOde meter skins are installed into /opt/peppymeter at runtime
+	# and untracked, so a re-clone would delete them. PeppySpectrum: stock.
 	PM_URL="https://github.com/project-owner/PeppyMeter.git"
 	PM_BRANCH="master"
 	if [ ! -e /opt/peppymeter/.git ]; then
 		rm -rf /opt/peppymeter
 		git clone --depth 1 --branch "$PM_BRANCH" "$PM_URL" /opt/peppymeter >/dev/null 2>&1
-	else
+	elif [ "$UPGRADE" = 1 ] ||
+			[ "$(git -C /opt/peppymeter remote get-url origin 2>/dev/null)" != "$PM_URL" ] ||
+			[ "$(git -C /opt/peppymeter branch --show-current 2>/dev/null)" != "$PM_BRANCH" ]; then
 		PM_OLD=$(git -C /opt/peppymeter rev-parse --short HEAD 2>/dev/null)
 		git -C /opt/peppymeter remote set-url origin "$PM_URL"
 		if git -C /opt/peppymeter fetch --depth 1 origin "$PM_BRANCH" >/dev/null 2>&1 &&
