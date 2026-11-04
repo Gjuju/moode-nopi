@@ -125,6 +125,9 @@ class Qobuz(Renderer):
 		self.request('/api/playback/volume', {'mute': 'toggle'})
 
 	def transport(self, verb):
+		# pibuz stop ends the Qobuz Connect session, pause instead
+		if verb == 'stop':
+			verb = 'pause'
 		result = self.request('/api/playback/' + verb) or {}
 		if verb == 'toggle':
 			return {'paused': 'pause', 'playing': 'play', 'loading': 'play'}.get(result.get('state'))
