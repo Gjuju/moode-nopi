@@ -12,6 +12,12 @@
 # events can overlap causing loss of event data. Script locking is used as a
 # workaround to help serialize the events.
 
+# Volume changes only wake the MQTT bridge watcher, if it runs
+if [[ $QBZ_EVENT == "VolumeChanged" ]]; then
+	pkill -USR1 -f '[r]enderer_ctl.py qobuz watch'
+	exit 0
+fi
+
 # Remove this when pibuz implements a 'wait_for_script_completion' option
 exec 9> /tmp/qbzevent.lock
 flock 9
