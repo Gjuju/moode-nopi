@@ -174,14 +174,12 @@ class Qobuz(Renderer):
 		return self.status is not None
 
 	def watch(self, publish):
-		def on_line(line):
-			try:
-				event = json.loads(line)
-			except ValueError:
-				return
-			if event.get('type') != 'PositionUpdated':
-				publish()
-		follow(['/usr/bin/pibuz', 'watch'], on_line, publish)
+		# qbzevent.sh sends SIGUSR1 on a pibuz VolumeChanged event
+		signal.signal(signal.SIGUSR1, lambda signum, frame: None)
+		signal.pthread_sigmask(signal.SIG_BLOCK, [signal.SIGUSR1])
+		while True:
+			publish()
+			signal.sigtimedwait([signal.SIGUSR1], WATCH_FALLBACK)
 
 	def set(self, level):
 		self.request('/api/playback/volume', {'volume': clamp(level) / 100.0})
@@ -580,4 +578,6 @@ def main(argv):
 	return 0
 
 if __name__ == '__main__':
+	# A wake-up signal (watch mode) must not end the process before watch() handles it
+	signal.signal(signal.SIGUSR1, signal.SIG_IGN)
 	sys.exit(main(sys.argv))
