@@ -27,7 +27,7 @@ import dbus
 DBUS_PROPS = 'org.freedesktop.DBus.Properties'
 DBUS_OBJMGR = 'org.freedesktop.DBus.ObjectManager'
 RENDVOL_FILE = '/var/local/www/rendvol.json'
-WATCH_INTERVAL = 1
+WATCH_INTERVAL = 0.5
 
 def dbus_props_all(service, path, interface):
 	try:
