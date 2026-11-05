@@ -12,15 +12,13 @@
 #
 # Design notes that matter:
 #
-# - Commands go through moOde's REST API (www/command/index.php) wherever moOde
-#   HAS a mechanism, never straight to MPD or vol.sh. That endpoint carries
-#   moOde's internal mechanisms: set_volume propagates to multiroom receivers and
-#   refuses while a renderer is active, toggle_play_pause knows the radio rule.
-#   Bypassing it drops all of that silently.
-#   The exception is a renderer, where moOde has no mechanism at all to bypass:
-#   command/index.php has no transport command for one, and moOde's own WebUI
-#   offers only "disconnect" while one plays (playerlib.js). A renderer backend
-#   fills that gap - it does not route around anything.
+# - Volume, mute and transport go through moOde's REST API (www/command/index.php)
+#   only, whatever is playing: MPD or a renderer it can control. The API carries
+#   moOde's rules (multiroom, radio, what a renderer can do) and says which
+#   controls the current source offers.
+# - get_volume is read when something may have changed, not on a timer: an MPD
+#   idle event, a write to moOde's database, or a change of the renderer state
+#   file, which renderer_ctl.py watch keeps up to date while MQTT is on.
 # - "Audio active" is read from the ALSA substream (hw_params), not from MPD, so
 #   AirPlay / Spotify / Bluetooth / line-in count too. touchmon.php uses the same
 #   source. MPD closes the device between tracks, hence AUDIO_OFF_DELAY.
@@ -42,15 +40,25 @@ import time
 import musicpd
 import paho.mqtt.client as mqtt
 
-from mqtt_backends import (AirPlayBackend, BluezBackend, MoodeBackend, PibuzBackend,
-                           SqueezeliteBackend, TRANSPORT_ALIASES, TRANSPORT_VERBS)
-from mqtt_moode import (DISPLAY_RECHECK, RENDERER_FLAGS, RENDERER_LABELS, db_read,
+from mqtt_moode import (DISPLAY_RECHECK, RENDERER_FLAGS, RENDVOL_FILE, SQLDB, db_read,
                         display_power, display_source, is_radio_stream, log,
-                        moode_release, output_is_open, read_renderer_meta,
-                        volume_scope)
+                        moode_api, moode_release, output_is_open, read_renderer_meta)
 
 
 CONF_PATH = os.environ.get('MQTT_BRIDGE_CONF', '/etc/mqtt-bridge.conf')
+
+# Payload -> REST API command
+TRANSPORT_COMMANDS = {'toggle': 'toggle_play_pause', 'play': 'play', 'pause': 'pause',
+                      'stop': 'stop', 'next': 'next', 'previous': 'previous', 'prev': 'previous'}
+
+# get_volume scope -> published volume_scope, the values the bridge always published
+VOLUME_SCOPES = {'source': 'renderer', 'dac': 'hardware', 'mpd': 'mpd', 'camilladsp': 'mpd',
+                 'fixed': 'none'}
+
+# get_volume once the triggers settle: a slider drag fires one per step
+VOLUME_SETTLE = 0.3
+# How often the database and the renderer state file are checked for a change
+WATCH_INTERVAL = 0.25
 
 
 # Entities this bridge used to announce. Removing one from the code is not
@@ -183,17 +191,11 @@ class Bridge:
         self.release = moode_release()
         self.status_cli = musicpd.MPDClient()
 
-        # Every source the bridge can drive, keyed by the flag it serves.
-        self.backends = {b.flag: b for b in (MoodeBackend(), PibuzBackend(),
-                                             BluezBackend(), AirPlayBackend(),
-                                             SqueezeliteBackend())}
-        # Whatever is playing now. The publisher thread sets it, the MQTT thread
-        # reads it, so a command can land on a source that stopped less than a
-        # cycle ago - true before backends existed as well.
-        self.backend = self.backends[None]
-        self.source_label = 'moOde'
-        self.volume_ok = False
-        self.mute_ok = False
+        # Last get_volume (or set_volume) answer, and when to read it again
+        self.vol = {}
+        self.vol_due = 0.0
+        # A multiroom receiver plays what another player sends: no control here
+        self.receiver = False
 
         self.client = make_client(cfg, cfg['client_id'])
         self.client.will_set(self.topic('availability'), 'offline', retain=True)
@@ -211,19 +213,10 @@ class Bridge:
                         ('http://%s.local' % socket.gethostname())
         log('artwork base URL: %s (detected)' % self.web_base)
 
-    def backend_for(self, active_flag, renderer_active):
-        """The backend driving what is playing, or None when nothing drives it.
-
-        renderer_active is wider than active_flag: a multiroom receiver (rxactive)
-        raises no renderer flag yet still owns the output, so keying on the flag
-        alone would hand it moOde's backend and offer controls that move the wrong
-        player.
-        """
-        if not renderer_active:
-            return self.backends[None]
-        # active_flag is None for a multiroom receiver: look up nothing, or the
-        # None key would hand back moOde's own backend.
-        return self.backends.get(active_flag) if active_flag else None
+    def refresh_volume(self, delay=VOLUME_SETTLE):
+        """Read get_volume once the triggers have been quiet for `delay`."""
+        self.vol_due = time.monotonic() + delay
+        self.wake.set()
 
     def topic(self, suffix):
         return '%s/%s' % (self.base, suffix)
@@ -255,7 +248,7 @@ class Bridge:
         # republish everything rather than trusting our change detection.
         self.published.clear()
         self.player_sig = None
-        self.wake.set()
+        self.refresh_volume(0)
 
     def on_connect_fail(self, client, userdata):
         """paho retries a failed connection on its own and says nothing: it logs
@@ -292,37 +285,38 @@ class Bridge:
 
     # Commands
     #
-    # Parsing the payload is the bridge's job; acting on it is the backend's. A
-    # source with no backend is refused out loud instead of being sent to
-    # whatever else happens to listen.
+    # Parsing the payload is the bridge's job; the API decides what the current
+    # source can do and answers a refusal with an alert, logged by moode_api.
 
     def for_command(self, what):
-        backend = self.backend
-        if backend is None:
-            log('%s ignored: %s has no backend' % (what, self.source_label))
-            return None
-        return backend
+        if self.receiver:
+            log('%s ignored: multiroom receiver active' % what)
+            return False
+        return True
+
+    def volume_reply(self, reply):
+        # set_volume answers with the new state, a refusal does not
+        if isinstance(reply, dict) and 'volume' in reply:
+            self.vol = reply
+            self.wake.set()
+        else:
+            self.refresh_volume(0)
 
     def cmd_volume(self, payload):
         parts = payload.split()
-        if not parts:
-            return
-
-        backend = self.for_command('volume command')
-        if backend is None:
-            return
-        if not self.volume_ok:
-            log('volume command ignored: no volume to move on %s' % backend.label)
+        if not parts or not self.for_command('volume command'):
             return
 
         if parts[0] in ('up', 'dn', 'down'):
             amount = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() \
                 else self.cfg['volume_step']
-            backend.step_volume('up' if parts[0] == 'up' else 'dn', amount)
+            cmd = 'set_volume -%s %d' % ('up' if parts[0] == 'up' else 'dn', amount)
         elif parts[0].isdigit():
-            backend.set_volume(int(parts[0]))
+            cmd = 'set_volume %d' % min(100, int(parts[0]))
         else:
             log('unknown volume payload: %r' % payload)
+            return
+        self.volume_reply(moode_api(cmd))
 
     def cmd_mute(self, payload):
         wanted = payload.lower()
@@ -333,24 +327,20 @@ class Bridge:
         else:
             state = None                              # anything else toggles
 
-        backend = self.for_command('mute command')
-        if backend is None:
+        if not self.for_command('mute command'):
             return
-        if not self.mute_ok:
-            log('mute command ignored: %s has no mute to read' % backend.label)
+        # The API only toggles
+        if state is not None and state == (self.vol.get('muted') == 'yes'):
             return
-        backend.set_mute(state)
+        self.volume_reply(moode_api('set_volume -mute'))
 
     def cmd_transport(self, payload):
-        verb = payload.lower()
-        verb = TRANSPORT_ALIASES.get(verb, verb)
-        if verb not in TRANSPORT_VERBS:
+        cmd = TRANSPORT_COMMANDS.get(payload.lower())
+        if cmd is None:
             log('unknown transport payload: %r' % payload)
             return
-
-        backend = self.for_command('transport %r' % verb)
-        if backend is not None:
-            backend.transport(verb)
+        if self.for_command('transport %r' % payload):
+            moode_api(cmd)
 
     # State collection and publishing
 
@@ -363,16 +353,19 @@ class Bridge:
 
     def collect_and_publish(self):
         cfg_rows = db_read(list(RENDERER_FLAGS) +
-                           ['volknob', 'volmute', 'cardnum', 'multiroom_tx', 'mpdmixer',
-                            'local_display', 'peppy_display', 'rxactive',
-                            'audioin'])
+                           ['cardnum', 'multiroom_tx', 'local_display', 'peppy_display',
+                            'rxactive', 'audioin'])
 
-        if self.backend is not None:
-            # One snapshot per cycle: see DBusBackend.
-            self.backend.invalidate()
+        if self.vol_due is not None and time.monotonic() >= self.vol_due:
+            self.vol_due = None
+            # get_volume carries an alert where the source has no volume: not an error here
+            reply = moode_api('get_volume', log_alert=False)
+            if isinstance(reply, dict) and 'source' in reply:
+                self.vol = reply
 
         active_flag = next((f for f in RENDERER_FLAGS if cfg_rows.get(f) == '1'), None)
-        renderer_active = active_flag is not None or cfg_rows.get('rxactive') == '1'
+        self.receiver = active_flag is None and cfg_rows.get('rxactive') == '1'
+        renderer_active = active_flag is not None or self.receiver
         card_open = output_is_open(cfg_rows)
 
         # Audio on is immediate; audio off has to survive audio_off_delay, because
@@ -390,28 +383,11 @@ class Bridge:
 
         self.publish('audio', 'ON' if self.audio_state else 'OFF')
 
-        # Pick the backend for whatever is playing, and let Home Assistant offer
-        # exactly what that backend can do. A source with no backend keeps its
-        # controls withdrawn rather than letting a button move something it does
-        # not reach - moOde does the same, its renderer indicator covers the
-        # playback screen entirely.
-        #
-        # Transport: a renderer plays while MPD is stopped, so moOde's own
-        # commands would reach MPD and not what is heard.
-        # Volume: the renderer sets its own level from its app, and on a
-        # hardware mixer raising the DAC to compensate would stay raised once
-        # MPD takes the output back - loud. Also withdrawn on a fixed 0dB
-        # output, where moOde's volume changes nothing at all.
-        self.backend = self.backend_for(active_flag, renderer_active)
-        self.source_label = (dict(RENDERER_LABELS).get(active_flag, 'the renderer')
-                             if renderer_active else 'moOde')
-
-        usable = self.backend is not None and self.backend.reachable()
-        self.volume_ok = usable and self.backend.volume_usable(cfg_rows)
-        self.mute_ok = usable and self.backend.mute_usable(cfg_rows)
-        self.publish('controls/available', 'online' if usable else 'offline')
-        self.publish('volume/available', 'online' if self.volume_ok else 'offline')
-        self.publish('mute/available', 'online' if self.mute_ok else 'offline')
+        # Home Assistant offers exactly what the API says the current source can do
+        for suffix, key in (('controls', 'can_transport'), ('volume', 'can_volume'),
+                            ('mute', 'can_mute')):
+            usable = not self.receiver and self.vol.get(key) is True
+            self.publish('%s/available' % suffix, 'online' if usable else 'offline')
 
         if cfg_rows.get('peppy_display') == '1':
             app = 'peppy'
@@ -455,21 +431,11 @@ class Bridge:
         # A renderer holds the device and MPD is stopped: its currentsong and its
         # state both describe the track from before. Take the metadata from the
         # renderer's own cache, and the play state from the device being open.
-        # The backend first, where it knows better than moOde's cache - or where
-        # moOde keeps none at all, which is Bluetooth's case.
-        meta = self.backend.metadata() if self.backend else None
-        if meta is None:
-            meta = read_renderer_meta(active_flag) if active_flag else {}
-        # The backend driving the sound owns the level it reports. Without this
-        # the number in Home Assistant would come from MPD while the slider
-        # beside it moved a renderer.
-        vol_state = self.backend.volume_state() if self.backend else None
-        if vol_state is not None:
-            volume, muted, scope = vol_state
-        else:
-            volume = int(cfg_rows.get('volknob') or 0)
-            muted = cfg_rows.get('volmute') == '1'
-            scope = volume_scope(cfg_rows)
+        meta = read_renderer_meta(active_flag) if active_flag else {}
+        try:
+            volume = int(self.vol.get('volume'))
+        except (TypeError, ValueError):
+            volume = 0
         if renderer_active:
             state = 'play' if card_open else 'stop'
         else:
@@ -477,14 +443,11 @@ class Bridge:
 
         player = {
             'state': state,
-            # moOde's knob, not MPD's own volume: with a hardware mixer MPD does
-            # not carry moOde's level. While a renderer with a backend plays,
-            # this is that renderer's level instead - see above. Always the real
-            # value; whether the control should be *used* right now is carried
-            # by its own availability topic.
+            # The level of the current source as the API reports it; whether the
+            # control can be used right now is carried by its availability topic.
             'volume': volume,
-            'volume_scope': scope,
-            'mute': muted,
+            'volume_scope': VOLUME_SCOPES.get(self.vol.get('scope'), ''),
+            'mute': self.vol.get('muted') == 'yes',
             'source': display_source(cfg_rows, is_radio),
             'station': '' if renderer_active else station,
             # Empty rather than invented: one key, one value. No placeholder
@@ -672,20 +635,42 @@ class Bridge:
                 self.mpd_connect(cli)
                 self.wake.set()
                 while running:
-                    cli.idle('player', 'mixer', 'options', 'playlist')
+                    changed = cli.idle('player', 'mixer', 'options', 'playlist')
+                    if 'mixer' in changed or 'player' in changed:
+                        self.refresh_volume()
                     self.wake.set()
             except Exception as err:
                 log('MPD idle lost (%s), retrying' % err)
                 time.sleep(5)
+
+    def watch_loop(self):
+        """Read get_volume again when moOde's database (volume, renderer flags) or
+        the renderer state file changes. A stat costs next to nothing."""
+        def mtime(path):
+            try:
+                return os.stat(path).st_mtime_ns
+            except OSError:
+                return None
+        last = None
+        while running:
+            now = (mtime(SQLDB), mtime(RENDVOL_FILE))
+            if last is not None and now != last:
+                self.refresh_volume()
+            last = now
+            time.sleep(WATCH_INTERVAL)
 
     def run(self):
         self.client.connect_async(self.cfg['host'], self.cfg['port'], keepalive=60)
         self.client.loop_start()
 
         threading.Thread(target=self.idle_loop, daemon=True).start()
+        threading.Thread(target=self.watch_loop, daemon=True).start()
 
         while running:
-            self.wake.wait(timeout=self.cfg['poll_interval'])
+            timeout = self.cfg['poll_interval']
+            if self.vol_due is not None:
+                timeout = max(0.0, min(timeout, self.vol_due - time.monotonic()))
+            self.wake.wait(timeout=timeout)
             self.wake.clear()
             try:
                 self.collect_and_publish()
