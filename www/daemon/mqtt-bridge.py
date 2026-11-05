@@ -24,8 +24,8 @@
 #   source. MPD closes the device between tracks, hence AUDIO_OFF_DELAY.
 # - The database is opened read-only. Writing cfg_system behind moOde's back
 #   desyncs its PHP session cache.
-# - A single thread publishes. The MPD idle thread only wakes it, so there is no
-#   race between the two producers.
+# - A single thread publishes. The MPD idle and file watch threads only wake it,
+#   so there is no race between the producers.
 
 import configparser
 import json
