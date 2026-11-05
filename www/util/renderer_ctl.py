@@ -481,8 +481,11 @@ class Soloist(Renderer):
 		return self.now
 
 	def watch(self, publish):
-		# State kept from the event stream (volume_changed...) instead of a ctl call per read
-		self.trace = {}
+		# State read once, then kept from the event stream (volume_changed...) instead of a ctl call per read
+		try:
+			self.trace = json.loads(self.ctl('now', '--json') or '{}')
+		except ValueError:
+			self.trace = {}
 		def on_line(line):
 			# '<epoch_ms> <json>'
 			try:
@@ -494,6 +497,11 @@ class Soloist(Renderer):
 			self.trace.update({k: event[k] for k in ('is_active', 'volume', 'status', 'available_actions') if k in event})
 			publish()
 		follow(self.CTL + ['trace'], on_line, publish)
+
+	def volume_state(self):
+		if self.read() is None or self.now.get('volume') is None:
+			return None
+		return int(self.now['volume']), False
 
 	def can_transport(self):
 		# Read by volume_state(), called first in state()
