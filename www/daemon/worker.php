@@ -1632,6 +1632,7 @@ workerLog('worker: --');
 if (!isset($_SESSION['mqttsvc'])) {
 	$_SESSION['mqttsvc'] = '0';
 }
+stopRendererWatch();
 if ($_SESSION['mqttsvc'] == '1') {
 	startMqtt();
 }
@@ -2065,6 +2066,11 @@ while (true) {
 	if (in_array($_SESSION['i2sdevice'], INP_SELECT_DEVICES)) {
 		//debugLog('** chkInpActive');
 		chkInpActive();
+	}
+	// MQTT bridge
+	if ($_SESSION['mqttsvc'] == '1') {
+		//debugLog('** chkRendererWatch');
+		chkRendererWatch();
 	}
 
 	// Displays
