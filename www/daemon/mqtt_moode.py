@@ -5,9 +5,9 @@
 #
 # Reading moOde, and commanding it.
 #
-# Everything here answers "what does moOde say" or "tell moOde to". The bridge
-# duplicates a little of moOde's own logic to read its state without forking PHP
-# once a second; each spot carries a pointer to its original in moOde's source.
+# Everything here answers "what does moOde say" or "tell moOde to". Volume, mute
+# and transport go through moOde's REST API; the rest of the state is read
+# directly, each spot with a pointer to its original in moOde's source.
 #
 # The database is opened read-only. Writing cfg_system behind moOde's back
 # desyncs its PHP session cache and the WebUI then looks stuck.
@@ -25,6 +25,8 @@ def log(msg):
 
 
 SQLDB = '/var/local/www/db/moode-sqlite3.db'
+# Volume state of the active renderer, kept by renderer_ctl.py watch
+RENDVOL_FILE = '/var/local/www/rendvol.json'
 
 
 MOODE_API = 'http://localhost/command/index.php'
@@ -81,36 +83,19 @@ def display_source(cfg_rows, is_radio):
     return 'Radio' if is_radio else 'Library'
 
 
-def volume_scope(cfg_rows):
-    """What moOde's volume knob actually attenuates.
-
-    'hardware' - the card's ALSA mixer, downstream of everything, so it applies
-                 to renderers too.
-    'mpd'      - `mpc volume`, MPD only. A renderer playing is then untouched by
-                 the knob, and by our volume commands.
-    'none'     - Fixed 0dB: vol.sh exits without changing anything.
-
-    moOde denies renderers the hardware mixer and makes them attenuate in
-    software (inc/renderer.php), so with a hardware mixer there are two stages:
-    the renderer's own level, then this one. The knob only describes this one.
-    """
-    mixer = cfg_rows.get('mpdmixer', '')
-    if mixer == 'none':
-        return 'none'
-    return 'hardware' if mixer == 'hardware' else 'mpd'
-
-
-# cfg_system flags moOde sets while a non-MPD source is playing (common.php,
-# chkRendererActive()), each with the label its own WebUI shows (playerlib.js).
+# cfg_system flags moOde sets while a non-MPD source is playing, in the order
+# getActiveRenderer() (common.php) checks them, each with the label its own WebUI
+# shows (playerlib.js).
 RENDERER_LABELS = (
     ('inpactive', 'Input'),
     ('btactive', 'Bluetooth'),
     ('aplactive', 'AirPlay'),
     ('spotactive', 'Spotify'),
+    ('solactive', 'Soloist'),
     ('qbzactive', 'Qobuz'),
-    ('slactive', 'Squeezelite'),
-    ('paactive', 'Plexamp'),
     ('rbactive', 'RoonBridge'),
+    ('paactive', 'Plexamp'),
+    ('slactive', 'Squeezelite'),
 )
 
 
@@ -118,19 +103,23 @@ RENDERER_FLAGS = tuple(flag for flag, _ in RENDERER_LABELS)
 
 
 # Each renderer's metadata cache, and the divisor its "duration" needs. They do
-# not agree on the unit: AirPlay and Spotify report milliseconds, Qobuz seconds.
-# moOde carries the same split in playerlib.js (timeDivisor).
+# not agree on the unit: AirPlay, Spotify, Bluetooth and Soloist report
+# milliseconds, Qobuz and Squeezelite seconds. moOde carries the same split in
+# playerlib.js (timeDivisor). slmeta.json is written by renderer_ctl.py watch.
 RENDERER_META_FILES = {
     'aplactive': ('/var/local/www/aplmeta.json', 1000),
     'spotactive': ('/var/local/www/spotmeta.json', 1000),
+    'btactive': ('/var/local/www/btmeta.json', 1000),
+    'solactive': ('/var/local/www/solmeta.json', 1000),
     'qbzactive': ('/var/local/www/qbzmeta.json', 1),
+    'slactive': ('/var/local/www/slmeta.json', 1),
 }
 
 
 def read_renderer_meta(flag):
-    """moOde caches each renderer's metadata as JSON with plain keys, written by
-    the renderer itself: /var/local/www/{apl,spot,qbz}meta.json. Empty file means
-    the renderer is not reporting anything."""
+    """moOde caches each renderer's metadata as JSON with plain keys in
+    /var/local/www/*meta.json. Empty file means the renderer is not reporting
+    anything."""
     path, divisor = RENDERER_META_FILES.get(flag, (None, 1))
     if not path:
         return {}
@@ -228,18 +217,14 @@ def moode_release():
 # Running commands
 
 
-def moode_api(cmd):
+def moode_api(cmd, log_alert=True):
     """Send a command through moOde's own REST API (www/command/index.php).
 
     Not straight to MPD or to vol.sh: that endpoint carries moOde's internal
-    mechanisms, and bypassing it drops them silently. `set_volume` propagates the
-    change to multiroom receivers and refuses while a renderer is active;
-    `toggle_play_pause` knows moOde's radio rule; anything else is relayed to
-    MPD. It is a REST API by design - its own source notes it handles "CLI based
-    REST commands sent for example by curl".
-
-    Commands are rare, so an HTTP call costs nothing. The 1 Hz state read stays
-    direct, where a PHP fork per second would not be free.
+    mechanisms, and bypassing it drops them silently: `set_volume` propagates
+    the change to multiroom receivers, the transport commands know moOde's radio
+    rule, and both reach a renderer moOde can control. Anything else is relayed
+    to MPD.
     """
     url = '%s?cmd=%s' % (MOODE_API, urllib.parse.quote(cmd))
     try:
@@ -254,6 +239,6 @@ def moode_api(cmd):
     except ValueError:
         return body
     # moOde answers a refusal rather than an error status
-    if isinstance(data, dict) and data.get('alert'):
+    if log_alert and isinstance(data, dict) and data.get('alert'):
         log('moOde refused %r: %s' % (cmd, data['alert']))
     return data
