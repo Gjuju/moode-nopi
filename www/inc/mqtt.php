@@ -9,8 +9,6 @@ require_once __DIR__ . '/common.php';
 require_once __DIR__ . '/sql.php';
 
 const MQTT_CONF = '/etc/mqtt-bridge.conf';
-const RENDVOL_FILE = '/var/local/www/rendvol.json';
-const SLMETA_FILE = '/var/local/www/slmeta.json';
 
 function startMqtt() {
 	cfgMqtt();
@@ -37,7 +35,7 @@ function chkRendererWatch() {
 }
 function stopRendererWatch() {
 	sysCmd("pkill -f '[r]enderer_ctl.py .* watch'");
-	sysCmd('truncate ' . RENDVOL_FILE . ' ' . SLMETA_FILE . ' --size 0');
+	sysCmd('truncate ' . RENDVOL_CACHE_FILE . ' ' . SLMETA_CACHE_FILE . ' --size 0');
 	$GLOBALS['renderer_watch'] = '';
 }
 // Clear what this player published so the home automation system drops the
