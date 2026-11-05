@@ -10,14 +10,24 @@
 # Usage: renderer_ctl.py <renderer> <command> [N]
 #   renderer: qobuz | bluetooth | airplay | squeezelite | soloist
 #   command:  get | set N | up N | dn N | mute | toggle | play | pause | stop | previous | next
+#             watch: keep RENDVOL_FILE up to date until stopped (started by the worker)
 #
 
 import json
+import os
+import signal
 import subprocess
 import sys
+import time
+import urllib.error
+import urllib.request
+
+import dbus
 
 DBUS_PROPS = 'org.freedesktop.DBus.Properties'
 DBUS_OBJMGR = 'org.freedesktop.DBus.ObjectManager'
+RENDVOL_FILE = '/var/local/www/rendvol.json'
+WATCH_INTERVAL = 1
 
 def dbus_props_all(service, path, interface):
 	import dbus
@@ -73,15 +83,32 @@ def http_request(url, body=None, method='POST', timeout=5):
 def clamp(level):
 	return max(0, min(100, level))
 
+def write_json(path, data):
+	# Replaced in one step: a reader never sees a partial file
+	tmp = path + '.tmp'
+	with open(tmp, 'w') as fh:
+		fh.write(json.dumps(data))
+	os.chmod(tmp, 0o644)
+	os.replace(tmp, path)
+
 class Renderer:
 	"""volume_state() returns (level 0-100, muted) or None"""
 	can_mute = True
+	meta_file = None
 
 	def volume_state(self):
 		return None
 
 	def can_transport(self):
 		return False
+
+	def metadata(self):
+		return None
+
+	def watch(self):
+		while True:
+			yield self.state()
+			time.sleep(WATCH_INTERVAL)
 
 	def state(self, level=None, muted=None):
 		vol = self.volume_state()
@@ -235,8 +262,18 @@ class Squeezelite(Renderer):
 	SLIMPROTO_PORT = 3483
 	HTTP_PORT = 9000
 	VERBS = {'toggle': ['pause'], 'play': ['pause', '0'], 'pause': ['pause', '1'], 'stop': ['stop'], 'next': ['playlist', 'index', '+1'], 'previous': ['playlist', 'index', '-1']}
+	# Track tags for the metadata, read with the volume in the same request
+	STATUS_TAGS = 'tags:algdKroTI'
+	CODECS = {'flc': 'FLAC', 'alc': 'ALAC', 'ops': 'Opus', 'aif': 'AIFF', 'mp3': 'MP3', 'aac': 'AAC',
+		'ogg': 'Ogg', 'wav': 'WAV', 'wma': 'WMA', 'pcm': 'PCM', 'dsf': 'DSD', 'dff': 'DSD'}
+	PLACEHOLDERS = ('No Artist', 'No Album', 'No Genre')
+	meta_file = '/var/local/www/slmeta.json'
 
 	def __init__(self):
+		self.status = {}
+		self.resolve()
+
+	def resolve(self):
 		self.host = None
 		self.player = None
 		found = self.endpoint()
@@ -280,7 +317,8 @@ class Squeezelite(Renderer):
 		return None if result is None else result.get('result')
 
 	def volume_state(self):
-		status = (self.request(['status', '-', 1], self.player) if self.player else None) or {}
+		status = (self.request(['status', '-', 1, self.STATUS_TAGS], self.player) if self.player else None) or {}
+		self.status = status
 		if 'mixer volume' not in status:
 			return None
 		try:
@@ -291,6 +329,42 @@ class Squeezelite(Renderer):
 
 	def can_transport(self):
 		return self.player is not None
+
+	def metadata(self):
+		# Read by volume_state(), called first in state(). A stream carries its tags in remoteMeta
+		entry = (self.status.get('playlist_loop') or [{}])[0]
+		track = dict(entry, **{k: v for k, v in (self.status.get('remoteMeta') or {}).items() if v})
+		if not track:
+			return None
+		def text(key):
+			value = str(track.get(key, '')).strip()
+			return '' if value in self.PLACEHOLDERS else value
+		raw_type = text('type')
+		codec = self.CODECS.get(raw_type.lower(), raw_type)
+		try:
+			sformat = '%s %d/%g kHz' % (codec, int(track['samplesize']), int(track['samplerate']) / 1000.0)
+		except (KeyError, TypeError, ValueError):
+			sformat = codec
+		cover = text('artwork_url')
+		if cover and not cover.startswith(('http://', 'https://')):
+			cover = 'http://%s:%d/%s' % (self.host, self.HTTP_PORT, cover.lstrip('/'))
+		try:
+			duration = str(round(float(track.get('duration') or 0)))
+		except (TypeError, ValueError):
+			duration = '0'
+		return {'title': text('title'), 'artist': text('artist'), 'album': text('album'), 'genre': text('genre'),
+			'duration': duration, 'cover_url': cover, 'sformat': sformat, 'oformat': ''}
+
+	def watch(self):
+		while True:
+			if self.player is None:
+				# Squeezelite reconnects to its server on its own, possibly another one
+				self.resolve()
+			state = self.state()
+			if state['volume'] is None:
+				self.player = None
+			yield state
+			time.sleep(WATCH_INTERVAL)
 
 	def mixer(self, *args):
 		if self.player:
@@ -319,6 +393,9 @@ class Soloist(Renderer):
 	VERBS = {'play': ('play', 'play'), 'pause': ('pause', 'pause'), 'stop': ('pause', 'pause'), 'next': ('next', 'skip_next'), 'previous': ('prev', 'skip_prev')}
 	can_mute = False
 
+	def __init__(self):
+		self.trace = None
+
 	def ctl(self, *args):
 		try:
 			result = subprocess.run(self.CTL + list(args), capture_output=True, text=True, timeout=5)
@@ -328,12 +405,34 @@ class Soloist(Renderer):
 
 	def read(self):
 		# now reports the last session while inactive, is_active tells them apart
-		try:
-			now = json.loads(self.ctl('now', '--json') or '{}')
-		except ValueError:
-			now = {}
+		if self.trace is not None:
+			now = self.trace
+		else:
+			try:
+				now = json.loads(self.ctl('now', '--json') or '{}')
+			except ValueError:
+				now = {}
 		self.now = now if now.get('is_active') is True else None
 		return self.now
+
+	def watch(self):
+		# State kept from the event stream (volume_changed...) instead of a ctl call per read
+		while True:
+			self.trace = {}
+			proc = subprocess.Popen(self.CTL + ['trace'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+			try:
+				for line in proc.stdout:
+					# '<epoch_ms> <json>'
+					try:
+						event = json.loads(line.split(' ', 1)[1])
+					except (IndexError, ValueError):
+						continue
+					self.trace.update({k: event[k] for k in ('is_active', 'volume', 'status', 'available_actions') if k in event})
+					yield self.state()
+			finally:
+				proc.terminate()
+				proc.wait()
+			time.sleep(WATCH_INTERVAL)
 
 	def volume_state(self):
 		if self.read() is None or self.now.get('volume') is None:
@@ -366,11 +465,30 @@ class Soloist(Renderer):
 RENDERERS = {'qobuz': Qobuz, 'bluetooth': Bluetooth, 'airplay': AirPlay, 'squeezelite': Squeezelite, 'soloist': Soloist}
 TRANSPORT = ('toggle', 'play', 'pause', 'stop', 'previous', 'next')
 
+def watch(name):
+	# SIGTERM from the worker: exit through the finally blocks (child processes)
+	signal.signal(signal.SIGTERM, lambda signum, frame: sys.exit(0))
+	renderer = RENDERERS[name]()
+	last_state = None
+	last_meta = None
+	for state in renderer.watch():
+		state['source'] = name
+		if state != last_state:
+			write_json(RENDVOL_FILE, state)
+			last_state = state
+		meta = renderer.metadata()
+		if renderer.meta_file and meta is not None and meta != last_meta:
+			write_json(renderer.meta_file, meta)
+			last_meta = meta
+	return 0
+
 def main(argv):
 	if len(argv) < 3 or argv[1] not in RENDERERS:
-		print(json.dumps({'error': 'Usage: renderer_ctl.py <renderer> get|set N|up N|dn N|mute|toggle|play|pause|stop|previous|next'}))
+		print(json.dumps({'error': 'Usage: renderer_ctl.py <renderer> get|set N|up N|dn N|mute|toggle|play|pause|stop|previous|next|watch'}))
 		return 1
 	command = argv[2]
+	if command == 'watch':
+		return watch(argv[1])
 	amount = None
 	if command in ('set', 'up', 'dn'):
 		if len(argv) < 4 or not argv[3].isdigit():
