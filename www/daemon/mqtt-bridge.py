@@ -655,7 +655,8 @@ class Bridge:
         while running:
             now = (mtime(SQLDB), mtime(RENDVOL_FILE))
             if last is not None and now != last:
-                self.refresh_volume()
+                # The watcher writes only on change: nothing to settle
+                self.refresh_volume(0 if now[1] != last[1] else VOLUME_SETTLE)
             last = now
             time.sleep(WATCH_INTERVAL)
 
