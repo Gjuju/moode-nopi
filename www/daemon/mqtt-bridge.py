@@ -58,7 +58,7 @@ VOLUME_SCOPES = {'source': 'renderer', 'dac': 'hardware', 'mpd': 'mpd', 'camilla
 # get_volume once the triggers settle: a slider drag fires one per step
 VOLUME_SETTLE = 0.3
 # How often the database and the renderer state file are checked for a change
-WATCH_INTERVAL = 0.25
+WATCH_INTERVAL = 0.1
 
 
 # Entities this bridge used to announce. Removing one from the code is not
