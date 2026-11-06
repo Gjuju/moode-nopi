@@ -106,13 +106,14 @@ def follow(cmd, on_line, publish):
 		publish()
 		time.sleep(1)
 
-def dbus_follow(service, keys, publish):
+def dbus_follow(services, keys, publish):
 	# Publish on a PropertiesChanged signal carrying one of keys, and every WATCH_FALLBACK seconds
 	from gi.repository import GLib
 	def changed(interface, props, invalidated):
 		if any(key in props for key in keys):
 			publish()
-	dbus.SystemBus().add_signal_receiver(changed, signal_name='PropertiesChanged', dbus_interface=DBUS_PROPS, bus_name=service)
+	for service in services:
+		dbus.SystemBus().add_signal_receiver(changed, signal_name='PropertiesChanged', dbus_interface=DBUS_PROPS, bus_name=service)
 	GLib.timeout_add_seconds(WATCH_FALLBACK, lambda: publish() or True)
 	publish()
 	GLib.MainLoop().run()
@@ -136,6 +137,10 @@ class Renderer:
 	def can_transport(self):
 		return False
 
+	def play_state(self):
+		"""play | pause | stop, or None"""
+		return None
+
 	def metadata(self):
 		return None
 
@@ -156,7 +161,8 @@ class Renderer:
 			'muted': 'yes' if vol is not None and vol[1] else 'no',
 			'can_volume': vol is not None,
 			'can_mute': vol is not None and self.can_mute,
-			'can_transport': self.can_transport()
+			'can_transport': self.can_transport(),
+			'state': self.play_state()
 		}
 
 # Qobuz Connect (pibuz HTTP API, 0.0-1.0)
@@ -178,8 +184,13 @@ class Qobuz(Renderer):
 		# Read by volume_state(), called first in state()
 		return self.status is not None
 
+	def play_state(self):
+		if self.status is None:
+			return None
+		return 'play' if ((self.status.get('playback') or {}).get('is_playing')) else 'pause'
+
 	def watch(self, publish):
-		# qbzevent.sh sends SIGUSR1 on a pibuz VolumeChanged event
+		# qbzevent.sh sends SIGUSR1 on a pibuz VolumeChanged or PlaybackStateChanged event
 		signal.signal(signal.SIGUSR1, lambda signum, frame: None)
 		signal.pthread_sigmask(signal.SIG_BLOCK, [signal.SIGUSR1])
 		while True:
@@ -238,6 +249,12 @@ class Bluetooth(Renderer):
 	def can_transport(self):
 		return self.player is not None
 
+	def play_state(self):
+		if self.player is None:
+			return None
+		status = str(dbus_props_all(self.BLUEZ, self.player, self.BLUEZ_PLAYER).get('Status') or '')
+		return {'paused': 'pause', 'stopped': 'stop'}.get(status, 'play' if status else None)
+
 	def watch(self, publish):
 		def read():
 			# The PCM appears once the A2DP stream is set up
@@ -246,7 +263,7 @@ class Bluetooth(Renderer):
 			if self.player is None:
 				self.player = dbus_find(self.BLUEZ, self.BLUEZ_PLAYER)
 			publish()
-		dbus_follow(self.BLUEALSA, ('Volume',), read)
+		dbus_follow((self.BLUEALSA, self.BLUEZ), ('Volume', 'Status'), read)
 
 	def set(self, level):
 		raw = self.raw_volume()
@@ -296,8 +313,13 @@ class AirPlay(Renderer):
 	def can_transport(self):
 		return self.active()
 
+	def play_state(self):
+		# Playing is also reported while a sender pauses (measured with OwnTone): only trust the other two
+		status = str(dbus_props_all(self.MPRIS_NAME, self.MPRIS_PATH, self.MPRIS_PLAYER).get('PlaybackStatus') or '')
+		return {'Paused': 'pause', 'Stopped': 'stop'}.get(status)
+
 	def watch(self, publish):
-		dbus_follow(self.SPS_NAME, ('Volume', 'Active'), publish)
+		dbus_follow((self.SPS_NAME, self.MPRIS_NAME), ('Volume', 'Active', 'PlaybackStatus'), publish)
 
 	def set(self, level):
 		import dbus
@@ -386,6 +408,10 @@ class Squeezelite(Renderer):
 
 	def can_transport(self):
 		return self.player is not None
+
+	def play_state(self):
+		# Read by volume_state(), called first in state()
+		return self.status.get('mode') if self.status.get('mode') in ('play', 'pause', 'stop') else None
 
 	def metadata(self):
 		# Read by volume_state(), called first in state(). A stream carries its tags in remoteMeta
@@ -513,6 +539,11 @@ class Soloist(Renderer):
 		# Read by volume_state(), called first in state()
 		return self.now is not None
 
+	def play_state(self):
+		if self.now is None:
+			return None
+		return {'playing': 'play', 'buffering': 'play', 'paused': 'pause', 'idle': 'stop'}.get(self.now.get('status'))
+
 	def set(self, level):
 		if self.read() is not None and self.ctl('volume', str(clamp(level))) is not None:
 			return clamp(level)
@@ -585,9 +616,9 @@ def main(argv):
 		played = renderer.transport(command)
 
 	state = renderer.state(level, muted)
-	if command == 'toggle':
-		# play | pause where the renderer reports it, toggle otherwise
-		state['state'] = played or 'toggle'
+	if command in TRANSPORT:
+		# The command's result: play | pause where the renderer reports it on toggle, else the command
+		state['state'] = played or command
 	print(json.dumps(state))
 	return 0
 
