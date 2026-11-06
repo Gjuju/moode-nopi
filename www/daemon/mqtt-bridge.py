@@ -437,7 +437,10 @@ class Bridge:
         except (TypeError, ValueError):
             volume = 0
         if renderer_active:
-            state = 'play' if card_open else 'stop'
+            # The renderer's own state where the API reports it, else whether it holds the device
+            state = self.vol.get('state')
+            if state not in ('play', 'pause', 'stop'):
+                state = 'play' if card_open else 'stop'
         else:
             state = status.get('state', 'unknown')
 
