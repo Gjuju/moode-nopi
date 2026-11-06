@@ -480,7 +480,6 @@ class Bridge:
             'genre': (meta.get('genre') or '').strip() if renderer_active
                      else song.get('genre', ''),
             'date': '' if renderer_active else song.get('date', ''),
-            'bitrate': int(status.get('bitrate') or 0),
             'is_radio': False if renderer_active else is_radio,
             'duration': float(meta.get('duration') or 0) if renderer_active
                         else float(status.get('duration') or 0),
@@ -488,8 +487,8 @@ class Bridge:
         }
 
         # Nothing in here moves on its own any more, so the payload goes out when
-        # it actually changes and not otherwise. It was `elapsed` that ticked
-        # every cycle, and carrying it meant republishing on a timer forever.
+        # it actually changes and not otherwise. `elapsed` and `bitrate` ticked
+        # every cycle, and carrying them meant republishing every second.
         sig = json.dumps(player, sort_keys=True)
         if sig != self.player_sig:
             self.player_sig = sig
