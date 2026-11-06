@@ -12,7 +12,8 @@ const MQTT_CONF = '/etc/mqtt-bridge.conf';
 
 function startMqtt() {
 	cfgMqtt();
-	sysCmd('systemctl start mqtt-bridge');
+	// Also reloads a bridge still running from before a worker restart
+	sysCmd('systemctl restart mqtt-bridge');
 }
 function stopMqtt() {
 	sysCmd('systemctl stop mqtt-bridge');
