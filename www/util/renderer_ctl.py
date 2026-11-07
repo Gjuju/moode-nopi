@@ -21,10 +21,6 @@ import socket
 import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
-
-import dbus
 
 DBUS_PROPS = 'org.freedesktop.DBus.Properties'
 DBUS_OBJMGR = 'org.freedesktop.DBus.ObjectManager'
@@ -33,6 +29,7 @@ RENDVOL_FILE = '/var/local/www/rendvol.json'
 WATCH_FALLBACK = 5
 
 def dbus_props_all(service, path, interface):
+	import dbus
 	try:
 		obj = dbus.SystemBus().get_object(service, path, introspect=False)
 		return dbus.Interface(obj, DBUS_PROPS).GetAll(interface)
@@ -40,6 +37,7 @@ def dbus_props_all(service, path, interface):
 		return {}
 
 def dbus_set_prop(service, path, interface, name, value):
+	import dbus
 	# Introspected: Set needs the variant signature
 	try:
 		obj = dbus.SystemBus().get_object(service, path)
@@ -49,6 +47,7 @@ def dbus_set_prop(service, path, interface, name, value):
 		return False
 
 def dbus_call(service, path, interface, method, *args):
+	import dbus
 	try:
 		obj = dbus.SystemBus().get_object(service, path)
 		getattr(dbus.Interface(obj, interface), method)(*args)
@@ -57,6 +56,7 @@ def dbus_call(service, path, interface, method, *args):
 		return False
 
 def dbus_find(service, interface, root='/'):
+	import dbus
 	try:
 		obj = dbus.SystemBus().get_object(service, root, introspect=False)
 		managed = dbus.Interface(obj, DBUS_OBJMGR).GetManagedObjects()
@@ -68,6 +68,7 @@ def dbus_find(service, interface, root='/'):
 	return None
 
 def http_request(url, body=None, method='POST', timeout=5):
+	import urllib.request
 	req = urllib.request.Request(url, data=json.dumps(body).encode() if body is not None else (b'' if method == 'POST' else None), method=method)
 	if body is not None:
 		req.add_header('Content-Type', 'application/json')
@@ -103,6 +104,7 @@ def follow(cmd, on_line, publish):
 
 def dbus_follow(services, keys, publish):
 	# Publish on a PropertiesChanged signal carrying one of keys, and every WATCH_FALLBACK seconds
+	import dbus
 	from gi.repository import GLib
 	def changed(interface, props, invalidated):
 		if any(key in props for key in keys):
@@ -231,6 +233,7 @@ class Bluetooth(Renderer):
 		return left & self.LEVEL_MAX, bool(left & self.MUTE_BIT)
 
 	def write_volume(self, level, muted):
+		import dbus
 		byte = (self.MUTE_BIT if muted else 0) | max(0, min(self.LEVEL_MAX, level))
 		dbus_set_prop(self.BLUEALSA, self.pcm, self.BLUEALSA_PCM, 'Volume', dbus.UInt16((byte << 8) | byte))
 
@@ -317,6 +320,7 @@ class AirPlay(Renderer):
 		dbus_follow((self.SPS_NAME, self.MPRIS_NAME), ('Volume', 'Active', 'PlaybackStatus'), publish)
 
 	def set(self, level):
+		import dbus
 		dbus_call(self.MPRIS_NAME, self.MPRIS_PATH, self.MPRIS_PLAYER, 'SetVolume', dbus.Double(clamp(level) / 100.0))
 		# The sender confirms the new level about 1 s later
 		return clamp(level)
