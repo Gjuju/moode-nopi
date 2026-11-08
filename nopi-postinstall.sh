@@ -9,7 +9,7 @@
 # upstream order. Each step runs once per DB and is recorded in nopi_postinstall;
 # a fresh DB records them all unrun (the schema is already current).
 #
-# Upstream reviewed up to: pkgbuild ae25d67 (2026-11-01)
+# Upstream reviewed up to: pkgbuild 5925802 (2026-11-08)
 # Ported from r1035 on; earlier blocks are covered by install.sh's schema
 # migration (Phase 4).
 #
@@ -31,6 +31,8 @@ NOPI_PI_STEPS=(
 	r1036-bt-agent-rename
 	r1037-stations
 	r1037-dashboard-cache
+	r1038-hdmi-cec
+	r1038-stations
 )
 
 # Upstream import_stations(), update mode
@@ -133,6 +135,19 @@ pi_r1037_stations() {
 # The Dashboard cache is JSON now (dashmon): drop the old text file
 pi_r1037_dashboard_cache() {
 	rm -f /var/local/www/dashboard.txt
+}
+
+# r1038: the USB hot-plug rule, the Soloist confs and the PeppyMeter volume.curve
+# key are deployed by install.sh; the Soloist schema, feat_bitmask and cfg_plugin
+# are the Phase 4 realign.
+# hdmi_cec moves from the session to cfg_system, reset to 'off' as upstream does.
+# Row 42 is RESERVED_42 here: the Phase 4 realign renamed it on an earlier run.
+pi_r1038_hdmi_cec() {
+	sqlite3 "$SQLDB" "UPDATE cfg_system SET param='hdmi_cec', value='off' WHERE param='RESERVED_42'"
+}
+
+pi_r1038_stations() {
+	nopi_pi_import_stations "https://dl.cloudsmith.io/public/moodeaudio/m8y/raw/files/moode-stations-update_10.3.8.zip"
 }
 
 #------------------------------------------------------------------------------#
