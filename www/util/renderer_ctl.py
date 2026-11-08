@@ -21,10 +21,6 @@ import socket
 import subprocess
 import sys
 import time
-import urllib.error
-import urllib.request
-
-import dbus
 
 DBUS_PROPS = 'org.freedesktop.DBus.Properties'
 DBUS_OBJMGR = 'org.freedesktop.DBus.ObjectManager'
@@ -108,6 +104,7 @@ def follow(cmd, on_line, publish):
 
 def dbus_follow(services, keys, publish):
 	# Publish on a PropertiesChanged signal carrying one of keys, and every WATCH_FALLBACK seconds
+	import dbus
 	from gi.repository import GLib
 	def changed(interface, props, invalidated):
 		if any(key in props for key in keys):
