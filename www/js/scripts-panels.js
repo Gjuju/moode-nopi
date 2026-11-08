@@ -1879,6 +1879,20 @@ jQuery(document).ready(function($) { 'use strict';
         $.get('command/index.php?cmd=' + encodeURIComponent('set_volume ' + GLOBAL.rendererVolume));
     });
 
+    // Renderer mute toggle, only for renderers that can mute
+    $(document).on('click', '#renderer-volume-icon', function(e) {
+        if (!GLOBAL.rendererCanMute) {
+            return;
+        }
+        GLOBAL.rendererVolumeSetTime = Date.now();
+        $.getJSON('command/index.php?cmd=' + encodeURIComponent('set_volume -mute'), function(data) {
+            if (data['volume'] !== undefined && data['volume'] !== null) {
+                GLOBAL.rendererVolume = data['volume'];
+                setRendererVolumeSlider(data['volume'], data['muted'] == 'yes');
+            }
+        });
+    });
+
 	// Disconnect renderer
     $(document).on('click', '.disconnect-renderer', function(e) {
 		notify(NOTIFY_TITLE_INFO, 'renderer_disconnect');
