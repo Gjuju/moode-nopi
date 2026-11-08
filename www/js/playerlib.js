@@ -868,7 +868,7 @@ function inpSrcIndicator(cmd, msgText) {
 // NOTE: The renderer is the master volume, poll it to follow changes made in the app
 // NOTE: Attached to #inpsrc-indicator so overlay redraws don't replace it during a drag
 function rendererVolumePoll(cmd) {
-	if (['btactive1', 'aplactive1', 'qbzactive1', 'slactive1'].indexOf(cmd) != -1) {
+	if (['btactive1', 'aplactive1', 'qbzactive1', 'slactive1', 'solactive1'].indexOf(cmd) != -1) {
 		if (GLOBAL.rendererVolumeTimer == '') {
 			$('#inpsrc-indicator').append('<div id="renderer-volume-ctl" style="display:none">' +
 				'<span id="renderer-volume-level"></span>' +
