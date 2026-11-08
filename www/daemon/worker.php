@@ -1628,11 +1628,13 @@ workerLog('worker: -- Miscellaneous');
 workerLog('worker: --');
 //----------------------------------------------------------------------------//
 
+// Renderer volume watch
+stopRendererWatch();
+
 // MQTT bridge
 if (!isset($_SESSION['mqttsvc'])) {
 	$_SESSION['mqttsvc'] = '0';
 }
-stopRendererWatch();
 if ($_SESSION['mqttsvc'] == '1') {
 	startMqtt();
 }
@@ -2067,11 +2069,9 @@ while (true) {
 		//debugLog('** chkInpActive');
 		chkInpActive();
 	}
-	// MQTT bridge
-	if ($_SESSION['mqttsvc'] == '1') {
-		//debugLog('** chkRendererWatch');
-		chkRendererWatch();
-	}
+	// Renderer volume watch
+	//debugLog('** chkRendererWatch');
+	chkRendererWatch();
 
 	// Displays
 	if ($_SESSION['local_display'] == '1' || $_SESSION['peppy_display'] == '1') {

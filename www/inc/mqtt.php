@@ -17,28 +17,8 @@ function startMqtt() {
 }
 function stopMqtt() {
 	sysCmd('systemctl stop mqtt-bridge');
-	stopRendererWatch();
 }
 
-// Volume state of the active renderer for the bridge, kept by renderer_ctl.py watch
-function chkRendererWatch() {
-	$renderers = array('btactive' => 'bluetooth', 'aplactive' => 'airplay', 'qbzactive' => 'qobuz',
-		'slactive' => 'squeezelite', 'solactive' => 'soloist');
-	$flag = getActiveRenderer();
-	$renderer = isset($renderers[$flag]) ? $renderers[$flag] : '';
-	if ($renderer != $GLOBALS['renderer_watch']) {
-		stopRendererWatch();
-		if ($renderer != '') {
-			sysCmd('/var/www/util/renderer_ctl.py ' . $renderer . ' watch > /dev/null 2>&1 &');
-		}
-		$GLOBALS['renderer_watch'] = $renderer;
-	}
-}
-function stopRendererWatch() {
-	sysCmd("pkill -f '[r]enderer_ctl.py .* watch'");
-	sysCmd('truncate ' . RENDVOL_CACHE_FILE . ' ' . SLMETA_CACHE_FILE . ' --size 0');
-	$GLOBALS['renderer_watch'] = '';
-}
 // Clear what this player published so the home automation system drops the
 // device. The service must be stopped first: it republishes on every connect
 function removeMqtt() {

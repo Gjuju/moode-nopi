@@ -381,7 +381,7 @@ function getVolumeState($dbh, $rendererCmd = 'get') {
 			'can_volume' => false, 'can_mute' => false, 'can_transport' => false);
 		$result = null;
 		if ($rendererCmd == 'get') {
-			// Kept up to date by renderer_ctl.py watch while MQTT is on
+			// Kept up to date by renderer_ctl.py watch while the renderer is active
 			$watched = json_decode((string)@file_get_contents(RENDVOL_CACHE_FILE), true);
 			if (is_array($watched) && isset($watched['source']) && $watched['source'] == $source) {
 				$result = $watched;
