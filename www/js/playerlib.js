@@ -179,6 +179,7 @@ var GLOBAL = {
     rendererVolumeDrag: false,
     rendererVolumeNarrow: '',
     rendererVolumeSetTime: 0,
+    rendererCanMute: false,
     pqActionClicked: false,
     mpdMaxVolume: 0,
     lastTimeCount: 0,
@@ -916,6 +917,8 @@ function getRendererVolume() {
 			return;
 		}
 		$('#renderer-volume-ctl').css('display', 'flex');
+		GLOBAL.rendererCanMute = data['can_mute'] === true;
+		$('#renderer-volume-icon').toggleClass('renderer-can-mute', GLOBAL.rendererCanMute);
 		// NOTE: AirPlay senders confirm a new level about 1 s later, don't show the old one meanwhile
 		if (!GLOBAL.rendererVolumeDrag && Date.now() - GLOBAL.rendererVolumeSetTime > 2500) {
 			GLOBAL.rendererVolume = data['volume'];
