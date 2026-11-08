@@ -9,7 +9,7 @@
 # upstream order. Each step runs once per DB and is recorded in nopi_postinstall;
 # a fresh DB records them all unrun (the schema is already current).
 #
-# Upstream reviewed up to: pkgbuild 5925802 (2026-11-08)
+# Upstream reviewed up to: pkgbuild dcc51b9 (2026-11-08)
 # Ported from r1035 on; earlier blocks are covered by install.sh's schema
 # migration (Phase 4).
 #
@@ -139,11 +139,14 @@ pi_r1037_dashboard_cache() {
 
 # r1038: the USB hot-plug rule, the Soloist confs and the PeppyMeter volume.curve
 # key are deployed by install.sh; the Soloist schema, feat_bitmask and cfg_plugin
-# are the Phase 4 realign.
-# hdmi_cec moves from the session to cfg_system, reset to 'off' as upstream does.
-# Row 42 is RESERVED_42 here: the Phase 4 realign renamed it on an earlier run.
+# are the Phase 4 realign; pm = ondemand comes with www.sed.conf, which install.sh
+# deploys on every run.
+# hdmi_cec moves from the session to cfg_system on id 42, keeping the current setting.
 pi_r1038_hdmi_cec() {
-	sqlite3 "$SQLDB" "UPDATE cfg_system SET param='hdmi_cec', value='off' WHERE param='RESERVED_42'"
+	local _value
+	_value=$(moodeutl -d -gv hdmi_cec 2>/dev/null)
+	[ "$_value" != "on" ] && _value="off"
+	sqlite3 "$SQLDB" "UPDATE cfg_system SET param='hdmi_cec', value='$_value' WHERE id=42"
 }
 
 pi_r1038_stations() {
