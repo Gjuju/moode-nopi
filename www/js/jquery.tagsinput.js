@@ -83,7 +83,7 @@
 					tagslist = new Array();
 				}
 
-				value = jQuery.trim(value);
+				value = (value == null ? '' : value + '').trim();
 
 				if (options.unique) {
 					var skipTag = $(this).tagExist(value);
