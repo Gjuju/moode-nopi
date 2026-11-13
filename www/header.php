@@ -49,8 +49,8 @@
 
 	<!-- Common JS -->
 	<!-- build:js js/lib.min.js defer -->
-	<script src="js/jquery-3.7.1.js"></script>
-	<script src="js/jquery-migrate-3.5.2.js"></script>
+	<script src="js/jquery-4.0.0.js"></script>
+	<script src="js/jquery-migrate-4.0.2.js"></script>
 	<script src="js/jquery-ui/jquery-ui.js" ></script>
 	<script src="js/jquery-ui/jquery.ui.core.js" defer></script>
 	<script src="js/jquery-ui/jquery.ui.widget.js" defer></script>
