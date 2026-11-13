@@ -1200,7 +1200,7 @@ jQuery(document).ready(function($) { 'use strict';
 			storeRadioPos(UI.radioPos)
 		}
 
-        $('#' + UI.dbEntry[3]).removeClass('active');
+        if (UI.dbEntry[3]) {$('#' + UI.dbEntry[3]).removeClass('active');}
         UI.dbEntry[3] = $(this).parents('li').attr('id');
         $(this).parents('li').addClass('active');
 	});
@@ -1367,7 +1367,7 @@ jQuery(document).ready(function($) { 'use strict';
         UI.playlistPos = pos;
 		storePlaylistPos(UI.playlistPos)
 
-        $('#' + UI.dbEntry[3]).removeClass('active');
+        if (UI.dbEntry[3]) {$('#' + UI.dbEntry[3]).removeClass('active');}
         UI.dbEntry[3] = $(this).parents('li').attr('id');
         $(this).parents('li').addClass('active');
 	});
