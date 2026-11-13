@@ -51,15 +51,6 @@
 	<!-- build:js js/lib.min.js defer -->
 	<script src="js/jquery-4.0.0.js"></script>
 	<script src="js/jquery-migrate-4.0.2.js"></script>
-	<script src="js/jquery-ui/jquery-ui.js" ></script>
-	<script src="js/jquery-ui/jquery.ui.core.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.widget.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.mouse.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.position.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.datepicker.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.slider.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.tooltip.js" defer></script>
-	<script src="js/jquery-ui/jquery.ui.effect.js" defer></script>
 
 	<script src="js/bootstrap.js" defer></script>
 	<script src="js/bootstrap-select.js" defer></script>
