@@ -1048,6 +1048,7 @@ INSERT INTO cfg_system (id, param, value) VALUES (177, 'soloistsvc', '0');
 INSERT INTO cfg_system (id, param, value) VALUES (178, 'soloistname', 'Moode Soloist');
 INSERT INTO cfg_system (id, param, value) VALUES (179, 'solactive', '0');
 INSERT INTO cfg_system (id, param, value) VALUES (180, 'rsmaftersol', 'No');
+INSERT INTO cfg_system (id, param, value) VALUES (181, 'renderer_controls', 'No');
 -- nopi-only params live at 900+, clear of upstream's sequential ids, so a new
 -- upstream param never lands on the same line. Drop the row when it goes upstream.
 INSERT INTO cfg_system (id, param, value) VALUES (900, 'dac_prime', '0');
