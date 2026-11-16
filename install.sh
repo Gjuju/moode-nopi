@@ -707,7 +707,7 @@ if ! dpkg_ver_is caps "$CAPS_MOODE_VER"; then
 	# `dpkg-checkbuilddeps` and left stock caps (no EqFA12p). List it explicitly.
 	$APT_INSTALL build-essential dpkg-dev debhelper devscripts fakeroot ladspa-sdk quilt
 	CAPS_BLD="$(mktemp -d)"
-	CAPS_PATCH_URL="https://raw.githubusercontent.com/moode-player/pkgbuild/main/packages/caps/caps_12band_eqp.patch"
+	CAPS_PATCH_URL="https://raw.githubusercontent.com/moode-player/pkgbuild/949f6c740e0726469143d8651c99b3bcfcce1553/packages/caps/caps_12band_eqp.patch"
 	CAPS_DSC_URL="http://deb.debian.org/debian/pool/main/c/caps/caps_0.9.26-1.dsc"
 	if ( cd "$CAPS_BLD" \
 			&& dget -qd -u "$CAPS_DSC_URL" \
@@ -2469,7 +2469,7 @@ EOF
 	# main loop. Overlay it on the clone exactly as moOde's pkgbuild build.sh does.
 	# Meter is unaffected - moOde uses upstream peppymeter.py as-is.
 	if [ -d /opt/peppyspectrum ]; then
-		if curl -fsSL "https://raw.githubusercontent.com/moode-player/pkgbuild/main/packages/peppy-spectrum/spectrum.py" \
+		if curl -fsSL "https://raw.githubusercontent.com/moode-player/pkgbuild/949f6c740e0726469143d8651c99b3bcfcce1553/packages/peppy-spectrum/spectrum.py" \
 				-o /opt/peppyspectrum/spectrum.py; then
 			log "Peppy Spectrum: applied moOde's main-thread draw fix (spectrum.py)"
 		else
