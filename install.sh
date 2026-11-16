@@ -469,7 +469,6 @@ log "PHP-FPM version: $PHP_VER (socket $PHP_SOCK)"
 #   - versionless git-pinned artifacts: a stamp under $NOPI_BUILT_DIR records the
 #     ref built from. Adopt-on-legacy - an artifact present WITHOUT a stamp is
 #     recorded as current, so existing boxes don't rebuild on their first --update.
-#   - unpinned sources (alsacap git-main): presence only; a bump needs a manual rm.
 #   - peppy-alsa tracks git master: guard = the resolved commit, and a MISSING
 #     stamp means rebuild, not adopt (Phase 1g).
 NOPI_BUILT_DIR=/var/lib/moode-nopi/built
@@ -496,11 +495,13 @@ nopi_mark_built() { mkdir -p "$NOPI_BUILT_DIR"; printf '%s\n' "$2" > "$NOPI_BUIL
 
 log "Phase 1b: custom helper binaries"
 
-# alsacap tracks git main (unpinned) -> presence-only. trx is pinned to tag 0.6
-# -> stamped, so a future re-pin triggers a rebuild (adopt-on-legacy: existing
-# boxes record the current ref without rebuilding).
+# alsacap is pinned to a commit, trx to tag 0.6 -> both stamped, so a future
+# re-pin triggers a rebuild (adopt-on-legacy: existing boxes record the current
+# ref without rebuilding).
+ALSACAP_REF="bd9450f1e20cb788226a11f19c300281eb60a5c3"
 TRX_VER="0.6"
-_need_alsacap=0; command -v alsacap >/dev/null 2>&1 || _need_alsacap=1
+_need_alsacap=0
+if nopi_need_build alsacap "$ALSACAP_REF" "$(command -v alsacap >/dev/null 2>&1 && echo 1 || echo 0)"; then _need_alsacap=1; fi
 _need_trx=0
 if nopi_need_build trx "$TRX_VER" "$([ -x /usr/bin/trx-tx ] && echo 1 || echo 0)"; then _need_trx=1; fi
 if [ "$_need_alsacap" = 1 ] || [ "$_need_trx" = 1 ]; then
@@ -511,8 +512,10 @@ if [ "$_need_alsacap" = 1 ] || [ "$_need_trx" = 1 ]; then
 	# alsacap (bubbapizza/alsacap, autotools)
 	if [ "$_need_alsacap" = 1 ]; then
 		if git clone -q https://github.com/bubbapizza/alsacap.git "$HLP_WRK/alsacap" \
+			&& git -C "$HLP_WRK/alsacap" checkout -q "$ALSACAP_REF" \
 			&& ( cd "$HLP_WRK/alsacap" && ./bootstrap && ./configure && make ) >/dev/null 2>&1; then
 			install -m 755 "$HLP_WRK/alsacap/src/alsacap" /usr/bin/alsacap
+			nopi_mark_built alsacap "$ALSACAP_REF"
 			log "Built alsacap"
 		else
 			warn "alsacap build failed (audio format detection will be degraded)"
@@ -2461,7 +2464,11 @@ EOF
 			warn "PeppyMeter: could not update the clone to $PM_BRANCH; the meter keeps $PM_OLD"
 		fi
 	fi
-	[ -e /opt/peppyspectrum/.git ] || { rm -rf /opt/peppyspectrum; git clone --depth 1 "https://github.com/project-owner/PeppySpectrum.git" /opt/peppyspectrum >/dev/null 2>&1; }
+	# Pinned to the commit moOde's peppy-spectrum 2024.5.26 package is built from;
+	# later upstream commits only touch spectrum.py, which is replaced below.
+	PS_REF="ec0e15fee1c56b92bd41e20e13b0de4027224fad"
+	[ -e /opt/peppyspectrum/.git ] || { rm -rf /opt/peppyspectrum; git clone -q "https://github.com/project-owner/PeppySpectrum.git" /opt/peppyspectrum >/dev/null 2>&1 \
+		&& git -C /opt/peppyspectrum checkout -q "$PS_REF" >/dev/null 2>&1; }
 	# moOde ships its OWN spectrum.py: upstream runs the draw loop in a background
 	# Thread, which on x86/X11/SDL2 never presents -> a fully BLACK spectrum (SDL
 	# must render on the MAIN thread; the Pi KMS path tolerated it, X11 does not).
