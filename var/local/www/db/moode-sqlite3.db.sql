@@ -1013,7 +1013,7 @@ INSERT INTO cfg_system (id, param, value) VALUES (141, 'playlist_art', 'Yes');
 INSERT INTO cfg_system (id, param, value) VALUES (142, 'library_onetouch_ralbum', 'No action');
 INSERT INTO cfg_system (id, param, value) VALUES (143, 'radioview_sort_group', 'Name,No grouping');
 INSERT INTO cfg_system (id, param, value) VALUES (144, 'radioview_show_hide', 'No action,No action');
-INSERT INTO cfg_system (id, param, value) VALUES (145, 'mqttsvc', '0');
+INSERT INTO cfg_system (id, param, value) VALUES (145, 'renderer_controls', 'No');
 INSERT INTO cfg_system (id, param, value) VALUES (146, 'library_flatlist_filter', 'full_lib');
 INSERT INTO cfg_system (id, param, value) VALUES (147, 'library_flatlist_filter_str', '');
 INSERT INTO cfg_system (id, param, value) VALUES (148, 'library_misc_options', 'No,Album@Artist (Default)');
@@ -1048,7 +1048,6 @@ INSERT INTO cfg_system (id, param, value) VALUES (177, 'soloistsvc', '0');
 INSERT INTO cfg_system (id, param, value) VALUES (178, 'soloistname', 'Moode Soloist');
 INSERT INTO cfg_system (id, param, value) VALUES (179, 'solactive', '0');
 INSERT INTO cfg_system (id, param, value) VALUES (180, 'rsmaftersol', 'No');
-INSERT INTO cfg_system (id, param, value) VALUES (181, 'renderer_controls', 'No');
 -- nopi-only params live at 900+, clear of upstream's sequential ids, so a new
 -- upstream param never lands on the same line. Drop the row when it goes upstream.
 INSERT INTO cfg_system (id, param, value) VALUES (900, 'dac_prime', '0');
