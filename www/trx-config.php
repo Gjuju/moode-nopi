@@ -163,7 +163,7 @@ if (isset($_POST['update_multiroom_rx_alsa_output_mode'])) {
 if (isset($_POST['update_multiroom_rx_alsavol'])) {
 	if (isset($_POST['multiroom_rx_alsavol'])) {
 		$result = sqlQuery("UPDATE cfg_multiroom SET value='" . $_POST['multiroom_rx_alsavol'] . "' " . "WHERE param='rx_alsa_volume_max'", $dbh);
-		sysCmd('/var/www/util/sysutil.sh set-alsavol "' . $_SESSION['amixname'] . '" ' . $_POST['multiroom_rx_alsavol']);
+		sysCmd('/var/www/util/sysutil.sh set-alsavol "' . $_SESSION['amixname'] . '" ' . (int)$_POST['multiroom_rx_alsavol']);
 	}
 }
 if (isset($_POST['update_multiroom_rx_host'])) {
