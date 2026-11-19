@@ -14,6 +14,10 @@ require_once __DIR__ . '/inc/cdsp.php';
 
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 chkVariables($_POST);
 
 //

@@ -13,6 +13,10 @@ require_once __DIR__ . '/inc/sql.php';
 $dbh = sqlConnect();
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 // Download diagnostic logs
 if (isset($_POST['download_qbz_logs']) && $_POST['download_qbz_logs'] == '1') {
 	// NOTE: Exists script after downloading

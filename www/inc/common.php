@@ -293,7 +293,7 @@ function chkCsrfToken($token) {
 	} else if (empty($_SESSION['csrf_token'])) {
 		$valid = false;
 		$msg = 'Missing session CSRF token, request denied';
-	} else if (!hash_equals($_SESSION['csrf_token'], $token)) {
+	} else if (!is_string($token) || !hash_equals($_SESSION['csrf_token'], $token)) {
 		$valid = false;
 		$msg = 'CSRF token hash check failed, request denied';
 	}

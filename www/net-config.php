@@ -12,6 +12,10 @@ require_once __DIR__ . '/inc/sql.php';
 $dbh = sqlConnect();
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 chkVariables($_POST, array('wlan0ssid', 'wlan0pwd', 'wlan0apdpwd'));
 
 // Get current settings: [0] = eth0, [1] = wlan0, [2] = apd0

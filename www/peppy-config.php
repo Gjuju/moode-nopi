@@ -11,6 +11,10 @@ require_once __DIR__ . '/inc/sql.php';
 
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 if (isset($_POST['save']) && $_POST['save'] == '1') {
 	if (empty($_POST['settings']['screen_width']) || empty($_POST['settings']['screen_height'])) {
 		// Validation check

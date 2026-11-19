@@ -9,6 +9,7 @@
 	<h1 class="net-config">Network</h1>
 
     <form class="form-horizontal" action="" method="post">
+    	<input type="hidden" name="csrf_token" value="$_csrf_token">
 		<legend>Ethernet
 			<button class="legend-config btn btn-medium btn-primary btn-submit" type="submit" name="save" value="1">Save</button>
 		</legend>
@@ -219,6 +220,7 @@
 </div>
 
 <form class="form-horizontal" method="post">
+	<input type="hidden" name="csrf_token" value="$_csrf_token">
 	<div id="manual-ssid" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="manual-ssid-label" aria-hidden="true">
 		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
 			<h3>Manual SSID entry</h3>
@@ -243,6 +245,7 @@
 </form>
 
 <form class="form-horizontal" method="post">
+	<input type="hidden" name="csrf_token" value="$_csrf_token">
 	<div id="manage-saved-networks" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="manage-saved-networks-label" aria-hidden="true">
 		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
 			<h3>Manage saved networks</h3>
