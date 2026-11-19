@@ -11,6 +11,10 @@ require_once __DIR__ . '/inc/sql.php';
 $dbh = sqlConnect();
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 // Clear acts as Save
 if (isset($_POST['clear'])) {
 	$_POST['save'] = '1';

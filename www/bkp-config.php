@@ -17,6 +17,11 @@ const CAMILLADSP_BASE_DIR = '/usr/share/camilladsp/';
 
 $backupFileNameBase = BACKUP_FILE_PREFIX . '_';
 
+phpSession('open_ro');
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 chkVariables($_POST);
 
 // BACKUP SYSTEM

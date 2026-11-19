@@ -15,6 +15,7 @@
 	if (empty($_SESSION['csrf_token'])) {
 		$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 	}
+	$_csrf_token = $_SESSION['csrf_token']; // For the hidden form input in the config templates
 ?>
 <!--endRemoveIf(GENINDEXDEV)-->
 <!DOCTYPE html>

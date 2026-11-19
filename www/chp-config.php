@@ -13,6 +13,10 @@ $sock = getMpdSock('www/chp-config.php');
 $dbh = sqlConnect();
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 chkVariables($_POST);
 
 // Apply setting changes
