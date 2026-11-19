@@ -14,6 +14,10 @@ const NOPI_UPDATE_UNIT = 'moode-nopi-update';
 
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 if (isset($_POST['nopi_install_update']) && getNopiUpdate() !== '') {
 	if (sysCmd('systemctl is-active ' . NOPI_UPDATE_UNIT)[0] == 'active') {
 		$_SESSION['notify']['title'] = NOTIFY_TITLE_ALERT;

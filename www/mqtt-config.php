@@ -12,6 +12,10 @@ require_once __DIR__ . '/inc/sql.php';
 $dbh = sqlConnect();
 phpSession('open');
 
+if (!empty($_POST)) {
+	chkCsrfToken($_POST['csrf_token'] ?? '');
+}
+
 if (isset($_POST['save']) && $_POST['save'] == '1') {
 	foreach ($_POST['config'] as $key => $value) {
 		if ($key != 'password') {

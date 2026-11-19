@@ -792,6 +792,7 @@
 </form>
 
 <form class="form-horizontal" method="post">
+	<input type="hidden" name="csrf_token" value="$_csrf_token">
 	<div id="mqtt-remove-device" class="modal hide" tabindex="-1" role="dialog" aria-labelledby="mqtt-remove-device-label" aria-hidden="true">
 		<div class="modal-header"><button aria-label="Close" type="button" class="close" data-dismiss="modal">&times;</button>
 			<h3>Remove this player from the MQTT broker?</h3>
