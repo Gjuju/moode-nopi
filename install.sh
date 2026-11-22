@@ -2505,6 +2505,10 @@ EOF
 		sed -i '/^volume.gain.db.source/a volume.text.source = /tmp/peppy_volume' /etc/peppymeter/config.txt
 		log "Peppy Meter: added the volume.text.source key to the existing config.txt"
 	fi
+	if ! grep -q '^text.source' /etc/peppymeter/config.txt; then
+		sed -i '/^volume.text.source/a text.source = /tmp/peppy_text' /etc/peppymeter/config.txt
+		log "Peppy Meter: added the text.source key to the existing config.txt"
+	fi
 	[ -d /opt/peppymeter ]   && ln -sf /etc/peppymeter/config.txt   /opt/peppymeter/config.txt
 	[ -d /opt/peppyspectrum ] && ln -sf /etc/peppyspectrum/config.txt /opt/peppyspectrum/config.txt
 	( [ -d /opt/peppymeter ] && [ -d /opt/peppyspectrum ] ) \
