@@ -2907,12 +2907,22 @@ fi
 # shared library (services the install restarted are already clean). Flagged in
 # /run/reboot-required, which the WebUI updater reads and a reboot clears.
 reboot_reasons() {
-	local kver pver procs
+	local kver pver procs ancestors p
 	kver="$(uname -v | sed -n 's/.* Debian \([^ ]*\) .*/\1/p')"
 	pver="$(dpkg-query -W -f='${Version}' "linux-image-$(uname -r)" 2>/dev/null || true)"
 	[ -n "$kver" ] && [ -n "$pver" ] && [ "$kver" != "$pver" ] && echo "kernel $kver -> $pver"
+	# Skip this script's own ancestors (the sudo that launched it, its shell...):
+	# they exit with the install, so an upgraded sudo or libc must not flag them.
+	ancestors=" "
+	p=$$
+	while [ -n "$p" ] && [ "$p" -gt 1 ]; do
+		ancestors+="$p "
+		p="$(awk '{print $4}' "/proc/$p/stat" 2>/dev/null)"
+	done
 	procs="$(grep -l '\.so[^ ]* (deleted)' /proc/[0-9]*/maps 2>/dev/null | cut -d/ -f3 \
-		| while read -r p; do cat "/proc/$p/comm" 2>/dev/null; done | sort -u | tr '\n' ' ' || true)"
+		| while read -r p; do
+			[[ "$ancestors" == *" $p "* ]] || cat "/proc/$p/comm" 2>/dev/null
+		done | sort -u | tr '\n' ' ' || true)"
 	[ -n "$procs" ] && echo "replaced libraries still in use by: $procs"
 	[ -f /run/reboot-required ] && echo "flagged by a package (/run/reboot-required)"
 	return 0
