@@ -35,6 +35,7 @@ NOPI_PI_STEPS=(
 	r1038-stations
 	r1038-spotify-removed
 	r1038-source-ctl-rename
+	r1038-spotify-svc-off
 )
 
 # Upstream import_stations(), update mode
@@ -166,6 +167,13 @@ pi_r1038_spotify_removed() {
 # package removes on the Pi and the rsync deploy leaves behind
 pi_r1038_source_ctl_rename() {
 	rm -f /var/www/util/renderer_ctl.py
+}
+
+# The watchdog restarts librespot whenever spotifysvc is 1, whatever the feature
+# bit: turn the service off too, until upstream's postinstall does
+pi_r1038_spotify_svc_off() {
+	sqlite3 "$SQLDB" "UPDATE cfg_system SET value = '0' WHERE param = 'spotifysvc'"
+	killall -q -s9 librespot || true
 }
 
 #------------------------------------------------------------------------------#
