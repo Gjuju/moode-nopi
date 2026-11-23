@@ -34,6 +34,7 @@ NOPI_PI_STEPS=(
 	r1038-hdmi-cec
 	r1038-stations
 	r1038-spotify-removed
+	r1038-source-ctl-rename
 )
 
 # Upstream import_stations(), update mode
@@ -139,9 +140,9 @@ pi_r1037_dashboard_cache() {
 }
 
 # r1038: the USB hot-plug rule, the Soloist confs and the PeppyMeter volume.curve
-# key are deployed by install.sh; the Soloist schema, feat_bitmask and cfg_plugin
-# are the Phase 4 realign; pm = ondemand comes with www.sed.conf, which install.sh
-# deploys on every run.
+# key are deployed by install.sh; the Soloist schema, feat_bitmask, cfg_plugin and
+# renderer_controls (RESERVED_145, schema id realign) are the Phase 4 realign;
+# pm = ondemand comes with www.sed.conf, which install.sh deploys on every run.
 # hdmi_cec moves from the session to cfg_system on id 42, keeping the current setting.
 pi_r1038_hdmi_cec() {
 	local _value
@@ -159,6 +160,12 @@ pi_r1038_stations() {
 # so the bit would otherwise stay set. The headphone jack enable is Pi only.
 pi_r1038_spotify_removed() {
 	sqlite3 "$SQLDB" "UPDATE cfg_system SET value = CAST(value AS INTEGER) & ~2048 WHERE param = 'feat_bitmask'"
+}
+
+# renderer_ctl.py is now source_ctl.py (#891): drop the old file, which the
+# package removes on the Pi and the rsync deploy leaves behind
+pi_r1038_source_ctl_rename() {
+	rm -f /var/www/util/renderer_ctl.py
 }
 
 #------------------------------------------------------------------------------#
