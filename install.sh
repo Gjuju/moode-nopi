@@ -2914,6 +2914,10 @@ fi
 # longer the installed build of its package, or a process still maps a replaced
 # shared library (services the install restarted are already clean). Flagged in
 # /run/reboot-required, which the WebUI updater reads and a reboot clears.
+# Our own flag is marked with a .nopi file: without it, the next run would take
+# the flag for a package's and report it until a reboot, even once our reasons
+# are gone. A package's flag is one we did not mark, or one with a .pkgs list.
+NOPI_REBOOT_MARK=/run/reboot-required.nopi
 reboot_reasons() {
 	local kver pver procs ancestors p
 	kver="$(uname -v | sed -n 's/.* Debian \([^ ]*\) .*/\1/p')"
@@ -2932,11 +2936,25 @@ reboot_reasons() {
 			[[ "$ancestors" == *" $p "* ]] || cat "/proc/$p/comm" 2>/dev/null
 		done | sort -u | tr '\n' ' ' || true)"
 	[ -n "$procs" ] && echo "replaced libraries still in use by: $procs"
-	[ -f /run/reboot-required ] && echo "flagged by a package (/run/reboot-required)"
 	return 0
 }
+pkg_reboot_flag() {
+	[ -f /run/reboot-required ] || return 1
+	[ ! -f "$NOPI_REBOOT_MARK" ] || [ -s /run/reboot-required.pkgs ]
+}
 REBOOT_REASONS="$(reboot_reasons)"
-[ -n "$REBOOT_REASONS" ] && touch /run/reboot-required
+if [ -n "$REBOOT_REASONS" ]; then
+	if pkg_reboot_flag; then
+		REBOOT_REASONS+=$'\n'"flagged by a package (/run/reboot-required)"
+	else
+		touch /run/reboot-required "$NOPI_REBOOT_MARK"
+	fi
+elif pkg_reboot_flag; then
+	REBOOT_REASONS="flagged by a package (/run/reboot-required)"
+else
+	# Our reasons from an earlier run are gone: drop our flag
+	rm -f /run/reboot-required "$NOPI_REBOOT_MARK"
+fi
 
 # net.ifnames=0 (Phase 3b) renames enpXsY/end0 -> eth0/wlan0 only on the NEXT boot,
 # and until then NM's eth0/wlan0 keyfiles don't match the live interface. So a
