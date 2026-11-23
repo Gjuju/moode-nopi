@@ -9,7 +9,7 @@
 # upstream order. Each step runs once per DB and is recorded in nopi_postinstall;
 # a fresh DB records them all unrun (the schema is already current).
 #
-# Upstream reviewed up to: pkgbuild dcc51b9 (2026-11-08)
+# Upstream reviewed up to: pkgbuild 3bc341d (2026-11-22)
 # Ported from r1035 on; earlier blocks are covered by install.sh's schema
 # migration (Phase 4).
 #
@@ -33,6 +33,7 @@ NOPI_PI_STEPS=(
 	r1037-dashboard-cache
 	r1038-hdmi-cec
 	r1038-stations
+	r1038-spotify-removed
 )
 
 # Upstream import_stations(), update mode
@@ -151,6 +152,13 @@ pi_r1038_hdmi_cec() {
 
 pi_r1038_stations() {
 	nopi_pi_import_stations "https://dl.cloudsmith.io/public/moodeaudio/m8y/raw/files/moode-stations-update_10.3.8.zip"
+}
+
+# Spotify Connect is no longer a feature: clear its bit (FEAT_SPOTIFY = 2048).
+# Upstream writes the whole mask (488439); the Phase 4 realign only ORs bits in,
+# so the bit would otherwise stay set. The headphone jack enable is Pi only.
+pi_r1038_spotify_removed() {
+	sqlite3 "$SQLDB" "UPDATE cfg_system SET value = CAST(value AS INTEGER) & ~2048 WHERE param = 'feat_bitmask'"
 }
 
 #------------------------------------------------------------------------------#
