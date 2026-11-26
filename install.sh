@@ -2602,8 +2602,10 @@ chmod 755 /usr/local/bin/nopi-stop-renderers
 # USB auto-mount daemon: devmon (udevil) replaces moOde's udisks-glue, which needs
 # the udisks1 gone from Trixie. Mounts to /media/<LABEL> and runs hooks. Root,
 # because the hooks call automount.sh, which edits smb.conf + /etc/exports and
-# restarts smbd/nfs (udisks-glue is root on the Pi for the same reason). %%d ->
-# /media/<LABEL>; mpc poke so the USB root rescans.
+# restarts smbd/nfs (udisks-glue is root on the Pi for the same reason).
+# devmon clears the mount point before its unmount and remove hooks (only the
+# device is left), so nopi-devmon-hook keeps device -> mount point in /run and
+# hands it to automount.sh. %%d is quoted: devmon evals it, a label may hold spaces.
 cat > /etc/systemd/system/moode-devmon.service <<'EOF'
 [Unit]
 Description=moOde USB drive auto-mounter (devmon)
@@ -2611,13 +2613,35 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/devmon --exec-on-drive "/var/www/util/automount.sh add_mount_udisks %%d; /usr/bin/mpc -q update" --exec-on-unmount "/var/www/util/automount.sh remove_mount_udisks %%d; /usr/bin/mpc -q update" --exec-on-remove "/var/www/util/automount.sh remove_mount_udisks %%d; /usr/bin/mpc -q update"
+ExecStart=/usr/bin/devmon --exec-on-drive "/usr/local/bin/nopi-devmon-hook add %%f \"%%d\"" --exec-on-unmount "/usr/local/bin/nopi-devmon-hook remove %%f" --exec-on-remove "/usr/local/bin/nopi-devmon-hook remove %%f"
 Restart=on-failure
 RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
 EOF
+cat > /usr/local/bin/nopi-devmon-hook <<'EOF'
+#!/bin/sh
+# devmon hook. $1 = add|remove, $2 = device, $3 = mount point (add only).
+KEY=$(basename "$2")
+case "$1" in
+add)
+	mkdir -p /run/moode-devmon
+	printf '%s\n' "$3" > "/run/moode-devmon/$KEY"
+	/var/www/util/automount.sh add_mount_udisks "$3"
+	;;
+remove)
+	if [ -n "$KEY" ] && [ -f "/run/moode-devmon/$KEY" ]; then
+		POINT=$(cat "/run/moode-devmon/$KEY")
+		rm -f "/run/moode-devmon/$KEY"
+		/var/www/util/automount.sh remove_mount_udisks "$POINT"
+	fi
+	;;
+esac
+/usr/bin/mpc -q update
+exit 0
+EOF
+chmod 755 /usr/local/bin/nopi-devmon-hook
 
 # DAC quiet start (Configure > Audio, 'dac_prime'). A DAC with no output mute
 # relay hisses at startup until fed a PCM stream, and moOde never feeds it at boot
