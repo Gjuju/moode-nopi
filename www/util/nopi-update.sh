@@ -3,14 +3,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # moode-nopi: in-place update to the latest release tag, the WebUI counterpart of
-# `git checkout <tag> && sudo ./install.sh --update --upgrade`. The tag must be
-# signed by a key of the release signers file installed by install.sh.
+# `git checkout <tag> && sudo ./install.sh --update --upgrade`.
 # Launched detached by nopi-update.php through systemd-run, so the restarts of
 # nginx, php-fpm and moode-worker done by install.sh do not kill it.
 #
 
 REPO_URL="https://github.com/Gjuju/moode-nopi.git"
-SIGNERS=/etc/moode-nopi/release-signers
 SQLDB=/var/local/www/db/moode-sqlite3.db
 MOODE_LOG="/var/log/moode.log"
 UPDATER_LOG="/var/log/moode_update.log"
@@ -33,10 +31,6 @@ if [ ! -x "$REPO_DIR/install.sh" ]; then
 	message_log "moode-nopi clone not found, update cancelled (run install.sh --update once by hand)"
 	exit 1
 fi
-if [ ! -s "$SIGNERS" ]; then
-	message_log "Release signing key not found, update cancelled (run install.sh --update once by hand)"
-	exit 1
-fi
 OWNER=$(stat -c %U "$REPO_DIR")
 git_owner () { sudo -H -u "$OWNER" git -C "$REPO_DIR" "$@"; }
 
@@ -48,10 +42,9 @@ if ! git_owner fetch --force --tags "$REPO_URL" "+refs/heads/main:refs/remotes/o
 fi
 TAG=$(git_owner tag -l | grep -E -- '-nopi\.[0-9]+$' | sort -V | tail -1)
 
-# Check the tag signature against the key already on this player, then check it out
-if [ -z "$TAG" ] || [ "$(git_owner cat-file tag "$TAG" 2>/dev/null | sed -n 's/^tag //p')" != "$TAG" ] \
-	|| ! git_owner -c gpg.format=ssh -c gpg.ssh.allowedSignersFile="$SIGNERS" verify-tag "$TAG"; then
-	message_log "Release ${TAG:-tag} is not signed by the moode-nopi release key, update cancelled"
+# Check out the release tag announced by the WebUI
+if [ -z "$TAG" ]; then
+	message_log "No moode-nopi release tag found, update cancelled"
 	exit 1
 fi
 if ! git_owner checkout -f -B main "$TAG^{commit}"; then

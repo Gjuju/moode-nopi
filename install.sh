@@ -251,8 +251,6 @@ CORE_PKGS=(
 	python3 python3-pip
 	udisks2
 	rsync curl wget
-	# ssh-keygen: the WebUI updater checks the release tag signature with it
-	openssh-client
 	triggerhappy
 	# Remote NAS music sources (lib-config -> nasSourceMount): CIFS/SMB and NFS
 	# client mounts, SMB protocol-version probing (nmap) and share browsing.
@@ -1270,8 +1268,6 @@ if NOPI_VER=$(cd "$REPO_DIR" && git describe --tags --always 2>/dev/null) && [ -
 	# Clone location, for the WebUI updater (www/util/nopi-update.sh)
 	printf '%s\n' "$REPO_DIR" > /var/local/www/nopi_repo
 	chmod 644 /var/local/www/nopi_repo
-	# Release signing key, checked by the WebUI updater before it installs a tag
-	install -D -m 644 "$REPO_DIR/nopi-release-signers" /etc/moode-nopi/release-signers
 else
 	rm -f /var/local/www/nopi_version /var/local/www/nopi_repo
 	warn "Could not derive moode-nopi version (not a git checkout?); UI line hidden"
