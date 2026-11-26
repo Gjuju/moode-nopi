@@ -48,6 +48,12 @@ working unchanged on a real Raspberry Pi.
   `*-nopi.N` tag, update the date + version** in BOTH the README banner and
   `NOTICE` (the "latest: …" line) as part of the release commit — that's the
   one upkeep step. The fork **start** date (2026-06-16) is fixed; don't change it.
+- **Release tags are signed.** The WebUI updater (`www/util/nopi-update.sh`) only
+  installs a `*-nopi.N` tag signed by a key of `nopi-release-signers` (copied by
+  install.sh to `/etc/moode-nopi/release-signers`, checked with the copy already on
+  the player). The clone signs annotated tags itself (`tag.gpgSign`, dedicated SSH
+  key `~/.ssh/moode-nopi-release`): cut releases with `git tag -a`, never a
+  lightweight tag. Manual installs of a branch (`install.sh --update`) are not checked.
 
 ## Project structure
 
