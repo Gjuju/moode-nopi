@@ -1616,6 +1616,9 @@ EOF
 if [ -f "$REPO_DIR/etc/udevil/udevil.overwrite.conf" ]; then
 	install -d -m 755 /etc/udevil
 	install -m 644 "$REPO_DIR/etc/udevil/udevil.overwrite.conf" /etc/udevil/udevil.conf
+	# namecase= and nonempty are exfat-fuse options: the kernel exfat driver rejects
+	# them and the USB auto-mount fails. udevil creates the mount dir empty anyway.
+	sed -i -E '/^default_options_exfat/ s/, *(namecase=0|nonempty)//g' /etc/udevil/udevil.conf
 fi
 
 # USB audio hot plug: udev hands each USB sound card add/remove to
