@@ -386,7 +386,7 @@ function checkOutputDeviceCache($deviceName, $cardNum) {
 				$volumeType = $cachedDev['mpd_volume_type'];
 			}
 		} else {
-			$volumeType = 'null';
+			$volumeType = $cachedDev['mpd_volume_type'];
 		}
 		$alsaOutputMode = $cachedDev['alsa_output_mode'];
 		$alsaMaxVolume = $cachedDev['alsa_max_volume'];
@@ -409,5 +409,8 @@ function setOutputDevice($cardNum, $deviceName) {
 	phpSession('write', 'alsa_output_mode', $devCache['alsa_output_mode']);
 	sqlUpdate('cfg_mpd', $dbh, 'device', $cardNum);
 	sqlUpdate('cfg_mpd', $dbh, 'mixer_type', $devCache['mpd_volume_type']);
+	if ($_SESSION['camilladsp'] != 'off') {
+		phpSession('write', 'camilladsp_volume_sync', $devCache['mpd_volume_type'] == 'null' ? 'on' : 'off');
+	}
 	phpSession('write', 'volknob_mpd', '-1'); // Reset saved MPD volume
 }
